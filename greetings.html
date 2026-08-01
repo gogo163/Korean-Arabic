@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>قاموس التحيات الكورية — 인사말 사전</title>
+<style>
+  :root {
+    --primary: #6C4CE0;
+    --primary-light: #9B7FF0;
+    --accent: #FF6FA5;
+    --bg: #F7F5FF;
+    --card: #FFFFFF;
+    --text: #2A2140;
+    --success: #34C77B;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Tahoma', 'Segoe UI', sans-serif;
+    background: linear-gradient(180deg, var(--bg) 0%, #ECE7FF 100%);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 16px;
+    padding-bottom: 50px;
+  }
+  .app { max-width: 480px; margin: 0 auto; }
+
+  header { text-align: center; margin-bottom: 14px; }
+  header h1 { font-size: 19px; color: var(--primary); }
+  header p { font-size: 12px; color: #8A82A6; margin-top: 4px; }
+
+  .search-box {
+    display: flex; align-items: center; gap: 8px;
+    background: white; border-radius: 14px; padding: 10px 14px;
+    margin-bottom: 14px; box-shadow: 0 3px 10px rgba(108,76,224,0.08);
+  }
+  .search-box input {
+    border: none; outline: none; flex: 1; font-size: 13px;
+    font-family: inherit; background: transparent; color: var(--text);
+  }
+  .search-box .icon { color: var(--primary); }
+
+  #voice-warning {
+    display: none;
+    background: #FFF3E0; color: #B36B00;
+    font-size: 11.5px; padding: 10px 14px; border-radius: 12px;
+    margin-bottom: 14px; line-height: 1.6; text-align: center;
+  }
+  #voice-warning.show { display: block; }
+
+  .category-scroll {
+    display: flex; gap: 8px; overflow-x: auto;
+    margin-bottom: 16px; padding-bottom: 4px;
+  }
+  .category-chip {
+    flex: 0 0 auto;
+    background: white; color: var(--primary);
+    border: 2px solid #EDEAFB;
+    padding: 9px 16px; border-radius: 999px;
+    font-size: 12.5px; font-weight: bold; white-space: nowrap;
+    cursor: pointer;
+  }
+  .category-chip.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+  .formality-note {
+    display: flex; gap: 8px; margin-bottom: 14px;
+  }
+  .formality-note .pill {
+    flex: 1; text-align: center; font-size: 10.5px;
+    padding: 6px; border-radius: 10px;
+  }
+  .pill.formal { background: #EDF1FF; color: #4C6FE0; }
+  .pill.polite { background: #F1ECFF; color: var(--primary); }
+  .pill.casual { background: #FFF0F6; color: var(--accent); }
+
+  .phrase-card {
+    background: var(--card);
+    border-radius: 18px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    box-shadow: 0 4px 14px rgba(108,76,224,0.08);
+  }
+  .phrase-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  .phrase-kr-row { display: flex; align-items: center; gap: 8px; }
+  .phrase-kr { font-size: 18px; font-weight: bold; color: var(--text); }
+  .level-badge {
+    font-size: 9.5px; font-weight: bold; padding: 2px 7px; border-radius: 999px;
+  }
+  .level-badge.formal { background: #EDF1FF; color: #4C6FE0; }
+  .level-badge.polite { background: #F1ECFF; color: var(--primary); }
+  .level-badge.casual { background: #FFF0F6; color: var(--accent); }
+  .phrase-roman { font-size: 11.5px; color: var(--primary); margin-top: 2px; }
+  .play-btn {
+    flex: 0 0 auto;
+    width: 38px; height: 38px; border-radius: 50%;
+    background: #F1ECFF; color: var(--primary);
+    border: none; font-size: 14px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .play-btn.playing { background: var(--primary); color: white; }
+  .phrase-meaning { font-size: 12.5px; color: var(--text); margin-top: 6px; }
+  .phrase-usage { font-size: 11px; color: #8A82A6; margin-top: 4px; }
+
+  .empty-state {
+    text-align: center; color: #B0A8CC; font-size: 13px;
+    padding: 30px 0;
+  }
+
+  .toast {
+    position: fixed; bottom: 24px; left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--text); color: white;
+    padding: 10px 18px; border-radius: 12px; font-size: 13px;
+    opacity: 0; transition: all 0.3s ease; pointer-events: none; white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header>
+    <h1>🙏 قاموس التحيات</h1>
+    <p>كل تحية كورية ومعاها مستوى الأدب المناسب لها</p>
+  </header>
+
+  <div class="search-box">
+    <span class="icon">🔍</span>
+    <input type="text" id="search-input" placeholder="دوّر عن تحية... (مثلاً: صباح، شكراً، سلام)" />
+  </div>
+
+  <div class="formality-note">
+    <div class="pill formal">🎩 رسمي جداً</div>
+    <div class="pill polite">🙂 مؤدّب (الافتراضي)</div>
+    <div class="pill casual">😎 مع الأصحاب</div>
+  </div>
+
+  <div id="voice-warning">
+    ⚠️ المتصفح بتاعك مش لاقي صوت كوري مثبّت. الجُمل هتتعرض من غير صوت.
+    على أندرويد: هتحتاج تثبّت وتفعّل حزمة اللغة الكورية في إعدادات Text-to-Speech بالجهاز.
+  </div>
+
+  <div class="category-scroll" id="category-scroll"></div>
+
+  <div id="phrase-list"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="progress.js"></script>
+<script>
+  // -------------------------------------------------------------
+  // قاموس التحيات — مصنّف حسب الموقف ومستوى الأدب
+  // formality: formal (رسمي جداً - للمواقف الرسمية/كبار السن)
+  //            polite (مؤدّب - الأكثر استخداماً واللي المبتدئ يبدأ بيه)
+  //            casual (مع الأصحاب المقربين والي نفس سنك بالظبط)
+  // -------------------------------------------------------------
+  const CATEGORIES = [
+    {
+      id: "meeting",
+      chip: "👋 لقاء",
+      phrases: [
+        { kr: "안녕하세요", roman: "annyeonghaseyo", ar: "أهلاً / السلام عليكم", formality: "polite", usage: "التحية الأساسية اللي هتستخدمها 90% من الوقت مع أي حد مش صاحبك المقرب." },
+        { kr: "안녕하십니까", roman: "annyeonghasimnikka", ar: "أهلاً وسهلاً (رسمي جداً)", formality: "formal", usage: "بتتستخدم في الأخبار، الاجتماعات الرسمية، أو مع كبار جداً." },
+        { kr: "안녕", roman: "annyeong", ar: "هاي / إزيك", formality: "casual", usage: "مع الأصحاب أو الإخوات بس — متستخدمهاش مع حد أكبر منك." },
+        { kr: "처음 뵙겠습니다", roman: "cheoeum boepgetseumnida", ar: "تشرفنا (أول مرة نتقابل)", formality: "formal", usage: "بتتقال أول ما تتعرف على حد رسمياً، زي مقابلة شغل." },
+        { kr: "만나서 반가워요", roman: "mannaseo bangawoyo", ar: "سعيد إني قابلتك", formality: "polite", usage: "بديل ودود لجملة التعارف الرسمية، مناسب لمعظم المواقف." },
+      ],
+    },
+    {
+      id: "time",
+      chip: "🌅 وقت اليوم",
+      phrases: [
+        { kr: "좋은 아침이에요", roman: "joeun achimieyo", ar: "صباح الخير", formality: "polite", usage: "مش شائعة زي 'صباح الخير' عندنا — الكوريين غالباً بيقولوا 'annyeonghaseyo' حتى الصبح." },
+        { kr: "잘 자요", roman: "jal jayo", ar: "تصبح على خير", formality: "polite", usage: "بتتقال قبل النوم لأي حد قريب منك." },
+        { kr: "좋은 하루 되세요", roman: "joeun haru doeseyo", ar: "يومك سعيد", formality: "polite", usage: "بتتقال وانت بتودّع حد في الصبح أو نص اليوم." },
+        { kr: "수고하세요", roman: "sugohaseyo", ar: "ربنا يعينك (على شغلك)", formality: "polite", usage: "بتتقال وانت سايب حد لسه شغال، زي زميل في الشغل." },
+      ],
+    },
+    {
+      id: "parting",
+      chip: "👋 وداع",
+      phrases: [
+        { kr: "안녕히 가세요", roman: "annyeonghi gaseyo", ar: "مع السلامة (للي هيمشي)", formality: "polite", usage: "بتتقال للشخص اللي هو اللي هيمشي، وإنت باقي." },
+        { kr: "안녕히 계세요", roman: "annyeonghi gyeseyo", ar: "مع السلامة (للي هيفضل)", formality: "polite", usage: "بتتقال من الشخص اللي هيمشي للشخص اللي هيفضل مكانه." },
+        { kr: "다음에 봐요", roman: "daeume bwayo", ar: "أشوفك قريب", formality: "polite", usage: "وداع ودود يستخدم بشكل عام." },
+        { kr: "잘 가", roman: "jal ga", ar: "امشي بالسلامة (عادي)", formality: "casual", usage: "نسخة كاجوال من 'مع السلامة' — للأصحاب بس." },
+        { kr: "또 봐요", roman: "tto bwayo", ar: "نشوف بعض تاني", formality: "polite", usage: "وداع خفيف بيستخدم كتير بين المعارف." },
+      ],
+    },
+    {
+      id: "gratitude",
+      chip: "🙏 شكر واعتذار",
+      phrases: [
+        { kr: "감사합니다", roman: "gamsahamnida", ar: "شكراً (مؤدّب)", formality: "polite", usage: "أكثر طريقة شكر استخداماً في اليومي، مناسبة لأي موقف تقريباً." },
+        { kr: "고맙습니다", roman: "gomapseumnida", ar: "شكراً (شخصي أكتر)", formality: "polite", usage: "زي جملة الشكر التانية، بس فيها دفء شخصي أكتر شوية." },
+        { kr: "고마워", roman: "gomawo", ar: "متشكر (عادي)", formality: "casual", usage: "مع الأصحاب بس." },
+        { kr: "죄송합니다", roman: "joesonghamnida", ar: "آسف (رسمي)", formality: "formal", usage: "اعتذار رسمي، بيتقال للمدير أو حد أكبر أو في موقف مهني." },
+        { kr: "미안해", roman: "mianhae", ar: "آسف (عادي)", formality: "casual", usage: "اعتذار بسيط مع صاحبك أو حد في نفس سنك." },
+        { kr: "천만에요", roman: "cheonmaneyo", ar: "العفو / تحت أمرك", formality: "polite", usage: "رد على الشكر، زي 'ولا يهمك'." },
+      ],
+    },
+    {
+      id: "occasions",
+      chip: "🎉 مناسبات",
+      phrases: [
+        { kr: "생일 축하해요", roman: "saengil chukhahaeyo", ar: "عيد ميلاد سعيد", formality: "polite", usage: "بتتقال في عيد الميلاد، ممكن تضيف اسم الشخص قبلها." },
+        { kr: "새해 복 많이 받으세요", roman: "saehae bok mani badeuseyo", ar: "كل سنة وانت طيب (رأس السنة)", formality: "polite", usage: "التهنئة الرسمية لرأس السنة الكورية — من أهم التقاليد." },
+        { kr: "축하합니다", roman: "chukhahamnida", ar: "مبروك (رسمي)", formality: "formal", usage: "بتتقال في مناسبة رسمية زي تخرج أو ترقية شغل." },
+        { kr: "화이팅!", roman: "hwaiting!", ar: "يلا بينا / بالتوفيق", formality: "casual", usage: "كلمة تشجيع شائعة جداً قبل أي تحدي أو امتحان." },
+      ],
+    },
+  ];
+
+  let currentCategoryId = "meeting";
+  let searchQuery = "";
+
+  const formalityLabel = { formal: "رسمي", polite: "مؤدّب", casual: "كاجوال" };
+
+  // ---------------- Voice support ----------------
+  let koreanVoice = null;
+  function loadVoices() {
+    const voices = speechSynthesis.getVoices();
+    koreanVoice = voices.find((v) => v.lang === "ko-KR") || voices.find((v) => v.lang.startsWith("ko"));
+    document.getElementById("voice-warning").classList.toggle("show", !koreanVoice);
+  }
+  if ("speechSynthesis" in window) {
+    loadVoices();
+    speechSynthesis.onvoiceschanged = loadVoices;
+  } else {
+    document.getElementById("voice-warning").classList.add("show");
+  }
+
+  function speak(text) {
+    if (!("speechSynthesis" in window)) {
+      showToast("😔 المتصفح ده مش بيدعم النطق الصوتي");
+      return;
+    }
+    speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = "ko-KR";
+    if (koreanVoice) utter.voice = koreanVoice;
+    speechSynthesis.speak(utter);
+  }
+
+  // ---------------- Categories ----------------
+  const categoryScroll = document.getElementById("category-scroll");
+  categoryScroll.innerHTML = CATEGORIES.map(
+    (c) => `<div class="category-chip ${c.id === currentCategoryId ? "active" : ""}" data-id="${c.id}">${c.chip}</div>`
+  ).join("");
+
+  categoryScroll.querySelectorAll(".category-chip").forEach((chip) => {
+    chip.addEventListener("click", () => {
+      currentCategoryId = chip.dataset.id;
+      searchQuery = "";
+      document.getElementById("search-input").value = "";
+      render();
+    });
+  });
+
+  // ---------------- Search ----------------
+  document.getElementById("search-input").addEventListener("input", (e) => {
+    searchQuery = e.target.value.trim().toLowerCase();
+    render();
+  });
+
+  // ---------------- Render ----------------
+  function getVisiblePhrases() {
+    if (searchQuery) {
+      // البحث بيدوّر في كل الفئات مش بس المختارة
+      const all = CATEGORIES.flatMap((c) => c.phrases);
+      return all.filter(
+        (p) =>
+          p.ar.toLowerCase().includes(searchQuery) ||
+          p.roman.toLowerCase().includes(searchQuery) ||
+          p.kr.includes(searchQuery)
+      );
+    }
+    const cat = CATEGORIES.find((c) => c.id === currentCategoryId);
+    return cat ? cat.phrases : [];
+  }
+
+  function render() {
+    categoryScroll.style.display = searchQuery ? "none" : "flex";
+    categoryScroll.querySelectorAll(".category-chip").forEach((c) =>
+      c.classList.toggle("active", c.dataset.id === currentCategoryId)
+    );
+
+    const phrases = getVisiblePhrases();
+    const list = document.getElementById("phrase-list");
+
+    if (phrases.length === 0) {
+      list.innerHTML = `<div class="empty-state">مفيش نتائج... جرّب كلمة تانية 🔍</div>`;
+      return;
+    }
+
+    list.innerHTML = phrases
+      .map(
+        (p) => `
+        <div class="phrase-card">
+          <div class="phrase-top">
+            <div>
+              <div class="phrase-kr-row">
+                <span class="phrase-kr">${p.kr}</span>
+                <span class="level-badge ${p.formality}">${formalityLabel[p.formality]}</span>
+              </div>
+              <div class="phrase-roman">${p.roman}</div>
+            </div>
+            <button class="play-btn" data-text="${p.kr}">🔊</button>
+          </div>
+          <div class="phrase-meaning">= ${p.ar}</div>
+          <div class="phrase-usage">💡 ${p.usage}</div>
+        </div>`
+      )
+      .join("");
+
+    list.querySelectorAll(".play-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        speak(btn.dataset.text);
+        btn.classList.add("playing");
+        setTimeout(() => btn.classList.remove("playing"), 700);
+        KoreanProgress.addPoints(1, "greeting_listen");
+      });
+    });
+  }
+
+  function showToast(msg) {
+    const toast = document.getElementById("toast");
+    toast.textContent = msg;
+    toast.classList.add("show");
+    setTimeout(() => toast.classList.remove("show"), 1800);
+  }
+
+  render();
+</script>
+</body>
+</html>

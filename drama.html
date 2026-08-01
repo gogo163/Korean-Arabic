@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>عبارات الدراما الكورية — 드라마 표현</title>
+<style>
+  :root {
+    --primary: #6C4CE0;
+    --primary-light: #9B7FF0;
+    --accent: #FF6FA5;
+    --bg: #F7F5FF;
+    --card: #FFFFFF;
+    --text: #2A2140;
+    --success: #34C77B;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Tahoma', 'Segoe UI', sans-serif;
+    background: linear-gradient(180deg, var(--bg) 0%, #ECE7FF 100%);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 16px;
+    padding-bottom: 50px;
+  }
+  .app { max-width: 480px; margin: 0 auto; }
+
+  header { text-align: center; margin-bottom: 16px; }
+  header h1 { font-size: 19px; color: var(--primary); }
+  header p { font-size: 12px; color: #8A82A6; margin-top: 4px; }
+
+  #voice-warning {
+    display: none;
+    background: #FFF3E0; color: #B36B00;
+    font-size: 11.5px; padding: 10px 14px; border-radius: 12px;
+    margin-bottom: 14px; line-height: 1.6; text-align: center;
+  }
+  #voice-warning.show { display: block; }
+
+  .category-scroll {
+    display: flex; gap: 8px; overflow-x: auto;
+    margin-bottom: 16px; padding-bottom: 4px;
+  }
+  .category-chip {
+    flex: 0 0 auto;
+    background: white; color: var(--primary);
+    border: 2px solid #EDEAFB;
+    padding: 9px 16px; border-radius: 999px;
+    font-size: 12.5px; font-weight: bold; white-space: nowrap;
+    cursor: pointer;
+  }
+  .category-chip.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+  .scene-banner {
+    background: linear-gradient(120deg, var(--primary), var(--accent));
+    color: white; border-radius: 18px; padding: 16px;
+    margin-bottom: 16px; text-align: center;
+  }
+  .scene-banner .emoji { font-size: 26px; }
+  .scene-banner .title { font-size: 15px; font-weight: bold; margin-top: 4px; }
+  .scene-banner .desc { font-size: 11.5px; opacity: 0.9; margin-top: 4px; }
+
+  .phrase-card {
+    background: var(--card);
+    border-radius: 18px;
+    padding: 16px;
+    margin-bottom: 12px;
+    box-shadow: 0 4px 14px rgba(108,76,224,0.08);
+  }
+  .phrase-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+  .phrase-kr { font-size: 19px; font-weight: bold; color: var(--text); }
+  .phrase-roman { font-size: 12px; color: var(--primary); margin-top: 2px; }
+  .play-btn {
+    flex: 0 0 auto;
+    width: 42px; height: 42px; border-radius: 50%;
+    background: #F1ECFF; color: var(--primary);
+    border: none; font-size: 16px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .play-btn.playing { background: var(--primary); color: white; }
+  .phrase-meaning { font-size: 13px; color: var(--text); margin-top: 8px; }
+  .phrase-context {
+    font-size: 11.5px; color: #8A82A6; margin-top: 6px;
+    background: #FAFAFF; padding: 8px 10px; border-radius: 10px;
+    border-right: 3px solid var(--primary-light);
+  }
+  .phrase-actions {
+    display: flex; gap: 8px; margin-top: 10px;
+  }
+  .btn-slow, .btn-mark-heard {
+    border: none; border-radius: 10px; padding: 7px 10px;
+    font-size: 11px; font-weight: bold; cursor: pointer;
+  }
+  .btn-slow { background: #EDEAFB; color: var(--primary); }
+  .btn-mark-heard { background: #E8F9F1; color: var(--success); }
+  .btn-mark-heard.done { background: var(--success); color: white; }
+
+  .toast {
+    position: fixed; bottom: 24px; left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--text); color: white;
+    padding: 10px 18px; border-radius: 12px; font-size: 13px;
+    opacity: 0; transition: all 0.3s ease; pointer-events: none; white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header>
+    <h1>🎬 عبارات الدراما الكورية</h1>
+    <p>تعلّم من المواقف اللي هتسمعها فعلاً وانت بتتفرج</p>
+  </header>
+
+  <div id="voice-warning">
+    ⚠️ المتصفح بتاعك مش لاقي صوت كوري مثبّت. الجُمل هتتعرض من غير صوت.
+    على أندرويد: هتحتاج تثبّت "Google Text-to-Speech" وتنزّل حزمة اللغة الكورية من إعدادات الجهاز.
+  </div>
+
+  <div class="category-scroll" id="category-scroll"></div>
+
+  <div class="scene-banner" id="scene-banner">
+    <div class="emoji">💕</div>
+    <div class="title">مشهد الاعتراف بالحب</div>
+    <div class="desc">أشهر لحظة في أي دراما كورية</div>
+  </div>
+
+  <div id="phrase-list"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="progress.js"></script>
+<script>
+  // -------------------------------------------------------------
+  // بيانات العبارات — منظمة حسب "مشهد" شائع في الدراما الكورية
+  // العبارات دي تعبيرات عامة شائعة الاستخدام، مش نصوص حرفية منسوخة
+  // من مسلسل معيّن، عشان نحترم حقوق الملكية الفكرية
+  // -------------------------------------------------------------
+  const SCENES = [
+    {
+      id: "romance",
+      chip: "💕 رومانسي",
+      emoji: "💕",
+      title: "مشهد الاعتراف بالحب",
+      desc: "أشهر لحظة في أي دراما كورية",
+      phrases: [
+        { kr: "사랑해", roman: "saranghae", ar: "بحبك", ctx: "أشهر جملة كورية على الإطلاق — بتتقال بين الأحباب أو حتى للعيلة والأصحاب المقربين." },
+        { kr: "너 없이는 안 돼", roman: "neo eopsineun an dwae", ar: "مش هينفع أعيش من غيرك", ctx: "بتتقال في لحظة اعتراف قوي، عادة في مشهد مطر أو مطار." },
+        { kr: "우리 사귈래?", roman: "uri sagwillae?", ar: "نبقى مع بعض؟ (نرتبط)", ctx: "طريقة رسمية لطلب الارتباط — دايماً بتيجي بعد بناء علاقة في القصة." },
+        { kr: "심장이 뛰어", roman: "simjangi ttwieo", ar: "قلبي بيدق بسرعة", ctx: "تعبير مجازي شائع عن التوتر أو الوقوع في الحب." },
+      ],
+    },
+    {
+      id: "conflict",
+      chip: "😤 شجار",
+      emoji: "😤",
+      title: "مشهد الخلاف والشجار",
+      desc: "لما الدراما تاخد منحى درامي",
+      phrases: [
+        { kr: "왜 그랬어?", roman: "wae geuraesseo?", ar: "ليه عملت كده؟", ctx: "سؤال اتهامي بيتقال بعصبية في مواجهة." },
+        { kr: "됐어, 그만해", roman: "dwaesseo, geumanhae", ar: "خلاص، بس كده", ctx: "بتتقال لإنهاء نقاش أو شجار بشكل حاد." },
+        { kr: "믿을 수가 없어", roman: "mideul suga eopseo", ar: "مش قادر أصدّق", ctx: "رد فعل الصدمة بعد اكتشاف خيانة أو كذبة في القصة." },
+        { kr: "다시는 연락하지 마", roman: "dasineun yeollakhaji ma", ar: "متتصلش تاني خالص", ctx: "جملة قطيعة نهائية، غالباً في مشهد انفصال درامي." },
+      ],
+    },
+    {
+      id: "family",
+      chip: "👨‍👩‍👧 عيلة",
+      emoji: "🍚",
+      title: "مشهد العشا العائلي",
+      desc: "التقاليد الكورية في البيت",
+      phrases: [
+        { kr: "밥 먹었어?", roman: "bap meogeosseo?", ar: "أكلت؟", ctx: "سؤال شائع جداً بديل لـ'إزيك' — الأكل مهم جداً في الثقافة الكورية." },
+        { kr: "다녀왔습니다", roman: "danyeowatseumnida", ar: "وصلت (لما ترجع البيت)", ctx: "بتتقال دايماً وانت داخل البيت، والرد عليها '어서 와' (اتفضل ادخل)." },
+        { kr: "잘 먹겠습니다", roman: "jal meokgetseumnida", ar: "هستمتع بالأكل (قبل ما تاكل)", ctx: "عبارة أدب لازم تتقال قبل بداية الأكل، حتى لو في البيت." },
+        { kr: "고생했어", roman: "gosaeng haesseo", ar: "تعبت في الشغل (تقديراً)", ctx: "بتتقال للي رجع من شغل طويل، فيها معنى امتنان وتقدير." },
+      ],
+    },
+    {
+      id: "school",
+      chip: "🏫 مدرسة وشغل",
+      emoji: "📚",
+      title: "مشهد المدرسة أو الشغل",
+      desc: "ديناميكية الاحترام بين الكبير والصغير",
+      phrases: [
+        { kr: "선배님", roman: "seonbaenim", ar: "يا كبير (زميل أعلى سناً/خبرة)", ctx: "لقب لازم تستخدمه مع اللي أكبر منك في المدرسة أو الشغل حتى لو بفارق سنة." },
+        { kr: "수고하셨습니다", roman: "sugohasyeotseumnida", ar: "شكراً على مجهودك", ctx: "بتتقال لما حد يخلص شغله أو مهمة، حتى للمدير." },
+        { kr: "죄송합니다", roman: "joesonghamnida", ar: "آسف (رسمي جداً)", ctx: "اعتذار رسمي بيتقال للمدير أو المعلم، أقوى من 미안해 العادية." },
+        { kr: "화이팅!", roman: "hwaiting!", ar: "يلا بينا / بالتوفيق!", ctx: "كلمة تشجيع من الإنجليزية (Fighting) بتتقال قبل امتحان أو تحدي." },
+      ],
+    },
+  ];
+
+  let currentSceneId = "romance";
+  const heardSet = new Set(JSON.parse(localStorage.getItem("korean_drama_heard") || "[]"));
+
+  function saveHeard() {
+    localStorage.setItem("korean_drama_heard", JSON.stringify([...heardSet]));
+  }
+
+  // ---------------- Voice support check ----------------
+  let koreanVoice = null;
+
+  function loadVoices() {
+    const voices = speechSynthesis.getVoices();
+    koreanVoice = voices.find((v) => v.lang === "ko-KR") || voices.find((v) => v.lang.startsWith("ko"));
+    document.getElementById("voice-warning").classList.toggle("show", !koreanVoice);
+  }
+
+  if ("speechSynthesis" in window) {
+    loadVoices();
+    speechSynthesis.onvoiceschanged = loadVoices;
+  } else {
+    document.getElementById("voice-warning").classList.add("show");
+  }
+
+  function speak(text, rate = 1) {
+    if (!("speechSynthesis" in window)) {
+      showToast("😔 المتصفح ده مش بيدعم النطق الصوتي");
+      return;
+    }
+    speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = "ko-KR";
+    utter.rate = rate;
+    if (koreanVoice) utter.voice = koreanVoice;
+    speechSynthesis.speak(utter);
+  }
+
+  // ---------------- Render categories ----------------
+  const categoryScroll = document.getElementById("category-scroll");
+  categoryScroll.innerHTML = SCENES.map(
+    (s) => `<div class="category-chip ${s.id === currentSceneId ? "active" : ""}" data-id="${s.id}">${s.chip}</div>`
+  ).join("");
+
+  categoryScroll.querySelectorAll(".category-chip").forEach((chip) => {
+    chip.addEventListener("click", () => {
+      currentSceneId = chip.dataset.id;
+      render();
+    });
+  });
+
+  // ---------------- Render scene + phrases ----------------
+  function render() {
+    const scene = SCENES.find((s) => s.id === currentSceneId);
+
+    categoryScroll.querySelectorAll(".category-chip").forEach((c) =>
+      c.classList.toggle("active", c.dataset.id === currentSceneId)
+    );
+
+    document.getElementById("scene-banner").innerHTML = `
+      <div class="emoji">${scene.emoji}</div>
+      <div class="title">${scene.title}</div>
+      <div class="desc">${scene.desc}</div>
+    `;
+
+    const list = document.getElementById("phrase-list");
+    list.innerHTML = scene.phrases
+      .map((p, idx) => {
+        const phraseKey = `${scene.id}_${idx}`;
+        const isHeard = heardSet.has(phraseKey);
+        return `
+        <div class="phrase-card">
+          <div class="phrase-top">
+            <div>
+              <div class="phrase-kr">${p.kr}</div>
+              <div class="phrase-roman">${p.roman}</div>
+            </div>
+            <button class="play-btn" data-text="${p.kr}" data-key="${phraseKey}">🔊</button>
+          </div>
+          <div class="phrase-meaning">= ${p.ar}</div>
+          <div class="phrase-context">💡 ${p.ctx}</div>
+          <div class="phrase-actions">
+            <button class="btn-slow" data-text="${p.kr}">🐢 بطيء</button>
+            <button class="btn-mark-heard ${isHeard ? "done" : ""}" data-key="${phraseKey}">
+              ${isHeard ? "✅ اتحفظت" : "احفظها (+3)"}
+            </button>
+          </div>
+        </div>`;
+      })
+      .join("");
+
+    list.querySelectorAll(".play-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        speak(btn.dataset.text, 1);
+        btn.classList.add("playing");
+        setTimeout(() => btn.classList.remove("playing"), 700);
+      });
+    });
+
+    list.querySelectorAll(".btn-slow").forEach((btn) => {
+      btn.addEventListener("click", () => speak(btn.dataset.text, 0.6));
+    });
+
+    list.querySelectorAll(".btn-mark-heard").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const key = btn.dataset.key;
+        if (!heardSet.has(key)) {
+          heardSet.add(key);
+          saveHeard();
+          KoreanProgress.addPoints(3, `drama:${key}`);
+          showToast("🎬 +3 نقطة — عبارة جديدة اتحفظت!");
+          render();
+        }
+      });
+    });
+  }
+
+  function showToast(msg) {
+    const toast = document.getElementById("toast");
+    toast.textContent = msg;
+    toast.classList.add("show");
+    setTimeout(() => toast.classList.remove("show"), 1800);
+  }
+
+  render();
+</script>
+</body>
+</html>

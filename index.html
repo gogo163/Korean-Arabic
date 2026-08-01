@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>KoreanArabic — تعلّم الكورية بالعربي</title>
+<style>
+  :root {
+    --primary: #6C4CE0;
+    --primary-light: #9B7FF0;
+    --accent: #FF6FA5;
+    --bg: #F7F5FF;
+    --card: #FFFFFF;
+    --text: #2A2140;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Tahoma', 'Segoe UI', sans-serif;
+    background: linear-gradient(180deg, var(--bg) 0%, #ECE7FF 100%);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 16px;
+    padding-bottom: 50px;
+  }
+  .app { max-width: 480px; margin: 0 auto; }
+
+  .hero { text-align: center; margin: 10px 0 22px; }
+  .hero .flag { font-size: 44px; }
+  .hero h1 { font-size: 21px; color: var(--primary); margin-top: 8px; }
+  .hero p { font-size: 12.5px; color: #8A82A6; margin-top: 6px; }
+
+  .stats-strip {
+    display: flex; gap: 10px; margin-bottom: 20px;
+  }
+  .stat { flex: 1; background: white; border-radius: 14px; padding: 12px; text-align: center;
+    box-shadow: 0 3px 10px rgba(108,76,224,0.08); }
+  .stat .v { font-size: 16px; font-weight: bold; color: var(--primary); }
+  .stat .l { font-size: 10px; color: #9992B5; margin-top: 2px; }
+
+  .menu-card {
+    display: flex; align-items: center; gap: 14px;
+    background: white; border-radius: 18px; padding: 16px;
+    margin-bottom: 12px; box-shadow: 0 4px 14px rgba(108,76,224,0.08);
+    text-decoration: none; color: var(--text);
+  }
+  .menu-card .emoji {
+    width: 50px; height: 50px; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; background: #F1ECFF; flex: 0 0 auto;
+  }
+  .menu-card .info { flex: 1; }
+  .menu-card .info .title { font-size: 14.5px; font-weight: bold; }
+  .menu-card .info .desc { font-size: 11.5px; color: #9992B5; margin-top: 2px; }
+  .menu-card .arrow { color: #D9D0FA; font-size: 18px; }
+  .menu-card.featured { border: 2px solid var(--accent); }
+  .menu-card.featured .emoji { background: #FFF0F6; }
+
+  .section-label { font-size: 12px; color: #9992B5; margin: 18px 0 8px; padding: 0 4px; }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="hero">
+    <div class="flag">🇰🇷</div>
+    <h1>KoreanArabic</h1>
+    <p>تعلّم الكورية بالعربي — من الهانغول للدراما</p>
+  </div>
+
+  <div class="stats-strip">
+    <div class="stat"><div class="v" id="stat-xp">0</div><div class="l">نقطة</div></div>
+    <div class="stat"><div class="v" id="stat-streak">0</div><div class="l">يوم متواصل</div></div>
+    <div class="stat"><div class="v" id="stat-level">مبتدئ</div><div class="l">المستوى</div></div>
+  </div>
+
+  <div class="section-label">ابدأ من هنا</div>
+  <a href="intro.html" class="menu-card">
+    <div class="emoji">🌱</div>
+    <div class="info">
+      <div class="title">مقدمة عن الكورية</div>
+      <div class="desc">أول مرة؟ ابدأ هنا قبل أي حاجة</div>
+    </div>
+    <div class="arrow">‹</div>
+  </a>
+
+  <div class="section-label">الأساسيات</div>
+  <a href="hangul.html" class="menu-card">
+    <div class="emoji">✍️</div>
+    <div class="info">
+      <div class="title">حروف الهانغول</div>
+      <div class="desc">تعلّم، كوّن مقاطع، واتمرّن على الكتابة</div>
+    </div>
+    <div class="arrow">‹</div>
+  </a>
+  <a href="greetings.html" class="menu-card">
+    <div class="emoji">🙏</div>
+    <div class="info">
+      <div class="title">قاموس التحيات</div>
+      <div class="desc">تحيات مصنّفة حسب مستوى الأدب</div>
+    </div>
+    <div class="arrow">‹</div>
+  </a>
+
+  <div class="section-label">التميّز 🌟</div>
+  <a href="drama.html" class="menu-card featured">
+    <div class="emoji">🎬</div>
+    <div class="info">
+      <div class="title">عبارات الدراما الكورية</div>
+      <div class="desc">اتعلم من مواقف حقيقية — بالصوت</div>
+    </div>
+    <div class="arrow">‹</div>
+  </a>
+</div>
+
+<script src="progress.js"></script>
+<script>
+  const state = KoreanProgress.getState();
+  const { current } = KoreanProgress.getLevelInfo();
+  document.getElementById("stat-xp").textContent = state.xp;
+  document.getElementById("stat-streak").textContent = KoreanProgress.getStreak();
+  document.getElementById("stat-level").textContent = current.title.split(" ")[0];
+</script>
+</body>
+</html>

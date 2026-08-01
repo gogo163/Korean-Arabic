@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>مقدمة عن اللغة الكورية</title>
+<style>
+  :root {
+    --primary: #6C4CE0;
+    --primary-light: #9B7FF0;
+    --accent: #FF6FA5;
+    --bg: #F7F5FF;
+    --card: #FFFFFF;
+    --text: #2A2140;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Tahoma', 'Segoe UI', sans-serif;
+    background: linear-gradient(180deg, var(--bg) 0%, #ECE7FF 100%);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 16px;
+    padding-bottom: 50px;
+  }
+  .app { max-width: 480px; margin: 0 auto; }
+
+  .hero { text-align: center; margin-bottom: 22px; }
+  .hero .flag { font-size: 40px; }
+  .hero h1 { font-size: 20px; color: var(--primary); margin-top: 8px; }
+  .hero p { font-size: 13px; color: #8A82A6; margin-top: 6px; line-height: 1.6; }
+
+  .slide-dots { display: flex; justify-content: center; gap: 6px; margin-bottom: 16px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: #D9D0FA; transition: all 0.2s; }
+  .dot.active { background: var(--primary); width: 22px; border-radius: 4px; }
+
+  .card {
+    background: var(--card);
+    border-radius: 20px;
+    padding: 22px;
+    box-shadow: 0 4px 16px rgba(108,76,224,0.1);
+    margin-bottom: 16px;
+    display: none;
+  }
+  .card.active { display: block; }
+  .card .icon { font-size: 34px; text-align: center; margin-bottom: 10px; }
+  .card h2 { font-size: 16px; color: var(--primary); text-align: center; margin-bottom: 12px; }
+  .card p { font-size: 13.5px; line-height: 1.9; color: var(--text); }
+  .card .highlight {
+    background: #F1ECFF; color: var(--primary); font-weight: bold;
+    padding: 2px 6px; border-radius: 6px;
+  }
+  .card .example-box {
+    background: #FAFAFF; border: 1px solid #EDEAFB;
+    border-radius: 14px; padding: 12px; margin-top: 12px;
+  }
+  .card .example-box .kr { font-size: 20px; font-weight: bold; color: var(--primary); }
+  .card .example-box .meta { font-size: 12px; color: #8A82A6; margin-top: 4px; }
+
+  .fact-row {
+    display: flex; gap: 10px; margin-top: 14px;
+  }
+  .fact {
+    flex: 1; background: #FAFAFF; border-radius: 12px;
+    padding: 10px; text-align: center;
+  }
+  .fact .num { font-size: 18px; font-weight: bold; color: var(--accent); }
+  .fact .label { font-size: 10px; color: #9992B5; margin-top: 2px; }
+
+  .nav-buttons { display: flex; gap: 10px; }
+  button {
+    flex: 1; border: none; border-radius: 14px; padding: 14px;
+    font-size: 14px; font-weight: bold; cursor: pointer;
+  }
+  .btn-back { background: white; color: var(--primary); border: 2px solid #D9D0FA; }
+  .btn-next { background: var(--primary); color: white; }
+  .btn-start { background: linear-gradient(90deg, var(--primary), var(--accent)); color: white; }
+  button:disabled { opacity: 0.4; }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="hero">
+    <div class="flag">🇰🇷</div>
+    <h1>أهلاً بيك في رحلة تعلّم الكورية</h1>
+    <p>قبل ما نبدأ بالحروف، خلّينا ناخد 3 دقائق نفهم اللغة دي شكلها إيه — من غير أي تعقيد.</p>
+  </div>
+
+  <div class="slide-dots" id="dots"></div>
+
+  <!-- Slide 1: Hangul overview -->
+  <div class="card active" data-slide="0">
+    <div class="icon">✍️</div>
+    <h2>1. الهانغول مش صعب زي ما فاكر</h2>
+    <p>
+      اللغة الكورية بتتكتب بحروف اسمها <span class="highlight">한글 (هانغول)</span>،
+      وهي أبجدية حقيقية زي العربي والإنجليزي — <span class="highlight">مش رموز صينية</span> ومفيهاش آلاف الأشكال المختلفة.
+      اتعملت سنة 1443 عشان تبقى سهلة التعلّم لدرجة إن ملك كوريا وقتها قال إنها ممكن تتعلمها في يوم واحد.
+    </p>
+    <div class="fact-row">
+      <div class="fact"><div class="num">24</div><div class="label">حرف بس</div></div>
+      <div class="fact"><div class="num">1443</div><div class="label">سنة الاختراع</div></div>
+      <div class="fact"><div class="num">1</div><div class="label">يوم ممكن تتعلمها فيه</div></div>
+    </div>
+  </div>
+
+  <!-- Slide 2: Sentence structure -->
+  <div class="card" data-slide="1">
+    <div class="icon">🔤</div>
+    <h2>2. ترتيب الجملة مختلف عن العربي</h2>
+    <p>
+      في العربي والإنجليزي بنقول: <span class="highlight">فاعل + فعل + مفعول</span> (أنا بحب الكورية).
+      لكن في الكوري الترتيب: <span class="highlight">فاعل + مفعول + فعل</span> — يعني الفعل دايماً بييجي في الآخر.
+    </p>
+    <div class="example-box">
+      <div class="kr">저는 한국어를 좋아해요</div>
+      <div class="meta">jeoneun hangugeoreul johahaeyo</div>
+      <div class="meta">حرفياً: "أنا / الكورية / بحب" ← بالعربي: "أنا بحب الكورية"</div>
+    </div>
+  </div>
+
+  <!-- Slide 3: Politeness levels -->
+  <div class="card" data-slide="2">
+    <div class="icon">🙇</div>
+    <h2>3. فيه مستويات احترام في الكلام</h2>
+    <p>
+      الكوري فيه حاجة مش موجودة في العربي: طريقة كلامك بتتغير حسب <span class="highlight">مين قدامك</span>.
+      مع الكبار والغرباء بتتكلم بأدب زيادة، ومع الأصحاب بتتكلم عادي.
+      دي أهم حاجة هتلاحظها وانت بتتفرج على الدراما — ليه أحياناً الممثل بيتكلم بشكل رسمي ومرات تانية عادي جداً.
+    </p>
+    <div class="example-box">
+      <div class="kr">먹어요 ← 먹어 ← 드세요</div>
+      <div class="meta">نفس معنى "كُل/كلي" لكن بـ3 درجات احترام مختلفة</div>
+    </div>
+  </div>
+
+  <!-- Slide 4: Why Korean is appealing / culture hook -->
+  <div class="card" data-slide="3">
+    <div class="icon">🎬</div>
+    <h2>4. مش هتحتاج تحفظ من غير سياق</h2>
+    <p>
+      التطبيق ده هيعلّمك الكورية من خلال حاجات إنت أصلاً بتحبها — عبارات هتسمعها كتير في
+      <span class="highlight">الدراما الكورية والكيبوب</span>، مش جمل جافة من كتاب مدرسي.
+      كل ما تتعلم كلمة، هتلاقيها متربطة بموقف حقيقي وهتفهم ليه بتتقال بالشكل ده.
+    </p>
+    <p style="margin-top:10px;">جاهز تبدأ؟ 화이팅! (هوايتينج = يلا بينا / فايتينج)</p>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="btn-back" id="btn-back" disabled>السابق</button>
+    <button class="btn-next" id="btn-next">التالي</button>
+  </div>
+</div>
+
+<script>
+  const slides = document.querySelectorAll(".card");
+  const dotsContainer = document.getElementById("dots");
+  let current = 0;
+
+  slides.forEach((_, i) => {
+    const dot = document.createElement("div");
+    dot.className = "dot" + (i === 0 ? " active" : "");
+    dotsContainer.appendChild(dot);
+  });
+  const dots = dotsContainer.querySelectorAll(".dot");
+
+  function render() {
+    slides.forEach((s, i) => s.classList.toggle("active", i === current));
+    dots.forEach((d, i) => d.classList.toggle("active", i === current));
+    document.getElementById("btn-back").disabled = current === 0;
+
+    const nextBtn = document.getElementById("btn-next");
+    if (current === slides.length - 1) {
+      nextBtn.textContent = "ابدأ التعلّم 🚀";
+      nextBtn.className = "btn-start";
+    } else {
+      nextBtn.textContent = "التالي";
+      nextBtn.className = "btn-next";
+    }
+  }
+
+  document.getElementById("btn-next").addEventListener("click", () => {
+    if (current < slides.length - 1) {
+      current++;
+      render();
+    } else {
+      // آخر شريحة — ينتقل لصفحة الهانغول
+      window.location.href = "hangul.html";
+    }
+  });
+
+  document.getElementById("btn-back").addEventListener("click", () => {
+    if (current > 0) {
+      current--;
+      render();
+    }
+  });
+
+  render();
+</script>
+</body>
+</html>

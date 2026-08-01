@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>تعلّم الهانغول — 한글 배우기</title>
+<style>
+  :root {
+    --primary: #6C4CE0;
+    --primary-light: #9B7FF0;
+    --accent: #FF6FA5;
+    --bg: #F7F5FF;
+    --card: #FFFFFF;
+    --text: #2A2140;
+    --success: #34C77B;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Tahoma', 'Segoe UI', sans-serif;
+    background: linear-gradient(180deg, var(--bg) 0%, #ECE7FF 100%);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 16px;
+    padding-bottom: 40px;
+  }
+  .app { max-width: 480px; margin: 0 auto; }
+
+  header { text-align: center; margin-bottom: 16px; }
+  header h1 { font-size: 19px; color: var(--primary); }
+  header p { font-size: 12px; color: #8A82A6; margin-top: 4px; }
+
+  .tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    background: white;
+    padding: 6px;
+    border-radius: 14px;
+    box-shadow: 0 4px 14px rgba(108,76,224,0.08);
+  }
+  .tab-btn {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 10px 4px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: bold;
+    color: #9992B5;
+    cursor: pointer;
+  }
+  .tab-btn.active { background: var(--primary); color: white; }
+
+  .section { display: none; }
+  .section.active { display: block; }
+
+  .char-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  .char-card {
+    aspect-ratio: 1;
+    background: var(--card);
+    border-radius: 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 3px 10px rgba(108,76,224,0.08);
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.15s ease;
+  }
+  .char-card.learned { border-color: var(--success); }
+  .char-card:active { transform: scale(0.94); }
+  .char-card .glyph { font-size: 26px; font-weight: bold; color: var(--text); }
+  .char-card .roman { font-size: 9px; color: var(--primary); margin-top: 2px; }
+
+  .group-title {
+    font-size: 13px;
+    font-weight: bold;
+    color: var(--primary);
+    margin: 14px 0 8px;
+  }
+
+  /* Modal for character detail */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(42,33,64,0.5);
+    display: none;
+    align-items: flex-end;
+    justify-content: center;
+    z-index: 50;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal {
+    background: white;
+    width: 100%;
+    max-width: 480px;
+    border-radius: 24px 24px 0 0;
+    padding: 24px;
+    text-align: center;
+  }
+  .modal .big-glyph { font-size: 64px; font-weight: bold; color: var(--primary); }
+  .modal .roman-big { font-size: 16px; color: var(--accent); margin-top: 6px; font-weight: bold; }
+  .modal .arabic-approx { font-size: 14px; color: #8A82A6; margin-top: 4px; }
+  .modal .example { margin-top: 14px; font-size: 13px; background: #F1ECFF; padding: 10px; border-radius: 12px; }
+  .modal .example .kr { font-weight: bold; color: var(--text); }
+  .modal-actions { display: flex; gap: 10px; margin-top: 18px; }
+  .modal-actions button {
+    flex: 1; border: none; padding: 12px; border-radius: 14px;
+    font-size: 13px; font-weight: bold; cursor: pointer;
+  }
+  .btn-close { background: #EDEAFB; color: var(--primary); }
+  .btn-mark { background: var(--primary); color: white; }
+
+  /* Syllable builder */
+  .builder-card {
+    background: var(--card);
+    border-radius: 18px;
+    padding: 18px;
+    text-align: center;
+    box-shadow: 0 4px 14px rgba(108,76,224,0.08);
+    margin-bottom: 16px;
+  }
+  .builder-preview {
+    font-size: 56px;
+    font-weight: bold;
+    color: var(--primary);
+    min-height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #F7F5FF;
+    border-radius: 16px;
+    margin-bottom: 14px;
+  }
+  .builder-picker { display: flex; gap: 10px; }
+  .picker-col { flex: 1; }
+  .picker-col label { font-size: 11px; color: #9992B5; display: block; margin-bottom: 6px; }
+  .picker-scroll {
+    display: flex; flex-wrap: wrap; gap: 6px; justify-content: center;
+    max-height: 140px; overflow-y: auto;
+  }
+  .picker-item {
+    background: #F1ECFF; color: var(--primary);
+    padding: 8px 10px; border-radius: 10px;
+    font-size: 15px; font-weight: bold; cursor: pointer;
+    border: 2px solid transparent;
+  }
+  .picker-item.selected { border-color: var(--primary); background: var(--primary); color: white; }
+  .builder-romanization { font-size: 13px; color: var(--accent); margin-top: 10px; font-weight: bold; }
+
+  /* Writing practice */
+  .write-card {
+    background: var(--card);
+    border-radius: 18px;
+    padding: 18px;
+    box-shadow: 0 4px 14px rgba(108,76,224,0.08);
+    text-align: center;
+  }
+  .write-target { font-size: 14px; margin-bottom: 10px; color: #8A82A6; }
+  .write-target span { color: var(--primary); font-weight: bold; font-size: 18px; }
+  canvas {
+    background: #FAFAFF;
+    border-radius: 16px;
+    border: 2px dashed #D9D0FA;
+    touch-action: none;
+    width: 100%;
+    max-width: 260px;
+    height: 260px;
+    margin: 0 auto;
+    display: block;
+  }
+  .write-actions { display: flex; gap: 10px; margin-top: 14px; justify-content: center; }
+  .write-actions button {
+    border: none; padding: 10px 16px; border-radius: 12px;
+    font-size: 12px; font-weight: bold; cursor: pointer;
+  }
+  .btn-clear { background: #EDEAFB; color: var(--primary); }
+  .btn-next { background: var(--primary); color: white; }
+
+  .progress-summary {
+    text-align: center; font-size: 12px; color: #8A82A6; margin: 10px 0 4px;
+  }
+
+  .toast {
+    position: fixed; bottom: 24px; left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--text); color: white;
+    padding: 10px 18px; border-radius: 12px; font-size: 13px;
+    opacity: 0; transition: all 0.3s ease; pointer-events: none; white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header>
+    <h1>🇰🇷 حروف الهانغول 한글</h1>
+    <p>الأبجدية الكورية — بنيت عشان تتعلمها في دقايق مش شهور</p>
+  </header>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="learn">📖 تعلّم</button>
+    <button class="tab-btn" data-tab="build">🧩 كوّن مقطع</button>
+    <button class="tab-btn" data-tab="write">✍️ اتمرّن</button>
+  </div>
+
+  <!-- ===================== LEARN TAB ===================== -->
+  <section class="section active" id="tab-learn">
+    <div class="progress-summary" id="learn-progress">اتعلمت 0 من 24 حرف</div>
+
+    <div class="group-title">الحروف الساكنة (자음)</div>
+    <div class="char-grid" id="consonant-grid"></div>
+
+    <div class="group-title">الحروف الصوتية (모음)</div>
+    <div class="char-grid" id="vowel-grid"></div>
+  </section>
+
+  <!-- ===================== BUILD TAB ===================== -->
+  <section class="section" id="tab-build">
+    <div class="builder-card">
+      <div class="builder-preview" id="builder-preview">?</div>
+      <div class="builder-picker">
+        <div class="picker-col">
+          <label>ساكن (أول الحرف)</label>
+          <div class="picker-scroll" id="picker-consonants"></div>
+        </div>
+        <div class="picker-col">
+          <label>صوتي (الحركة)</label>
+          <div class="picker-scroll" id="picker-vowels"></div>
+        </div>
+      </div>
+      <div class="builder-romanization" id="builder-romanization">اختار حرف ساكن وحرف صوتي عشان تكوّن مقطع</div>
+    </div>
+    <p style="font-size:12px; color:#8A82A6; text-align:center; line-height:1.6;">
+      💡 الهانغول مش زي العربي أو الإنجليزي — كل مقطع بيتكتب جوه "بلوك" مربّع.
+      جرّب دلوقتي وشوف إزاي الحروف بتتركب فوق بعض!
+    </p>
+  </section>
+
+  <!-- ===================== WRITE TAB ===================== -->
+  <section class="section" id="tab-write">
+    <div class="write-card">
+      <div class="write-target">اتمرّن على كتابة: <span id="write-target-char">ㄱ</span></div>
+      <canvas id="trace-canvas" width="260" height="260"></canvas>
+      <div class="write-actions">
+        <button class="btn-clear" id="btn-clear-canvas">🧹 امسح</button>
+        <button class="btn-next" id="btn-next-char">➡️ التالي (+3)</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- Character detail modal -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <div class="big-glyph" id="modal-glyph">가</div>
+    <div class="roman-big" id="modal-roman">ga</div>
+    <div class="arabic-approx" id="modal-arabic">بينطق تقريباً زي: "جا"</div>
+    <div class="example" id="modal-example">
+      <div class="kr">가방</div>
+      <div>= شنطة (gabang)</div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-close" id="btn-modal-close">إغلاق</button>
+      <button class="btn-mark" id="btn-modal-mark">✅ حفظته (+5)</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="progress.js"></script>
+<script>
+  // -------------------------------------------------------------
+  // بيانات الحروف — تقريب النطق بالعربي المصري عشان يبقى قريب للأذن
+  // -------------------------------------------------------------
+  const CONSONANTS = [
+    { g: "ㄱ", r: "g/k", ar: "زي الكاف الخفيفة (ك/چ خفيفة)", ex: { kr: "가방", tr: "gabang", ar: "شنطة" } },
+    { g: "ㄴ", r: "n",   ar: "زي النون العربي", ex: { kr: "나무", tr: "namu", ar: "شجرة" } },
+    { g: "ㄷ", r: "d/t", ar: "زي الدال الخفيفة", ex: { kr: "다리", tr: "dari", ar: "رِجل / جسر" } },
+    { g: "ㄹ", r: "r/l", ar: "بين الراء واللام", ex: { kr: "라면", tr: "ramyeon", ar: "الرامن" } },
+    { g: "ㅁ", r: "m",   ar: "زي الميم العربي", ex: { kr: "미소", tr: "miso", ar: "ابتسامة" } },
+    { g: "ㅂ", r: "b/p", ar: "زي الباء الخفيفة", ex: { kr: "바다", tr: "bada", ar: "بحر" } },
+    { g: "ㅅ", r: "s",   ar: "زي السين العربي", ex: { kr: "사랑", tr: "sarang", ar: "حب" } },
+    { g: "ㅇ", r: "-/ng", ar: "بدون صوت في الأول، زي النون الساكنة في الآخر", ex: { kr: "아기", tr: "agi", ar: "طفل" } },
+    { g: "ㅈ", r: "j",   ar: "زي الچيم المصري", ex: { kr: "자다", tr: "jada", ar: "ينام" } },
+    { g: "ㅊ", r: "ch",  ar: "زي التش الإنجليزي", ex: { kr: "차", tr: "cha", ar: "شاي / سيارة" } },
+    { g: "ㅋ", r: "k",   ar: "كاف قوية بنفس", ex: { kr: "커피", tr: "keopi", ar: "قهوة" } },
+    { g: "ㅌ", r: "t",   ar: "تاء قوية بنفس", ex: { kr: "토끼", tr: "tokki", ar: "أرنب" } },
+    { g: "ㅍ", r: "p",   ar: "باء قوية بنفس", ex: { kr: "포도", tr: "podo", ar: "عنب" } },
+    { g: "ㅎ", r: "h",   ar: "زي الهاء العربي", ex: { kr: "하늘", tr: "haneul", ar: "سماء" } },
+  ];
+
+  const VOWELS = [
+    { g: "ㅏ", r: "a",  ar: "زي الألف (فتحة)", ex: { kr: "아빠", tr: "appa", ar: "بابا" } },
+    { g: "ㅑ", r: "ya", ar: "يا", ex: { kr: "야구", tr: "yagu", ar: "بيسبول" } },
+    { g: "ㅓ", r: "eo", ar: "بين الفتحة والضمة", ex: { kr: "어머니", tr: "eomeoni", ar: "أم" } },
+    { g: "ㅕ", r: "yeo",ar: "يو خفيفة", ex: { kr: "여자", tr: "yeoja", ar: "بنت / امرأة" } },
+    { g: "ㅗ", r: "o",  ar: "زي الضمة (و)", ex: { kr: "오빠", tr: "oppa", ar: "أخ أكبر (بنت بتقوله)" } },
+    { g: "ㅛ", r: "yo", ar: "يو", ex: { kr: "요리", tr: "yori", ar: "طبخ" } },
+    { g: "ㅜ", r: "u",  ar: "زي الضمة الطويلة", ex: { kr: "우유", tr: "uyu", ar: "لبن" } },
+    { g: "ㅠ", r: "yu", ar: "يو طويلة", ex: { kr: "유명", tr: "yumyeong", ar: "مشهور" } },
+    { g: "ㅡ", r: "eu", ar: "صوت مفيهوش في العربي، زي سكون خفيف", ex: { kr: "그림", tr: "geurim", ar: "رسمة" } },
+    { g: "ㅣ", r: "i",  ar: "زي الكسرة (ي)", ex: { kr: "이름", tr: "ireum", ar: "اسم" } },
+  ];
+
+  const learnedSet = new Set(JSON.parse(localStorage.getItem("korean_hangul_learned") || "[]"));
+
+  function saveLearned() {
+    localStorage.setItem("korean_hangul_learned", JSON.stringify([...learnedSet]));
+  }
+
+  function buildGrid(containerId, data) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = data
+      .map(
+        (item) => `
+      <div class="char-card ${learnedSet.has(item.g) ? "learned" : ""}" data-glyph="${item.g}">
+        <div class="glyph">${item.g}</div>
+        <div class="roman">${item.r}</div>
+      </div>`
+      )
+      .join("");
+
+    container.querySelectorAll(".char-card").forEach((card) => {
+      card.addEventListener("click", () => openModal(card.dataset.glyph));
+    });
+  }
+
+  function findItem(glyph) {
+    return [...CONSONANTS, ...VOWELS].find((i) => i.g === glyph);
+  }
+
+  function updateLearnProgress() {
+    document.getElementById("learn-progress").textContent =
+      `اتعلمت ${learnedSet.size} من 24 حرف`;
+  }
+
+  // ---------------- Modal ----------------
+  const overlay = document.getElementById("modal-overlay");
+  let currentGlyph = null;
+
+  function openModal(glyph) {
+    const item = findItem(glyph);
+    if (!item) return;
+    currentGlyph = glyph;
+    document.getElementById("modal-glyph").textContent = item.g;
+    document.getElementById("modal-roman").textContent = item.r;
+    document.getElementById("modal-arabic").textContent = `بينطق تقريباً: ${item.ar}`;
+    document.getElementById("modal-example").innerHTML =
+      `<div class="kr">${item.ex.kr}</div><div>= ${item.ex.ar} (${item.ex.tr})</div>`;
+
+    const markBtn = document.getElementById("btn-modal-mark");
+    markBtn.textContent = learnedSet.has(glyph) ? "✅ محفوظ بالفعل" : "✅ حفظته (+5)";
+    overlay.classList.add("show");
+  }
+
+  document.getElementById("btn-modal-close").addEventListener("click", () => {
+    overlay.classList.remove("show");
+  });
+
+  document.getElementById("btn-modal-mark").addEventListener("click", () => {
+    if (currentGlyph && !learnedSet.has(currentGlyph)) {
+      learnedSet.add(currentGlyph);
+      saveLearned();
+      KoreanProgress.completeLesson(`hangul_${currentGlyph}`, 5);
+      showToast("✅ +5 نقطة — حرف جديد اتحفظ!");
+      buildGrid("consonant-grid", CONSONANTS);
+      buildGrid("vowel-grid", VOWELS);
+      updateLearnProgress();
+    }
+    overlay.classList.remove("show");
+  });
+
+  // ---------------- Tabs ----------------
+  document.querySelectorAll(".tab-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".tab-btn").forEach((b) => b.classList.remove("active"));
+      document.querySelectorAll(".section").forEach((s) => s.classList.remove("active"));
+      btn.classList.add("active");
+      document.getElementById(`tab-${btn.dataset.tab}`).classList.add("active");
+    });
+  });
+
+  // ---------------- Syllable Builder ----------------
+  let selectedConsonant = null;
+  let selectedVowel = null;
+
+  function buildPicker(containerId, data, onSelect) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = data
+      .map((item) => `<div class="picker-item" data-glyph="${item.g}">${item.g}</div>`)
+      .join("");
+    container.querySelectorAll(".picker-item").forEach((el) => {
+      el.addEventListener("click", () => {
+        container.querySelectorAll(".picker-item").forEach((e) => e.classList.remove("selected"));
+        el.classList.add("selected");
+        onSelect(el.dataset.glyph);
+      });
+    });
+  }
+
+  buildPicker("picker-consonants", CONSONANTS, (g) => {
+    selectedConsonant = g;
+    updateBuilderPreview();
+  });
+  buildPicker("picker-vowels", VOWELS, (g) => {
+    selectedVowel = g;
+    updateBuilderPreview();
+  });
+
+  // خريطة تبسيطية لتركيب المقطع (مش شاملة كل الحالات، لكن كافية للتعليم الأساسي)
+  const SYLLABLE_MAP = {
+    "ㄱ": { "ㅏ": "가", "ㅑ": "갸", "ㅓ": "거", "ㅕ": "겨", "ㅗ": "고", "ㅛ": "교", "ㅜ": "구", "ㅠ": "규", "ㅡ": "그", "ㅣ": "기" },
+    "ㄴ": { "ㅏ": "나", "ㅑ": "냐", "ㅓ": "너", "ㅕ": "녀", "ㅗ": "노", "ㅛ": "뇨", "ㅜ": "누", "ㅠ": "뉴", "ㅡ": "느", "ㅣ": "니" },
+    "ㄷ": { "ㅏ": "다", "ㅑ": "댜", "ㅓ": "더", "ㅕ": "뎌", "ㅗ": "도", "ㅛ": "됴", "ㅜ": "두", "ㅠ": "듀", "ㅡ": "드", "ㅣ": "디" },
+    "ㄹ": { "ㅏ": "라", "ㅑ": "랴", "ㅓ": "러", "ㅕ": "려", "ㅗ": "로", "ㅛ": "료", "ㅜ": "루", "ㅠ": "류", "ㅡ": "르", "ㅣ": "리" },
+    "ㅁ": { "ㅏ": "마", "ㅑ": "먀", "ㅓ": "머", "ㅕ": "며", "ㅗ": "모", "ㅛ": "묘", "ㅜ": "무", "ㅠ": "뮤", "ㅡ": "므", "ㅣ": "미" },
+    "ㅂ": { "ㅏ": "바", "ㅑ": "뱌", "ㅓ": "버", "ㅕ": "벼", "ㅗ": "보", "ㅛ": "뵤", "ㅜ": "부", "ㅠ": "뷰", "ㅡ": "브", "ㅣ": "비" },
+    "ㅅ": { "ㅏ": "사", "ㅑ": "샤", "ㅓ": "서", "ㅕ": "셔", "ㅗ": "소", "ㅛ": "쇼", "ㅜ": "수", "ㅠ": "슈", "ㅡ": "스", "ㅣ": "시" },
+    "ㅇ": { "ㅏ": "아", "ㅑ": "야", "ㅓ": "어", "ㅕ": "여", "ㅗ": "오", "ㅛ": "요", "ㅜ": "우", "ㅠ": "유", "ㅡ": "으", "ㅣ": "이" },
+    "ㅈ": { "ㅏ": "자", "ㅑ": "쟈", "ㅓ": "저", "ㅕ": "져", "ㅗ": "조", "ㅛ": "죠", "ㅜ": "주", "ㅠ": "쥬", "ㅡ": "즈", "ㅣ": "지" },
+    "ㅊ": { "ㅏ": "차", "ㅑ": "챠", "ㅓ": "처", "ㅕ": "쳐", "ㅗ": "초", "ㅛ": "쵸", "ㅜ": "추", "ㅠ": "츄", "ㅡ": "츠", "ㅣ": "치" },
+    "ㅋ": { "ㅏ": "카", "ㅑ": "캬", "ㅓ": "커", "ㅕ": "켜", "ㅗ": "코", "ㅛ": "쿄", "ㅜ": "쿠", "ㅠ": "큐", "ㅡ": "크", "ㅣ": "키" },
+    "ㅌ": { "ㅏ": "타", "ㅑ": "탸", "ㅓ": "터", "ㅕ": "텨", "ㅗ": "토", "ㅛ": "툐", "ㅜ": "투", "ㅠ": "튜", "ㅡ": "트", "ㅣ": "티" },
+    "ㅍ": { "ㅏ": "파", "ㅑ": "퍄", "ㅓ": "퍼", "ㅕ": "펴", "ㅗ": "포", "ㅛ": "표", "ㅜ": "푸", "ㅠ": "퓨", "ㅡ": "프", "ㅣ": "피" },
+    "ㅎ": { "ㅏ": "하", "ㅑ": "햐", "ㅓ": "허", "ㅕ": "혀", "ㅗ": "호", "ㅛ": "효", "ㅜ": "후", "ㅠ": "휴", "ㅡ": "흐", "ㅣ": "히" },
+  };
+
+  function updateBuilderPreview() {
+    const preview = document.getElementById("builder-preview");
+    const romanText = document.getElementById("builder-romanization");
+
+    if (selectedConsonant && selectedVowel) {
+      const syllable = SYLLABLE_MAP[selectedConsonant]?.[selectedVowel];
+      if (syllable) {
+        preview.textContent = syllable;
+        const cItem = findItem(selectedConsonant);
+        const vItem = findItem(selectedVowel);
+        romanText.textContent = `${cItem.r} + ${vItem.r} = مقطع "${syllable}"`;
+        KoreanProgress.addPoints(1, `build:${syllable}`);
+      }
+    } else if (selectedConsonant) {
+      preview.textContent = selectedConsonant;
+      romanText.textContent = "اختار حرف صوتي كمان عشان تكمل المقطع";
+    } else if (selectedVowel) {
+      preview.textContent = selectedVowel;
+      romanText.textContent = "اختار حرف ساكن كمان عشان تكمل المقطع";
+    }
+  }
+
+  // ---------------- Writing / Tracing Practice ----------------
+  const WRITE_QUEUE = [...CONSONANTS, ...VOWELS].map((i) => i.g);
+  let writeIndex = 0;
+
+  const canvas = document.getElementById("trace-canvas");
+  const ctx = canvas.getContext("2d");
+  let drawing = false;
+
+  function resizeCanvas() {
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+    drawTargetGhost();
+  }
+
+  function drawTargetGhost() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "rgba(108,76,224,0.12)";
+    ctx.font = `${canvas.width * 0.6}px Tahoma`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(WRITE_QUEUE[writeIndex], canvas.width / 2, canvas.height / 2);
+  }
+
+  function getPos(e) {
+    const rect = canvas.getBoundingClientRect();
+    const point = e.touches ? e.touches[0] : e;
+    return { x: point.clientX - rect.left, y: point.clientY - rect.top };
+  }
+
+  function startDraw(e) {
+    drawing = true;
+    const p = getPos(e);
+    ctx.beginPath();
+    ctx.moveTo(p.x, p.y);
+    e.preventDefault();
+  }
+  function moveDraw(e) {
+    if (!drawing) return;
+    const p = getPos(e);
+    ctx.lineWidth = 6;
+    ctx.lineCap = "round";
+    ctx.strokeStyle = "#6C4CE0";
+    ctx.lineTo(p.x, p.y);
+    ctx.stroke();
+    e.preventDefault();
+  }
+  function endDraw() { drawing = false; }
+
+  canvas.addEventListener("mousedown", startDraw);
+  canvas.addEventListener("mousemove", moveDraw);
+  canvas.addEventListener("mouseup", endDraw);
+  canvas.addEventListener("mouseleave", endDraw);
+  canvas.addEventListener("touchstart", startDraw);
+  canvas.addEventListener("touchmove", moveDraw);
+  canvas.addEventListener("touchend", endDraw);
+
+  document.getElementById("btn-clear-canvas").addEventListener("click", drawTargetGhost);
+
+  document.getElementById("btn-next-char").addEventListener("click", () => {
+    KoreanProgress.addPoints(3, `trace:${WRITE_QUEUE[writeIndex]}`);
+    showToast("✍️ +3 نقطة — كفاية تمرين على الحرف ده!");
+    writeIndex = (writeIndex + 1) % WRITE_QUEUE.length;
+    document.getElementById("write-target-char").textContent = WRITE_QUEUE[writeIndex];
+    drawTargetGhost();
+  });
+
+  window.addEventListener("resize", resizeCanvas);
+
+  // ---------------- Toast ----------------
+  function showToast(msg) {
+    const toast = document.getElementById("toast");
+    toast.textContent = msg;
+    toast.classList.add("show");
+    setTimeout(() => toast.classList.remove("show"), 1800);
+  }
+
+  // ---------------- Init ----------------
+  buildGrid("consonant-grid", CONSONANTS);
+  buildGrid("vowel-grid", VOWELS);
+  updateLearnProgress();
+  resizeCanvas();
+</script>
+</body>
+</html>
