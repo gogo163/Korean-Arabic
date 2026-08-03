@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>الاختبارات — 퀴즈</title>
+<style>
+  :root {
+    --primary: #6C4CE0;
+    --primary-light: #9B7FF0;
+    --accent: #FF6FA5;
+    --bg: #F7F5FF;
+    --card: #FFFFFF;
+    --text: #2A2140;
+    --success: #34C77B;
+    --danger: #E0567A;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Tahoma', 'Segoe UI', sans-serif;
+    background: linear-gradient(180deg, var(--bg) 0%, #ECE7FF 100%);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 16px;
+    padding-bottom: 50px;
+  }
+  .app { max-width: 480px; margin: 0 auto; }
+
+  .back-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: white; color: var(--primary);
+    border: 2px solid #EDEAFB; border-radius: 12px;
+    padding: 8px 14px; font-size: 12.5px; font-weight: bold;
+    text-decoration: none; margin-bottom: 14px;
+  }
+
+  header { text-align: center; margin-bottom: 16px; }
+  header h1 { font-size: 19px; color: var(--primary); }
+  header p { font-size: 12px; color: #8A82A6; margin-top: 4px; }
+
+  /* ---- Quiz picker (home) ---- */
+  .quiz-menu { display: flex; flex-direction: column; gap: 10px; }
+  .quiz-option {
+    display: flex; align-items: center; gap: 14px;
+    background: white; border-radius: 18px; padding: 16px;
+    box-shadow: 0 4px 14px rgba(108,76,224,0.08);
+    cursor: pointer; border: none; text-align: right; width: 100%;
+  }
+  .quiz-option .qo-emoji {
+    width: 48px; height: 48px; border-radius: 14px;
+    background: #F1ECFF; display: flex; align-items: center; justify-content: center;
+    font-size: 22px; flex: 0 0 auto;
+  }
+  .quiz-option.mixed .qo-emoji { background: #FFF0F6; }
+  .quiz-option .qo-info { flex: 1; }
+  .quiz-option .qo-title { font-size: 14px; font-weight: bold; }
+  .quiz-option .qo-desc { font-size: 11.5px; color: #9992B5; margin-top: 2px; }
+  .quiz-option .qo-best {
+    font-size: 10.5px; color: var(--success); margin-top: 4px; font-weight: bold;
+  }
+  .quiz-option .qo-arrow { color: #D9D0FA; font-size: 16px; }
+
+  /* ---- Active quiz ---- */
+  .quiz-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .quiz-progress-text { font-size: 12px; color: #8A82A6; }
+  .quiz-score-live { font-size: 12px; color: var(--primary); font-weight: bold; }
+  .progress-track { height: 8px; background: #EDEAFB; border-radius: 6px; overflow: hidden; margin-bottom: 20px; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent)); border-radius: 6px; transition: width 0.3s ease; }
+
+  .question-card {
+    background: white; border-radius: 20px; padding: 22px;
+    box-shadow: 0 4px 16px rgba(108,76,224,0.1); text-align: center;
+    margin-bottom: 16px;
+  }
+  .question-card .q-prompt { font-size: 15px; color: #8A82A6; margin-bottom: 10px; }
+  .question-card .q-main { font-size: 30px; font-weight: bold; color: var(--text); }
+  .question-card .q-sub { font-size: 13px; color: var(--primary); margin-top: 6px; }
+  .q-play-btn {
+    margin-top: 12px; background: #F1ECFF; color: var(--primary);
+    border: none; border-radius: 12px; padding: 8px 16px;
+    font-size: 12px; font-weight: bold; cursor: pointer;
+  }
+
+  .options-grid { display: flex; flex-direction: column; gap: 10px; }
+  .option-btn {
+    background: white; border: 2px solid #EDEAFB; border-radius: 14px;
+    padding: 14px; font-size: 14px; font-weight: bold; cursor: pointer;
+    text-align: center; color: var(--text);
+  }
+  .option-btn.correct { border-color: var(--success); background: #E8F9F1; color: var(--success); }
+  .option-btn.wrong { border-color: var(--danger); background: #FDECF1; color: var(--danger); }
+  .option-btn.disabled { pointer-events: none; }
+
+  .next-btn {
+    width: 100%; border: none; border-radius: 14px; padding: 14px;
+    font-size: 14px; font-weight: bold; cursor: pointer;
+    background: var(--primary); color: white; margin-top: 16px;
+    display: none;
+  }
+  .next-btn.show { display: block; }
+
+  /* ---- Result screen ---- */
+  .result-card {
+    background: white; border-radius: 22px; padding: 28px;
+    text-align: center; box-shadow: 0 6px 20px rgba(108,76,224,0.12);
+  }
+  .result-emoji { font-size: 50px; }
+  .result-score { font-size: 26px; font-weight: bold; color: var(--primary); margin-top: 10px; }
+  .result-label { font-size: 13px; color: #8A82A6; margin-top: 4px; }
+  .result-points { font-size: 13px; color: var(--accent); font-weight: bold; margin-top: 10px; }
+  .result-buttons { display: flex; gap: 10px; margin-top: 20px; }
+  .result-buttons button {
+    flex: 1; border: none; border-radius: 14px; padding: 12px;
+    font-size: 13px; font-weight: bold; cursor: pointer;
+  }
+  .btn-retry { background: #EDEAFB; color: var(--primary); }
+  .btn-back-menu { background: var(--primary); color: white; }
+
+  .toast {
+    position: fixed; bottom: 24px; left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--text); color: white;
+    padding: 10px 18px; border-radius: 12px; font-size: 13px;
+    opacity: 0; transition: all 0.3s ease; pointer-events: none; white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <a href="index.html" class="back-btn">→ الرئيسية</a>
+
+  <header>
+    <h1>📝 الاختبارات</h1>
+    <p>اختبر نفسك وشوف مستواك فين</p>
+  </header>
+
+  <div id="screen-menu"></div>
+  <div id="screen-quiz" style="display:none;"></div>
+  <div id="screen-result" style="display:none;"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="progress.js"></script>
+<script>
+  // -------------------------------------------------------------
+  // بنك الأسئلة — مقسّم حسب الموضوع
+  // -------------------------------------------------------------
+  const HANGUL_QUESTIONS = [
+    { prompt: "إيه نطق الحرف ده؟", main: "ㄱ", options: ["g/k", "n", "s", "m"], correct: 0 },
+    { prompt: "إيه نطق الحرف ده؟", main: "ㄴ", options: ["r/l", "n", "b/p", "j"], correct: 1 },
+    { prompt: "إيه نطق الحرف ده؟", main: "ㅁ", options: ["h", "ch", "m", "t"], correct: 2 },
+    { prompt: "إيه نطق الحرف ده؟", main: "ㅅ", options: ["s", "k", "eu", "ya"], correct: 0 },
+    { prompt: "إيه نطق الحرف ده؟", main: "ㅏ", options: ["i", "u", "a", "o"], correct: 2 },
+    { prompt: "إيه نطق الحرف ده؟", main: "ㅗ", options: ["o", "eo", "yu", "e"], correct: 0 },
+    { prompt: "إيه نطق الحرف ده؟", main: "ㅣ", options: ["eu", "i", "ya", "yo"], correct: 1 },
+    { prompt: "المقطع ده اسمه إيه بالروماني؟", main: "가", options: ["na", "ga", "da", "ba"], correct: 1 },
+  ];
+
+  const VOCAB_QUESTIONS = [
+    { prompt: "إيه معنى الكلمة دي؟", main: "물", sub: "mul", options: ["مية", "أكل", "نار", "هوا"], correct: 0 },
+    { prompt: "إيه معنى الكلمة دي؟", main: "가족", sub: "gajok", options: ["مدرسة", "عيلة", "شغل", "بيت"], correct: 1 },
+    { prompt: "إيه معنى الكلمة دي؟", main: "오늘", sub: "oneul", options: ["بكرة", "إمبارح", "النهاردة", "دايماً"], correct: 2 },
+    { prompt: "إيه معنى الكلمة دي؟", main: "빨간색", sub: "ppalgansaek", options: ["أزرق", "أحمر", "أخضر", "أسود"], correct: 1 },
+    { prompt: "إيه معنى الكلمة دي؟", main: "학교", sub: "hakgyo", options: ["مستشفى", "سوق", "مدرسة", "مطار"], correct: 2 },
+    { prompt: "إزاي تقول 'خمسة' بالكوري؟", main: "5", options: ["넷", "다섯", "여섯", "셋"], correct: 1 },
+    { prompt: "إيه معنى '맛있어요'؟", main: "맛있어요", sub: "masisseoyo", options: ["غالي", "لذيذ", "بعيد", "بارد"], correct: 1 },
+    { prompt: "إيه معنى '커피'؟", main: "커피", sub: "keopi", options: ["شاي", "عصير", "قهوة", "مية"], correct: 2 },
+  ];
+
+  const GRAMMAR_QUESTIONS = [
+    { prompt: "املأ الفراغ: 저___ 학생이에요 (أنا طالب)", main: "저 ___ 학생이에요", options: ["는", "를", "에", "에서"], correct: 0 },
+    { prompt: "املأ الفراغ: 커피___ 마셔요 (بشرب قهوة)", main: "커피 ___ 마셔요", options: ["가", "를", "은", "에"], correct: 1 },
+    { prompt: "إيه تصريف فعل 가다 (يروح) في المضارع؟", main: "가다 → ?", options: ["가요", "갔어요", "가지 않아요", "간요"], correct: 0 },
+    { prompt: "إزاي تنفي جملة 'بروح' بأسهل طريقة؟", main: "가요 → النفي", options: ["안 가요", "가요 안", "가지요", "가서요"], correct: 0 },
+    { prompt: "أنهي أداة صح: مكان بتذاكر فيه بالفعل؟", main: "카페 ___ 공부해요", options: ["에", "에서", "를", "가"], correct: 1 },
+    { prompt: "إيه تصريف 먹다 (ياكل) في الماضي؟", main: "먹다 → الماضي", options: ["먹어요", "먹었어요", "먹지 않아요", "먹을게요"], correct: 1 },
+  ];
+
+  const QUIZ_SETS = {
+    hangul: { title: "اختبار الهانغول", emoji: "✍️", desc: "8 أسئلة عن الحروف", questions: HANGUL_QUESTIONS },
+    vocab: { title: "اختبار المفردات", emoji: "📚", desc: "8 أسئلة عن الكلمات الأساسية", questions: VOCAB_QUESTIONS },
+    grammar: { title: "اختبار القواعد", emoji: "📐", desc: "6 أسئلة عن القواعد", questions: GRAMMAR_QUESTIONS },
+    mixed: { title: "اختبار شامل", emoji: "🏆", desc: "خليط من كل حاجة اتعلمتها", questions: [] },
+  };
+  QUIZ_SETS.mixed.questions = [...HANGUL_QUESTIONS.slice(0, 3), ...VOCAB_QUESTIONS.slice(0, 4), ...GRAMMAR_QUESTIONS.slice(0, 3)];
+
+  function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  const bestScores = JSON.parse(localStorage.getItem("korean_quiz_best") || "{}");
+  function saveBestScores() {
+    localStorage.setItem("korean_quiz_best", JSON.stringify(bestScores));
+  }
+
+  let activeQuizId = null;
+  let activeQuestions = [];
+  let currentIndex = 0;
+  let correctCount = 0;
+  let answered = false;
+
+  // ---------------- Menu screen ----------------
+  function renderMenu() {
+    const menu = document.getElementById("screen-menu");
+    menu.innerHTML = `<div class="quiz-menu">${Object.entries(QUIZ_SETS)
+      .map(([id, q]) => {
+        const best = bestScores[id];
+        return `
+        <button class="quiz-option ${id === "mixed" ? "mixed" : ""}" data-id="${id}">
+          <div class="qo-emoji">${q.emoji}</div>
+          <div class="qo-info">
+            <div class="qo-title">${q.title}</div>
+            <div class="qo-desc">${q.desc}</div>
+            ${best !== undefined ? `<div class="qo-best">🏆 أعلى نتيجة: ${best}%</div>` : ""}
+          </div>
+          <div class="qo-arrow">‹</div>
+        </button>`;
+      })
+      .join("")}</div>`;
+
+    menu.querySelectorAll(".quiz-option").forEach((btn) => {
+      btn.addEventListener("click", () => startQuiz(btn.dataset.id));
+    });
+  }
+
+  // ---------------- Quiz screen ----------------
+  function startQuiz(id) {
+    activeQuizId = id;
+    activeQuestions = shuffle(QUIZ_SETS[id].questions);
+    currentIndex = 0;
+    correctCount = 0;
+    document.getElementById("screen-menu").style.display = "none";
+    document.getElementById("screen-result").style.display = "none";
+    document.getElementById("screen-quiz").style.display = "block";
+    renderQuestion();
+  }
+
+  function renderQuestion() {
+    answered = false;
+    const q = activeQuestions[currentIndex];
+    const quizEl = document.getElementById("screen-quiz");
+    const progressPct = Math.round((currentIndex / activeQuestions.length) * 100);
+
+    quizEl.innerHTML = `
+      <div class="quiz-header">
+        <div class="quiz-progress-text">سؤال ${currentIndex + 1} من ${activeQuestions.length}</div>
+        <div class="quiz-score-live">✅ ${correctCount}</div>
+      </div>
+      <div class="progress-track"><div class="progress-fill" style="width:${progressPct}%"></div></div>
+
+      <div class="question-card">
+        <div class="q-prompt">${q.prompt}</div>
+        <div class="q-main">${q.main}</div>
+        ${q.sub ? `<div class="q-sub">${q.sub}</div>` : ""}
+      </div>
+
+      <div class="options-grid" id="options-grid">
+        ${q.options.map((opt, idx) => `<button class="option-btn" data-idx="${idx}">${opt}</button>`).join("")}
+      </div>
+
+      <button class="next-btn" id="btn-next">التالي ←</button>
+    `;
+
+    document.querySelectorAll(".option-btn").forEach((btn) => {
+      btn.addEventListener("click", () => selectAnswer(parseInt(btn.dataset.idx, 10)));
+    });
+
+    document.getElementById("btn-next").addEventListener("click", () => {
+      currentIndex++;
+      if (currentIndex >= activeQuestions.length) {
+        showResult();
+      } else {
+        renderQuestion();
+      }
+    });
+  }
+
+  function selectAnswer(idx) {
+    if (answered) return;
+    answered = true;
+    const q = activeQuestions[currentIndex];
+    const buttons = document.querySelectorAll(".option-btn");
+
+    buttons.forEach((btn) => btn.classList.add("disabled"));
+    buttons[q.correct].classList.add("correct");
+
+    if (idx === q.correct) {
+      correctCount++;
+    } else {
+      buttons[idx].classList.add("wrong");
+    }
+
+    document.getElementById("btn-next").classList.add("show");
+    document.querySelector(".quiz-score-live").textContent = `✅ ${correctCount}`;
+  }
+
+  // ---------------- Result screen ----------------
+  function showResult() {
+    document.getElementById("screen-quiz").style.display = "none";
+    document.getElementById("screen-result").style.display = "block";
+
+    const total = activeQuestions.length;
+    const pct = Math.round((correctCount / total) * 100);
+    const points = correctCount * 2 + (pct === 100 ? 10 : 0);
+
+    let emoji = "💪";
+    let label = "محتاج مراجعة أكتر";
+    if (pct >= 90) { emoji = "🏆"; label = "ممتاز جداً!"; }
+    else if (pct >= 70) { emoji = "🎉"; label = "كويس جداً!"; }
+    else if (pct >= 50) { emoji = "🙂"; label = "مش بطال، كمّل كده"; }
+
+    const prevBest = bestScores[activeQuizId] || 0;
+    if (pct > prevBest) {
+      bestScores[activeQuizId] = pct;
+      saveBestScores();
+    }
+
+    document.getElementById("screen-result").innerHTML = `
+      <div class="result-card">
+        <div class="result-emoji">${emoji}</div>
+        <div class="result-score">${correctCount} / ${total}</div>
+        <div class="result-label">${label} — ${pct}%</div>
+        <div class="result-points">+${points} نقطة اتضافت</div>
+        <div class="result-buttons">
+          <button class="btn-retry" id="btn-retry">🔄 حاول تاني</button>
+          <button class="btn-back-menu" id="btn-back-menu">📋 كل الاختبارات</button>
+        </div>
+      </div>
+    `;
+
+    KoreanProgress.addPoints(points, `quiz:${activeQuizId}`);
+    if (pct === 100) showToast("🏆 100%! درجة كاملة!");
+
+    document.getElementById("btn-retry").addEventListener("click", () => startQuiz(activeQuizId));
+    document.getElementById("btn-back-menu").addEventListener("click", () => {
+      document.getElementById("screen-result").style.display = "none";
+      document.getElementById("screen-menu").style.display = "block";
+      renderMenu();
+    });
+  }
+
+  function showToast(msg) {
+    const toast = document.getElementById("toast");
+    toast.textContent = msg;
+    toast.classList.add("show");
+    setTimeout(() => toast.classList.remove("show"), 1800);
+  }
+
+  // ---------------- Init ----------------
+  document.getElementById("screen-menu").style.display = "block";
+  renderMenu();
+</script>
+</body>
+</html>
