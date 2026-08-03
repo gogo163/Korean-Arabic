@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>محادثات يومية — 일상 대화</title>
+<style>
+  :root {
+    --primary: #6C4CE0;
+    --primary-light: #9B7FF0;
+    --accent: #FF6FA5;
+    --bg: #F7F5FF;
+    --card: #FFFFFF;
+    --text: #2A2140;
+    --success: #34C77B;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Tahoma', 'Segoe UI', sans-serif;
+    background: linear-gradient(180deg, var(--bg) 0%, #ECE7FF 100%);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 16px;
+    padding-bottom: 50px;
+  }
+  .app { max-width: 480px; margin: 0 auto; }
+
+  .back-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: white; color: var(--primary);
+    border: 2px solid #EDEAFB; border-radius: 12px;
+    padding: 8px 14px; font-size: 12.5px; font-weight: bold;
+    text-decoration: none; margin-bottom: 14px;
+  }
+
+  header { text-align: center; margin-bottom: 14px; }
+  header h1 { font-size: 19px; color: var(--primary); }
+  header p { font-size: 12px; color: #8A82A6; margin-top: 4px; }
+
+  #voice-warning {
+    display: none;
+    background: #FFF3E0; color: #B36B00;
+    font-size: 11.5px; padding: 10px 14px; border-radius: 12px;
+    margin-bottom: 14px; line-height: 1.6; text-align: center;
+  }
+  #voice-warning.show { display: block; }
+
+  .scene-scroll {
+    display: flex; gap: 8px; overflow-x: auto;
+    margin-bottom: 16px; padding-bottom: 4px;
+  }
+  .scene-chip {
+    flex: 0 0 auto;
+    background: white; color: var(--primary);
+    border: 2px solid #EDEAFB;
+    padding: 9px 16px; border-radius: 999px;
+    font-size: 12.5px; font-weight: bold; white-space: nowrap;
+    cursor: pointer;
+  }
+  .scene-chip.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+  .convo-banner {
+    background: linear-gradient(120deg, var(--primary), var(--accent));
+    color: white; border-radius: 18px; padding: 16px;
+    margin-bottom: 16px; text-align: center;
+  }
+  .convo-banner .emoji { font-size: 26px; }
+  .convo-banner .title { font-size: 15px; font-weight: bold; margin-top: 4px; }
+  .convo-banner .desc { font-size: 11.5px; opacity: 0.9; margin-top: 4px; }
+
+  .chat-thread { display: flex; flex-direction: column; gap: 10px; }
+
+  .bubble-row { display: flex; gap: 8px; align-items: flex-end; }
+  .bubble-row.speaker-b { flex-direction: row-reverse; }
+
+  .avatar {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: #F1ECFF; color: var(--primary);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; flex: 0 0 auto; font-weight: bold;
+  }
+  .bubble-row.speaker-b .avatar { background: #FFF0F6; color: var(--accent); }
+
+  .bubble {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 12px 14px;
+    max-width: 78%;
+    box-shadow: 0 3px 10px rgba(108,76,224,0.08);
+  }
+  .bubble-row.speaker-b .bubble { background: #FFF7FB; }
+
+  .bubble-top { display: flex; align-items: center; gap: 8px; justify-content: space-between; }
+  .bubble-kr { font-size: 15.5px; font-weight: bold; }
+  .bubble-roman { font-size: 11px; color: var(--primary); margin-top: 2px; }
+  .bubble-meaning { font-size: 12.5px; color: var(--text); margin-top: 6px; }
+
+  .mini-play {
+    flex: 0 0 auto;
+    width: 30px; height: 30px; border-radius: 50%;
+    background: #F1ECFF; color: var(--primary);
+    border: none; font-size: 12px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .bubble-row.speaker-b .mini-play { background: #FFE3EE; color: var(--accent); }
+  .mini-play.playing { background: var(--primary); color: white; }
+
+  .complete-btn {
+    width: 100%; border: none; border-radius: 14px; padding: 13px;
+    font-size: 13.5px; font-weight: bold; cursor: pointer;
+    background: var(--primary); color: white; margin-top: 18px;
+  }
+  .complete-btn.done { background: var(--success); }
+
+  .toast {
+    position: fixed; bottom: 24px; left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--text); color: white;
+    padding: 10px 18px; border-radius: 12px; font-size: 13px;
+    opacity: 0; transition: all 0.3s ease; pointer-events: none; white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <a href="index.html" class="back-btn">→ الرئيسية</a>
+
+  <header>
+    <h1>💬 محادثات يومية</h1>
+    <p>حوارات كاملة من مواقف هتقابلها فعلاً</p>
+  </header>
+
+  <div id="voice-warning">
+    ⚠️ المتصفح بتاعك مش لاقي صوت كوري مثبّت. الجُمل هتتعرض من غير صوت.
+  </div>
+
+  <div class="scene-scroll" id="scene-scroll"></div>
+
+  <div class="convo-banner" id="convo-banner"></div>
+
+  <div class="chat-thread" id="chat-thread"></div>
+
+  <button class="complete-btn" id="btn-complete">✅ خلّصت المحادثة (+8 نقط)</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="progress.js"></script>
+<script>
+  // -------------------------------------------------------------
+  // محادثات يومية واقعية — كل محادثة بين متحدّثين (A و B)
+  // -------------------------------------------------------------
+  const CONVERSATIONS = [
+    {
+      id: "cafe",
+      chip: "☕ في المقهى",
+      emoji: "☕",
+      title: "طلب قهوة في الكافيه",
+      desc: "أشهر موقف هتمر بيه وانت في كوريا",
+      turns: [
+        { speaker: "a", kr: "어서 오세요! 뭐 드릴까요?", roman: "eoseo oseyo! mwo deurilkkayo?", ar: "أهلاً بيك! هطلبلك إيه؟" },
+        { speaker: "b", kr: "아메리카노 한 잔 주세요", roman: "amerikano han jan juseyo", ar: "كوباية أمريكانو لو سمحت" },
+        { speaker: "a", kr: "따뜻한 거요, 아이스요?", roman: "ttatteutan geoyo, aiseuyo?", ar: "سخنة ولا مثلجة؟" },
+        { speaker: "b", kr: "아이스로 주세요", roman: "aiseuro juseyo", ar: "مثلجة لو سمحت" },
+        { speaker: "a", kr: "네, 오천 원입니다", roman: "ne, ocheon wonimnida", ar: "تمام، الحساب 5000 وون" },
+        { speaker: "b", kr: "여기 있어요, 감사합니다", roman: "yeogi isseoyo, gamsahamnida", ar: "اتفضل، شكراً" },
+      ],
+    },
+    {
+      id: "taxi",
+      chip: "🚕 التاكسي",
+      emoji: "🚕",
+      title: "ركوب التاكسي",
+      desc: "إزاي تقول للسواق إنت رايح فين",
+      turns: [
+        { speaker: "b", kr: "안녕하세요, 명동으로 가주세요", roman: "annyeonghaseyo, myeongdongeuro gajuseyo", ar: "أهلاً، وديني منطقة ميونغ-دونغ لو سمحت" },
+        { speaker: "a", kr: "네, 알겠습니다", roman: "ne, algetseumnida", ar: "تمام، حاضر" },
+        { speaker: "b", kr: "얼마나 걸려요?", roman: "eolmana geollyeoyo?", ar: "هياخد وقت قد إيه؟" },
+        { speaker: "a", kr: "한 20분쯤 걸려요", roman: "han isip-bunjjeum geollyeoyo", ar: "حوالي 20 دقيقة" },
+        { speaker: "b", kr: "여기서 세워 주세요", roman: "yeogiseo sewo juseyo", ar: "وقّف هنا لو سمحت" },
+        { speaker: "a", kr: "네, 조심히 가세요", roman: "ne, josimhi gaseyo", ar: "تمام، امشي بالسلامة" },
+      ],
+    },
+    {
+      id: "market",
+      chip: "🛍️ السوق",
+      emoji: "🛍️",
+      title: "الشراء من السوق",
+      desc: "المفاصلة والسؤال عن السعر",
+      turns: [
+        { speaker: "b", kr: "이거 얼마예요?", roman: "igeo eolmayeyo?", ar: "ده بكام؟" },
+        { speaker: "a", kr: "만 오천 원이에요", roman: "man ocheon wonieyo", ar: "بـ15000 وون" },
+        { speaker: "b", kr: "너무 비싸요, 좀 깎아 주세요", roman: "neomu bissayo, jom kkakka juseyo", ar: "ده غالي أوي، ممكن تنزّل السعر شوية؟" },
+        { speaker: "a", kr: "그럼 만 이천 원에 드릴게요", roman: "geureom man icheon wone deurilgeyo", ar: "طيب هبقى أديهولك بـ12000" },
+        { speaker: "b", kr: "좋아요, 이걸로 주세요", roman: "joayo, igeollo juseyo", ar: "تمام، إديني ده بس" },
+      ],
+    },
+    {
+      id: "meeting-new",
+      chip: "🤝 تعارف",
+      emoji: "🤝",
+      title: "التعارف على شخص جديد",
+      desc: "أول محادثة مع صاحب جديد",
+      turns: [
+        { speaker: "a", kr: "안녕하세요, 저는 민수예요", roman: "annyeonghaseyo, jeoneun minsuyeyo", ar: "أهلاً، أنا مين-سو" },
+        { speaker: "b", kr: "반가워요, 저는 사라예요", roman: "bangawoyo, jeoneun sarayeyo", ar: "سعيد إني اتعرفت عليك، أنا سارة" },
+        { speaker: "a", kr: "어느 나라에서 왔어요?", roman: "eoneu narareseo wasseoyo?", ar: "إنتِ جاية منين؟" },
+        { speaker: "b", kr: "이집트에서 왔어요", roman: "ijipteueseo wasseoyo", ar: "أنا جاية من مصر" },
+        { speaker: "a", kr: "한국어 정말 잘하시네요!", roman: "hangugeo jeongmal jalhasineyo!", ar: "الكوري بتاعك حلو جداً!" },
+        { speaker: "b", kr: "감사합니다, 아직 배우는 중이에요", roman: "gamsahamnida, ajik baeuneun jungieyo", ar: "شكراً، لسه بتعلّم" },
+      ],
+    },
+  ];
+
+  let currentId = "cafe";
+  const completedSet = new Set(JSON.parse(localStorage.getItem("korean_convo_completed") || "[]"));
+
+  function saveCompleted() {
+    localStorage.setItem("korean_convo_completed", JSON.stringify([...completedSet]));
+  }
+
+  // ---------------- Voice ----------------
+  let koreanVoice = null;
+  function loadVoices() {
+    const voices = speechSynthesis.getVoices();
+    koreanVoice = voices.find((v) => v.lang === "ko-KR") || voices.find((v) => v.lang.startsWith("ko"));
+    document.getElementById("voice-warning").classList.toggle("show", !koreanVoice);
+  }
+  if ("speechSynthesis" in window) {
+    loadVoices();
+    speechSynthesis.onvoiceschanged = loadVoices;
+  } else {
+    document.getElementById("voice-warning").classList.add("show");
+  }
+
+  function speak(text) {
+    if (!("speechSynthesis" in window)) {
+      showToast("😔 المتصفح ده مش بيدعم النطق الصوتي");
+      return;
+    }
+    speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = "ko-KR";
+    if (koreanVoice) utter.voice = koreanVoice;
+    speechSynthesis.speak(utter);
+  }
+
+  // ---------------- Scenes ----------------
+  const sceneScroll = document.getElementById("scene-scroll");
+  sceneScroll.innerHTML = CONVERSATIONS.map(
+    (c) => `<div class="scene-chip ${c.id === currentId ? "active" : ""}" data-id="${c.id}">${c.chip}</div>`
+  ).join("");
+
+  sceneScroll.querySelectorAll(".scene-chip").forEach((chip) => {
+    chip.addEventListener("click", () => {
+      currentId = chip.dataset.id;
+      render();
+    });
+  });
+
+  function render() {
+    const convo = CONVERSATIONS.find((c) => c.id === currentId);
+
+    sceneScroll.querySelectorAll(".scene-chip").forEach((c) =>
+      c.classList.toggle("active", c.dataset.id === currentId)
+    );
+
+    document.getElementById("convo-banner").innerHTML = `
+      <div class="emoji">${convo.emoji}</div>
+      <div class="title">${convo.title}</div>
+      <div class="desc">${convo.desc}</div>
+    `;
+
+    const thread = document.getElementById("chat-thread");
+    thread.innerHTML = convo.turns
+      .map(
+        (t) => `
+        <div class="bubble-row speaker-${t.speaker}">
+          <div class="avatar">${t.speaker === "a" ? "أ" : "ب"}</div>
+          <div class="bubble">
+            <div class="bubble-top">
+              <div>
+                <div class="bubble-kr">${t.kr}</div>
+                <div class="bubble-roman">${t.roman}</div>
+              </div>
+              <button class="mini-play" data-text="${t.kr}">🔊</button>
+            </div>
+            <div class="bubble-meaning">${t.ar}</div>
+          </div>
+        </div>`
+      )
+      .join("");
+
+    thread.querySelectorAll(".mini-play").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        speak(btn.dataset.text);
+        btn.classList.add("playing");
+        setTimeout(() => btn.classList.remove("playing"), 700);
+      });
+    });
+
+    const completeBtn = document.getElementById("btn-complete");
+    const isDone = completedSet.has(currentId);
+    completeBtn.textContent = isDone ? "✅ اتخلّصت" : "✅ خلّصت المحادثة (+8 نقط)";
+    completeBtn.classList.toggle("done", isDone);
+  }
+
+  document.getElementById("btn-complete").addEventListener("click", () => {
+    if (!completedSet.has(currentId)) {
+      completedSet.add(currentId);
+      saveCompleted();
+      KoreanProgress.completeLesson(`convo_${currentId}`, 8);
+      showToast("💬 +8 نقطة — محادثة كاملة اتحفظت!");
+      render();
+    }
+  });
+
+  function showToast(msg) {
+    const toast = document.getElementById("toast");
+    toast.textContent = msg;
+    toast.classList.add("show");
+    setTimeout(() => toast.classList.remove("show"), 1800);
+  }
+
+  render();
+</script>
+</body>
+</html>

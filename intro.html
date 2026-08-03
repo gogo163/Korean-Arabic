@@ -75,11 +75,20 @@
   .btn-next { background: var(--primary); color: white; }
   .btn-start { background: linear-gradient(90deg, var(--primary), var(--accent)); color: white; }
   button:disabled { opacity: 0.4; }
+
+  .back-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: white; color: var(--primary);
+    border: 2px solid #EDEAFB; border-radius: 12px;
+    padding: 8px 14px; font-size: 12.5px; font-weight: bold;
+    text-decoration: none; margin-bottom: 14px;
+  }
 </style>
 </head>
 <body>
 
 <div class="app">
+  <a href="index.html" class="back-btn">→ الرئيسية</a>
   <div class="hero">
     <div class="flag">🇰🇷</div>
     <h1>أهلاً بيك في رحلة تعلّم الكورية</h1>
