@@ -255,11 +255,14 @@
   <!-- ===================== WRITE TAB ===================== -->
   <section class="section" id="tab-write">
     <div class="write-card">
-      <div class="write-target">اتمرّن على كتابة: <span id="write-target-char">ㄱ</span></div>
+      <div class="write-target">
+        اتمرّن على كتابة: <span id="write-target-char">ㄱ</span>
+        <span id="stroke-counter" style="display:block; font-size:11px; color:#9992B5; margin-top:4px;"></span>
+      </div>
       <canvas id="trace-canvas" width="260" height="260"></canvas>
       <div class="write-actions">
-        <button class="btn-clear" id="btn-clear-canvas">🧹 امسح</button>
-        <button class="btn-next" id="btn-next-char">➡️ التالي (+3)</button>
+        <button class="btn-clear" id="btn-clear-canvas">🔄 إعادة الحرف</button>
+        <button class="btn-next" id="btn-skip-char">⏭️ تخطّي</button>
       </div>
     </div>
   </section>
@@ -464,28 +467,126 @@
     }
   }
 
-  // ---------------- Writing / Tracing Practice ----------------
+  // ---------------- Writing / Stroke-Order Practice ----------------
+  // بيانات ترتيب الضربات — كل حرف عبارة عن مصفوفة ضربات
+  // كل ضربة: نقاط المسار (لرسم الدليل) — التحقق بيتم بمقارنة
+  // بداية ونهاية ضربة المستخدم مع بداية ونهاية الضربة المطلوبة
+  // (نظام مبسّط، مش تحليل شكل كامل زي HanziWriter، بس كافي لتعليم الترتيب والاتجاه)
+  // الإحداثيات على مقياس 0-100
+  const STROKE_DATA = {
+    "ㄱ": [[[20,20],[75,20],[75,80]]],
+    "ㄴ": [[[25,15],[25,80],[80,80]]],
+    "ㄷ": [[[20,20],[78,20]], [[20,20],[20,80],[78,80]]],
+    "ㄹ": [[[20,15],[75,15],[75,38]], [[20,38],[75,38]], [[20,38],[20,85],[75,85]]],
+    "ㅁ": [[[20,20],[20,80]], [[20,20],[78,20],[78,80]], [[20,80],[78,80]]],
+    "ㅂ": [[[25,15],[25,85]], [[65,15],[65,85]], [[25,35],[65,35]], [[25,65],[65,65]]],
+    "ㅅ": [[[50,15],[20,85]], [[50,35],[80,85]]],
+    "ㅇ": [[[50,15],[80,50],[50,85],[20,50],[50,15]]],
+    "ㅈ": [[[30,20],[70,20]], [[50,20],[20,85]], [[50,35],[80,85]]],
+    "ㅊ": [[[45,8],[55,18]], [[30,25],[70,25]], [[50,25],[20,85]], [[50,40],[80,85]]],
+    "ㅋ": [[[20,20],[75,20],[75,80]], [[35,50],[65,50]]],
+    "ㅌ": [[[20,20],[78,20]], [[20,50],[70,50]], [[20,20],[20,80],[78,80]]],
+    "ㅍ": [[[20,20],[78,20]], [[30,20],[30,80]], [[68,20],[68,80]], [[20,80],[78,80]]],
+    "ㅎ": [[[45,8],[55,18]], [[25,32],[75,32]], [[50,45],[80,65],[50,85],[20,65],[50,45]]],
+    "ㅏ": [[[35,10],[35,90]], [[35,50],[65,50]]],
+    "ㅑ": [[[35,10],[35,90]], [[35,40],[65,40]], [[35,60],[65,60]]],
+    "ㅓ": [[[65,10],[65,90]], [[35,50],[65,50]]],
+    "ㅕ": [[[65,10],[65,90]], [[35,40],[65,40]], [[35,60],[65,60]]],
+    "ㅗ": [[[10,65],[90,65]], [[50,35],[50,65]]],
+    "ㅛ": [[[10,65],[90,65]], [[40,35],[40,65]], [[60,35],[60,65]]],
+    "ㅜ": [[[10,35],[90,35]], [[50,35],[50,65]]],
+    "ㅠ": [[[10,35],[90,35]], [[40,35],[40,65]], [[60,35],[60,65]]],
+    "ㅡ": [[[15,50],[85,50]]],
+    "ㅣ": [[[50,10],[50,90]]],
+  };
+
   const WRITE_QUEUE = [...CONSONANTS, ...VOWELS].map((i) => i.g);
   let writeIndex = 0;
+  let currentStrokeIndex = 0;
+  let userPath = [];
+  let drawing = false;
 
   const canvas = document.getElementById("trace-canvas");
   const ctx = canvas.getContext("2d");
-  let drawing = false;
+
+  function toCanvasCoord(pt) {
+    // بيحول نقطة من مقياس 0-100 لإحداثيات الكانفاس الفعلية
+    return { x: (pt[0] / 100) * canvas.width, y: (pt[1] / 100) * canvas.height };
+  }
+
+  function toNormalized(x, y) {
+    return [(x / canvas.width) * 100, (y / canvas.height) * 100];
+  }
+
+  function getCurrentStrokes() {
+    return STROKE_DATA[WRITE_QUEUE[writeIndex]] || [];
+  }
 
   function resizeCanvas() {
     const rect = canvas.getBoundingClientRect();
     canvas.width = rect.width;
     canvas.height = rect.height;
-    drawTargetGhost();
+    resetCharacter();
   }
 
-  function drawTargetGhost() {
+  function resetCharacter() {
+    currentStrokeIndex = 0;
+    userPath = [];
+    failCount = 0;
+    redrawCanvas();
+  }
+
+  function redrawCanvas() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = "rgba(108,76,224,0.12)";
-    ctx.font = `${canvas.width * 0.6}px Tahoma`;
+
+    // ظل الحرف الشفاف في الخلفية
+    ctx.fillStyle = "rgba(108,76,224,0.08)";
+    ctx.font = `${canvas.width * 0.55}px Tahoma`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillText(WRITE_QUEUE[writeIndex], canvas.width / 2, canvas.height / 2);
+
+    const strokes = getCurrentStrokes();
+
+    // الضربات اللي خلصت (لون أخضر خفيف)
+    for (let i = 0; i < currentStrokeIndex; i++) {
+      drawGuideStroke(strokes[i], "rgba(52,199,123,0.6)", 5);
+    }
+
+    // الضربة الحالية (دليل متقطع بنفسجي + رقمها)
+    if (currentStrokeIndex < strokes.length) {
+      drawGuideStroke(strokes[currentStrokeIndex], "rgba(108,76,224,0.35)", 4, true);
+      drawStrokeNumber(strokes[currentStrokeIndex][0], currentStrokeIndex + 1);
+    }
+  }
+
+  function drawGuideStroke(strokePoints, color, width, dashed) {
+    ctx.beginPath();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = width;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.setLineDash(dashed ? [6, 6] : []);
+    strokePoints.forEach((pt, idx) => {
+      const c = toCanvasCoord(pt);
+      if (idx === 0) ctx.moveTo(c.x, c.y);
+      else ctx.lineTo(c.x, c.y);
+    });
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  function drawStrokeNumber(startPt, num) {
+    const c = toCanvasCoord(startPt);
+    ctx.beginPath();
+    ctx.arc(c.x, c.y, 11, 0, Math.PI * 2);
+    ctx.fillStyle = "#6C4CE0";
+    ctx.fill();
+    ctx.fillStyle = "white";
+    ctx.font = "bold 12px Tahoma";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(num, c.x, c.y);
   }
 
   function getPos(e) {
@@ -495,23 +596,112 @@
   }
 
   function startDraw(e) {
+    if (currentStrokeIndex >= getCurrentStrokes().length) return;
     drawing = true;
+    userPath = [];
     const p = getPos(e);
-    ctx.beginPath();
-    ctx.moveTo(p.x, p.y);
+    userPath.push(p);
     e.preventDefault();
   }
+
   function moveDraw(e) {
     if (!drawing) return;
     const p = getPos(e);
+    userPath.push(p);
+
+    // ارسم لمسة المستخدم الحية فوق الدليل
+    redrawCanvas();
+    ctx.beginPath();
+    ctx.strokeStyle = "#6C4CE0";
     ctx.lineWidth = 6;
     ctx.lineCap = "round";
-    ctx.strokeStyle = "#6C4CE0";
-    ctx.lineTo(p.x, p.y);
+    userPath.forEach((pt, idx) => {
+      if (idx === 0) ctx.moveTo(pt.x, pt.y);
+      else ctx.lineTo(pt.x, pt.y);
+    });
     ctx.stroke();
     e.preventDefault();
   }
-  function endDraw() { drawing = false; }
+
+  function endDraw() {
+    if (!drawing) return;
+    drawing = false;
+    validateStroke();
+  }
+
+  let failCount = 0;
+
+  function distance(a, b) {
+    return Math.hypot(a[0] - b[0], a[1] - b[1]);
+  }
+
+  function validateStroke() {
+    if (userPath.length < 2) return;
+
+    const strokes = getCurrentStrokes();
+    const targetStroke = strokes[currentStrokeIndex];
+    const targetStart = targetStroke[0];
+    const targetEnd = targetStroke[targetStroke.length - 1];
+
+    const userStartNorm = toNormalized(userPath[0].x, userPath[0].y);
+    const userEndNorm = toNormalized(userPath[userPath.length - 1].x, userPath[userPath.length - 1].y);
+
+    // تسامح كبير — الهدف تعليم الترتيب والاتجاه مش رسم دقيق 100%
+    const TOLERANCE = 45;
+    const startOk = distance(userStartNorm, targetStart) < TOLERANCE;
+    const endOk = distance(userEndNorm, targetEnd) < TOLERANCE;
+
+    if (startOk && endOk) {
+      failCount = 0;
+      currentStrokeIndex++;
+      if (currentStrokeIndex >= strokes.length) {
+        onCharacterComplete();
+      } else {
+        showToast(`✅ ضربة ${currentStrokeIndex} صح!`);
+        redrawCanvas();
+        updateStrokeCounter();
+      }
+    } else {
+      failCount++;
+      if (failCount >= 3) {
+        // بعد 3 محاولات، خلّيه يعدّي عشان مايتعلّقش
+        failCount = 0;
+        currentStrokeIndex++;
+        showToast("👍 تمام، خلّيني أساعدك... ننتقل للي بعدها");
+        if (currentStrokeIndex >= strokes.length) {
+          onCharacterComplete();
+        } else {
+          redrawCanvas();
+          updateStrokeCounter();
+        }
+      } else {
+        flashError();
+        showToast("❌ جرّب تاني — اتبع خط الدليل من نفس نقطة البداية");
+      }
+    }
+  }
+
+  function flashError() {
+    canvas.style.boxShadow = "0 0 0 3px #E0567A inset";
+    setTimeout(() => { canvas.style.boxShadow = ""; redrawCanvas(); }, 400);
+  }
+
+  function onCharacterComplete() {
+    KoreanProgress.addPoints(3, `stroke:${WRITE_QUEUE[writeIndex]}`);
+    showToast("🎉 +3 نقطة — الحرف اتكتب صح بالكامل!");
+    setTimeout(() => {
+      writeIndex = (writeIndex + 1) % WRITE_QUEUE.length;
+      document.getElementById("write-target-char").textContent = WRITE_QUEUE[writeIndex];
+      resetCharacter();
+      updateStrokeCounter();
+    }, 900);
+  }
+
+  function updateStrokeCounter() {
+    const strokes = getCurrentStrokes();
+    document.getElementById("stroke-counter").textContent =
+      `الضربة ${Math.min(currentStrokeIndex + 1, strokes.length)} من ${strokes.length}`;
+  }
 
   canvas.addEventListener("mousedown", startDraw);
   canvas.addEventListener("mousemove", moveDraw);
@@ -521,14 +711,16 @@
   canvas.addEventListener("touchmove", moveDraw);
   canvas.addEventListener("touchend", endDraw);
 
-  document.getElementById("btn-clear-canvas").addEventListener("click", drawTargetGhost);
+  document.getElementById("btn-clear-canvas").addEventListener("click", () => {
+    resetCharacter();
+    updateStrokeCounter();
+  });
 
-  document.getElementById("btn-next-char").addEventListener("click", () => {
-    KoreanProgress.addPoints(3, `trace:${WRITE_QUEUE[writeIndex]}`);
-    showToast("✍️ +3 نقطة — كفاية تمرين على الحرف ده!");
+  document.getElementById("btn-skip-char").addEventListener("click", () => {
     writeIndex = (writeIndex + 1) % WRITE_QUEUE.length;
     document.getElementById("write-target-char").textContent = WRITE_QUEUE[writeIndex];
-    drawTargetGhost();
+    resetCharacter();
+    updateStrokeCounter();
   });
 
   window.addEventListener("resize", resizeCanvas);
@@ -546,6 +738,7 @@
   buildGrid("vowel-grid", VOWELS);
   updateLearnProgress();
   resizeCanvas();
+  updateStrokeCounter();
 </script>
 </body>
 </html>
