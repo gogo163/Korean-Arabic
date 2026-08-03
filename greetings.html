@@ -114,11 +114,20 @@
     opacity: 0; transition: all 0.3s ease; pointer-events: none; white-space: nowrap;
   }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .back-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: white; color: var(--primary);
+    border: 2px solid #EDEAFB; border-radius: 12px;
+    padding: 8px 14px; font-size: 12.5px; font-weight: bold;
+    text-decoration: none; margin-bottom: 14px;
+  }
 </style>
 </head>
 <body>
 
 <div class="app">
+  <a href="index.html" class="back-btn">→ الرئيسية</a>
   <header>
     <h1>🙏 قاموس التحيات</h1>
     <p>كل تحية كورية ومعاها مستوى الأدب المناسب لها</p>
