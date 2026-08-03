@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>القواعد — 문법</title>
+<style>
+  :root {
+    --primary: #6C4CE0;
+    --primary-light: #9B7FF0;
+    --accent: #FF6FA5;
+    --bg: #F7F5FF;
+    --card: #FFFFFF;
+    --text: #2A2140;
+    --success: #34C77B;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Tahoma', 'Segoe UI', sans-serif;
+    background: linear-gradient(180deg, var(--bg) 0%, #ECE7FF 100%);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 16px;
+    padding-bottom: 50px;
+  }
+  .app { max-width: 480px; margin: 0 auto; }
+
+  .back-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: white; color: var(--primary);
+    border: 2px solid #EDEAFB; border-radius: 12px;
+    padding: 8px 14px; font-size: 12.5px; font-weight: bold;
+    text-decoration: none; margin-bottom: 14px;
+  }
+
+  header { text-align: center; margin-bottom: 14px; }
+  header h1 { font-size: 19px; color: var(--primary); }
+  header p { font-size: 12px; color: #8A82A6; margin-top: 4px; }
+
+  #voice-warning {
+    display: none;
+    background: #FFF3E0; color: #B36B00;
+    font-size: 11.5px; padding: 10px 14px; border-radius: 12px;
+    margin-bottom: 14px; line-height: 1.6; text-align: center;
+  }
+  #voice-warning.show { display: block; }
+
+  .topic-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+  .topic-chip {
+    display: flex; align-items: center; gap: 10px;
+    background: white; border: 2px solid #EDEAFB;
+    border-radius: 14px; padding: 12px 14px; cursor: pointer;
+  }
+  .topic-chip.active { border-color: var(--primary); background: #F8F6FF; }
+  .topic-chip .num {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: #F1ECFF; color: var(--primary);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: bold; flex: 0 0 auto;
+  }
+  .topic-chip.done .num { background: var(--success); color: white; }
+  .topic-chip .label { flex: 1; font-size: 13px; font-weight: bold; }
+  .topic-chip .arrow { color: #D9D0FA; font-size: 14px; }
+
+  .lesson-card {
+    background: var(--card);
+    border-radius: 20px;
+    padding: 18px;
+    box-shadow: 0 4px 16px rgba(108,76,224,0.1);
+    margin-bottom: 16px;
+  }
+  .lesson-card h2 { font-size: 16px; color: var(--primary); margin-bottom: 10px; }
+  .lesson-card .rule-text { font-size: 13.5px; line-height: 1.9; color: var(--text); }
+  .lesson-card .rule-text .hl {
+    background: #F1ECFF; color: var(--primary); font-weight: bold;
+    padding: 2px 6px; border-radius: 6px;
+  }
+
+  .formula-box {
+    background: linear-gradient(120deg, var(--primary), var(--accent));
+    color: white; border-radius: 14px; padding: 14px;
+    text-align: center; font-size: 15px; font-weight: bold;
+    margin: 14px 0;
+  }
+
+  .example-card {
+    background: #FAFAFF; border: 1px solid #EDEAFB;
+    border-radius: 14px; padding: 12px 14px; margin-top: 10px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .example-card .ex-info { flex: 1; }
+  .example-card .ex-kr { font-size: 15.5px; font-weight: bold; }
+  .example-card .ex-kr .part { color: var(--accent); }
+  .example-card .ex-roman { font-size: 11px; color: var(--primary); margin-top: 2px; }
+  .example-card .ex-ar { font-size: 12px; color: #8A82A6; margin-top: 4px; }
+  .ex-play {
+    flex: 0 0 auto; width: 34px; height: 34px; border-radius: 50%;
+    background: #F1ECFF; color: var(--primary); border: none;
+    font-size: 13px; cursor: pointer;
+  }
+  .ex-play.playing { background: var(--primary); color: white; }
+
+  .complete-btn {
+    width: 100%; border: none; border-radius: 14px; padding: 13px;
+    font-size: 13.5px; font-weight: bold; cursor: pointer;
+    background: var(--primary); color: white;
+  }
+  .complete-btn.done { background: var(--success); }
+
+  .toast {
+    position: fixed; bottom: 24px; left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--text); color: white;
+    padding: 10px 18px; border-radius: 12px; font-size: 13px;
+    opacity: 0; transition: all 0.3s ease; pointer-events: none; white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <a href="index.html" class="back-btn">→ الرئيسية</a>
+
+  <header>
+    <h1>📐 القواعد</h1>
+    <p>قواعد أساسية هتفهمك تركيب أي جملة كورية</p>
+  </header>
+
+  <div id="voice-warning">
+    ⚠️ المتصفح بتاعك مش لاقي صوت كوري مثبّت. الجُمل هتتعرض من غير صوت.
+  </div>
+
+  <div class="topic-list" id="topic-list"></div>
+
+  <div id="lesson-container"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="progress.js"></script>
+<script>
+  // -------------------------------------------------------------
+  // دروس القواعد الأساسية — كل درس فيه شرح + قاعدة + أمثلة
+  // -------------------------------------------------------------
+  const TOPICS = [
+    {
+      id: "topic-marker",
+      label: "أداة الفاعل: 은/는 و 이/가",
+      title: "1. إزاي تحدّد 'الفاعل' في الجملة",
+      rule: `في الكوري، مفيش "الـ" التعريف زي العربي. بدل كده بتحط <span class="hl">أداة</span> بعد الاسم عشان تقول إنه هو "الفاعل" أو "الموضوع" في الجملة. فيه أداتين بيتلخبطوا فيهم المبتدئين: <span class="hl">은/는</span> (الموضوع العام) و <span class="hl">이/가</span> (فاعل محدد أو معلومة جديدة).`,
+      formula: "الاسم + 은/는 (بعد ساكن/متحرك) = 'بالنسبة لـ...'",
+      examples: [
+        { kr: "저는 학생이에요", part: "는", roman: "jeoneun haksaengieyo", ar: "أنا (بالنسبة لموضوعي) طالب" },
+        { kr: "고양이가 귀여워요", part: "가", roman: "goyangiga gwiyeowoyo", ar: "القطة (بالتحديد) لطيفة" },
+        { kr: "이름이 뭐예요?", part: "이", roman: "ireumi mwoyeyo?", ar: "إيه اسمك؟ (سؤال عن معلومة جديدة)" },
+      ],
+    },
+    {
+      id: "object-marker",
+      label: "أداة المفعول به: 을/를",
+      title: "2. إزاي تحدّد 'المفعول به'",
+      rule: `لما يكون فيه حاجة الفعل بيقع عليها (زي "بحب الكورية")، بتحط أداة <span class="hl">을</span> بعد كلمة بتنتهي بحرف ساكن، أو <span class="hl">를</span> بعد كلمة بتنتهي بحرف متحرك.`,
+      formula: "الاسم (ينتهي بساكن) + 을  |  الاسم (ينتهي بمتحرك) + 를",
+      examples: [
+        { kr: "밥을 먹어요", part: "을", roman: "babeul meogeoyo", ar: "بآكل رز (أكل)" },
+        { kr: "커피를 마셔요", part: "를", roman: "keopireul masyeoyo", ar: "بأشرب قهوة" },
+        { kr: "한국어를 배워요", part: "를", roman: "hangugeoreul baewoyo", ar: "بتعلّم كورية" },
+      ],
+    },
+    {
+      id: "present-tense",
+      label: "تصريف المضارع",
+      title: "3. إزاي تصرّف الفعل في المضارع",
+      rule: `الأفعال الكورية في القاموس بتخلص بـ <span class="hl">다</span>. عشان تحول الفعل لجملة عادية مؤدّبة (اللي هتستخدمها كتير)، بتشيل الـ 다 وتضيف <span class="hl">아요</span> أو <span class="hl">어요</span> حسب آخر حرف متحرك في الفعل.`,
+      formula: "جذر الفعل + 아요 (لو آخره ㅏ/ㅗ) أو + 어요 (لباقي الحالات)",
+      examples: [
+        { kr: "가다 → 가요", part: "요", roman: "gada → gayo", ar: "يروح ← بيروح/بتروح" },
+        { kr: "먹다 → 먹어요", part: "어요", roman: "meokda → meogeoyo", ar: "ياكل ← بياكل" },
+        { kr: "공부하다 → 공부해요", part: "해요", roman: "gongbuhada → gongbuhaeyo", ar: "يذاكر ← بيذاكر" },
+      ],
+    },
+    {
+      id: "negation",
+      label: "النفي",
+      title: "4. إزاي تنفي جملة",
+      rule: `أسهل طريقة للنفي: تحط <span class="hl">안</span> قبل الفعل مباشرة. الطريقة التانية (أكتر رسمية): تشيل الـ 다 من الفعل وتضيف <span class="hl">지 않아요</span>.`,
+      formula: "안 + الفعل المصرّف  |  جذر الفعل + 지 않아요",
+      examples: [
+        { kr: "안 가요", part: "안", roman: "an gayo", ar: "مش رايح" },
+        { kr: "안 먹어요", part: "안", roman: "an meogeoyo", ar: "مش هاكل" },
+        { kr: "학교에 가지 않아요", part: "지 않아요", roman: "hakgyoe gaji anayo", ar: "مش رايح المدرسة (رسمي)" },
+      ],
+    },
+    {
+      id: "past-tense",
+      label: "الماضي",
+      title: "5. إزاي تتكلم عن حاجة حصلت فعلاً",
+      rule: `زي المضارع بالظبط، بس بدل 아요/어요 بتستخدم <span class="hl">았어요</span> أو <span class="hl">었어요</span>.`,
+      formula: "جذر الفعل + 았어요 (لو آخره ㅏ/ㅗ) أو + 었어요 (لباقي الحالات)",
+      examples: [
+        { kr: "먹었어요", part: "었어요", roman: "meogeosseoyo", ar: "أكلت" },
+        { kr: "갔어요", part: "았어요", roman: "gasseoyo", ar: "رحت" },
+        { kr: "공부했어요", part: "했어요", roman: "gongbuhaesseoyo", ar: "ذاكرت" },
+      ],
+    },
+    {
+      id: "location",
+      label: "حروف الجر المكانية",
+      title: "6. الفرق بين 에 و 에서",
+      rule: `<span class="hl">에</span> بتستخدمها للوجهة أو المكان الثابت (زي "في البيت"، "رايح المدرسة"). <span class="hl">에서</span> بتستخدمها لمكان بيحصل فيه نشاط أو فعل (زي "بذاكر في المكتبة").`,
+      formula: "مكان ثابت/وجهة + 에  |  مكان فيه نشاط + 에서",
+      examples: [
+        { kr: "집에 있어요", part: "에", roman: "jibe isseoyo", ar: "أنا في البيت" },
+        { kr: "학교에 가요", part: "에", roman: "hakgyoe gayo", ar: "رايح المدرسة" },
+        { kr: "카페에서 공부해요", part: "에서", roman: "kapeeseo gongbuhaeyo", ar: "بذاكر في الكافيه" },
+      ],
+    },
+  ];
+
+  let currentTopicId = TOPICS[0].id;
+  const completedSet = new Set(JSON.parse(localStorage.getItem("korean_grammar_completed") || "[]"));
+
+  function saveCompleted() {
+    localStorage.setItem("korean_grammar_completed", JSON.stringify([...completedSet]));
+  }
+
+  // ---------------- Voice ----------------
+  let koreanVoice = null;
+  function loadVoices() {
+    const voices = speechSynthesis.getVoices();
+    koreanVoice = voices.find((v) => v.lang === "ko-KR") || voices.find((v) => v.lang.startsWith("ko"));
+    document.getElementById("voice-warning").classList.toggle("show", !koreanVoice);
+  }
+  if ("speechSynthesis" in window) {
+    loadVoices();
+    speechSynthesis.onvoiceschanged = loadVoices;
+  } else {
+    document.getElementById("voice-warning").classList.add("show");
+  }
+
+  function speak(text) {
+    if (!("speechSynthesis" in window)) {
+      showToast("😔 المتصفح ده مش بيدعم النطق الصوتي");
+      return;
+    }
+    speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = "ko-KR";
+    if (koreanVoice) utter.voice = koreanVoice;
+    speechSynthesis.speak(utter);
+  }
+
+  // ---------------- Topic list ----------------
+  function renderTopicList() {
+    const list = document.getElementById("topic-list");
+    list.innerHTML = TOPICS.map(
+      (t, idx) => `
+      <div class="topic-chip ${t.id === currentTopicId ? "active" : ""} ${completedSet.has(t.id) ? "done" : ""}" data-id="${t.id}">
+        <div class="num">${completedSet.has(t.id) ? "✓" : idx + 1}</div>
+        <div class="label">${t.label}</div>
+        <div class="arrow">‹</div>
+      </div>`
+    ).join("");
+
+    list.querySelectorAll(".topic-chip").forEach((chip) => {
+      chip.addEventListener("click", () => {
+        currentTopicId = chip.dataset.id;
+        renderTopicList();
+        renderLesson();
+      });
+    });
+  }
+
+  // ---------------- Lesson content ----------------
+  function renderLesson() {
+    const topic = TOPICS.find((t) => t.id === currentTopicId);
+    const container = document.getElementById("lesson-container");
+    const isDone = completedSet.has(topic.id);
+
+    container.innerHTML = `
+      <div class="lesson-card">
+        <h2>${topic.title}</h2>
+        <p class="rule-text">${topic.rule}</p>
+        <div class="formula-box">${topic.formula}</div>
+        <div id="examples-holder"></div>
+        <button class="complete-btn ${isDone ? "done" : ""}" id="btn-complete-topic" style="margin-top:14px;">
+          ${isDone ? "✅ اتخلّص الدرس" : "✅ فهمت، كمّل (+6 نقط)"}
+        </button>
+      </div>`;
+
+    const holder = document.getElementById("examples-holder");
+    holder.innerHTML = topic.examples
+      .map((ex) => {
+        const highlighted = ex.kr.replace(ex.part, `<span class="part">${ex.part}</span>`);
+        return `
+        <div class="example-card">
+          <button class="ex-play" data-text="${ex.kr}">🔊</button>
+          <div class="ex-info">
+            <div class="ex-kr">${highlighted}</div>
+            <div class="ex-roman">${ex.roman}</div>
+            <div class="ex-ar">${ex.ar}</div>
+          </div>
+        </div>`;
+      })
+      .join("");
+
+    holder.querySelectorAll(".ex-play").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        speak(btn.dataset.text);
+        btn.classList.add("playing");
+        setTimeout(() => btn.classList.remove("playing"), 700);
+      });
+    });
+
+    document.getElementById("btn-complete-topic").addEventListener("click", () => {
+      if (!completedSet.has(topic.id)) {
+        completedSet.add(topic.id);
+        saveCompleted();
+        KoreanProgress.completeLesson(`grammar_${topic.id}`, 6);
+        showToast("📐 +6 نقطة — درس قواعد اتخلّص!");
+        renderTopicList();
+        renderLesson();
+      }
+    });
+  }
+
+  function showToast(msg) {
+    const toast = document.getElementById("toast");
+    toast.textContent = msg;
+    toast.classList.add("show");
+    setTimeout(() => toast.classList.remove("show"), 1800);
+  }
+
+  // ---------------- Init ----------------
+  renderTopicList();
+  renderLesson();
+</script>
+</body>
+</html>

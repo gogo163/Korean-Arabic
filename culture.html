@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>الثقافة الكورية — 한국 문화</title>
+<style>
+  :root {
+    --primary: #6C4CE0;
+    --primary-light: #9B7FF0;
+    --accent: #FF6FA5;
+    --bg: #F7F5FF;
+    --card: #FFFFFF;
+    --text: #2A2140;
+    --success: #34C77B;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Tahoma', 'Segoe UI', sans-serif;
+    background: linear-gradient(180deg, var(--bg) 0%, #ECE7FF 100%);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 16px;
+    padding-bottom: 50px;
+  }
+  .app { max-width: 480px; margin: 0 auto; }
+
+  .back-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: white; color: var(--primary);
+    border: 2px solid #EDEAFB; border-radius: 12px;
+    padding: 8px 14px; font-size: 12.5px; font-weight: bold;
+    text-decoration: none; margin-bottom: 14px;
+  }
+
+  header { text-align: center; margin-bottom: 14px; }
+  header h1 { font-size: 19px; color: var(--primary); }
+  header p { font-size: 12px; color: #8A82A6; margin-top: 4px; }
+
+  .topic-scroll {
+    display: flex; gap: 8px; overflow-x: auto;
+    margin-bottom: 16px; padding-bottom: 4px;
+  }
+  .topic-chip {
+    flex: 0 0 auto;
+    background: white; color: var(--primary);
+    border: 2px solid #EDEAFB;
+    padding: 9px 16px; border-radius: 999px;
+    font-size: 12.5px; font-weight: bold; white-space: nowrap; cursor: pointer;
+  }
+  .topic-chip.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+  .topic-banner {
+    background: linear-gradient(120deg, var(--primary), var(--accent));
+    color: white; border-radius: 18px; padding: 16px;
+    margin-bottom: 16px; text-align: center;
+  }
+  .topic-banner .emoji { font-size: 26px; }
+  .topic-banner .title { font-size: 15px; font-weight: bold; margin-top: 4px; }
+  .topic-banner .desc { font-size: 11.5px; opacity: 0.9; margin-top: 4px; }
+
+  .fact-card {
+    background: var(--card);
+    border-radius: 18px;
+    padding: 16px;
+    margin-bottom: 12px;
+    box-shadow: 0 4px 14px rgba(108,76,224,0.08);
+  }
+  .fact-card .fact-icon { font-size: 22px; margin-bottom: 8px; }
+  .fact-card h3 { font-size: 14px; color: var(--primary); margin-bottom: 6px; }
+  .fact-card p { font-size: 13px; line-height: 1.8; color: var(--text); }
+  .fact-card .kr-term {
+    display: inline-block; background: #F1ECFF; color: var(--primary);
+    font-weight: bold; padding: 2px 8px; border-radius: 6px; margin: 0 2px;
+  }
+  .fact-card .fun-fact {
+    background: #FFF7FB; border-right: 3px solid var(--accent);
+    padding: 8px 10px; border-radius: 10px; margin-top: 10px;
+    font-size: 12px; color: #8A82A6;
+  }
+
+  .complete-btn {
+    width: 100%; border: none; border-radius: 14px; padding: 13px;
+    font-size: 13.5px; font-weight: bold; cursor: pointer;
+    background: var(--primary); color: white; margin-top: 6px;
+  }
+  .complete-btn.done { background: var(--success); }
+
+  .toast {
+    position: fixed; bottom: 24px; left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--text); color: white;
+    padding: 10px 18px; border-radius: 12px; font-size: 13px;
+    opacity: 0; transition: all 0.3s ease; pointer-events: none; white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <a href="index.html" class="back-btn">→ الرئيسية</a>
+
+  <header>
+    <h1>🏮 الثقافة الكورية</h1>
+    <p>افهم السياق اللي بتتعلم اللغة عشانه</p>
+  </header>
+
+  <div class="topic-scroll" id="topic-scroll"></div>
+
+  <div class="topic-banner" id="topic-banner"></div>
+
+  <div id="facts-container"></div>
+
+  <button class="complete-btn" id="btn-complete">✅ خلّصت الموضوع ده (+5 نقط)</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="progress.js"></script>
+<script>
+  // -------------------------------------------------------------
+  // مواضيع ثقافية — معلومات عامة، مش نصوص منقولة من مصدر معيّن
+  // -------------------------------------------------------------
+  const TOPICS = [
+    {
+      id: "etiquette",
+      chip: "🙇 آداب وتقاليد",
+      emoji: "🙇",
+      title: "آداب التعامل اليومي",
+      desc: "قواعد اجتماعية هتلاحظها في كل مكان",
+      facts: [
+        {
+          icon: "🎋",
+          h: "احترام الكبير في السن",
+          p: `العمر في كوريا بيحدد طريقة الكلام بالكامل. حتى فرق سنة واحدة ممكن يخلّي حد يستخدم معاك لغة أدب أعلى. أول سؤال بيتسأل غالباً في أي تعارف هو السن، مش عشان فضول، لكن عشان يعرف يتكلم معاك إزاي.`,
+          fun: "💡 كلمة 형 (hyung) و 언니 (eonni) بيتستخدموا حتى مع ناس مش من العيلة، لو أكبر منك سناً وقريبين منك.",
+        },
+        {
+          icon: "🍶",
+          h: "آداب الشرب مع الكبار",
+          p: `لو بتشرب حاجة مع حد أكبر منك، من الأدب إنك تلف وشك بعيد شوية وانت بتشرب، وتمسك الكاسة بإيدين لو بيصبّلك حد أكبر.`,
+          fun: "",
+        },
+        {
+          icon: "👞",
+          h: "خلع الجزمة",
+          p: `في أي بيت كوري (وأحياناً مطاعم تقليدية)، بتخلع جزمتك عند الباب. ده مش اختياري — جزء أساسي من النظافة والاحترام.`,
+          fun: "",
+        },
+      ],
+    },
+    {
+      id: "holidays",
+      chip: "🎊 الأعياد",
+      emoji: "🎊",
+      title: "الأعياد والمناسبات",
+      desc: "أهم مناسبتين في السنة الكورية",
+      facts: [
+        {
+          icon: "🧧",
+          h: "설날 (Seollal) — رأس السنة القمرية",
+          p: `أهم عيد كوري، بيتقابل مع رأس السنة الصينية تقريباً. العيلة بتتجمع، الصغيرين بيعملوا انحناءة تقليدية للكبار (세배)، وبياخدوا فلوس هدية في المقابل. الأكلة الرئيسية 떡국 (شوربة الأرز) — أكلها في العيد معناها إنك "كبرت سنة".`,
+          fun: "💡 في الدراما هتلاقي مشاهد كتير بتدور حوالين رحلة العيلة لبيت الجد في الأعياد دي — زي عيدنا بالظبط!",
+        },
+        {
+          icon: "🌕",
+          h: "추석 (Chuseok) — عيد الشكر الكوري",
+          p: `بيحصل في نص الخريف، وفيه العيلة بتتجمع تاني وتشكر أجدادها على المحصول. الأكلة المميزة 송편 (كيك أرز صغير بشكل هلال).`,
+          fun: "",
+        },
+      ],
+    },
+    {
+      id: "kpop-world",
+      chip: "🎤 عالم الكيبوب",
+      emoji: "🎤",
+      title: "مصطلحات عالم الكيبوب",
+      desc: "كلمات هتسمعها في أي حساب كيبوب",
+      facts: [
+        {
+          icon: "⭐",
+          h: "데뷔 (Debut) و 컴백 (Comeback)",
+          p: `"الديبيو" هو أول ظهور رسمي للفرقة أو الفنان. "الكامباك" مش معناها الاعتزال والرجوع — معناها إصدار أغنية أو ألبوم جديد بعد فترة راحة.`,
+          fun: "",
+        },
+        {
+          icon: "💜",
+          h: "بيتاس (Fandom) وأسماء المشجعين",
+          p: `كل فرقة كيبوب كبيرة عندها اسم رسمي لمشجعينها (زي ARMY لـ BTS)، ولون رسمي مرتبط بيهم بيظهر في الحفلات (لايت ستيك).`,
+          fun: "💡 كلمة 팬 (paen) معناها 'فان' نفسها، مأخوذة من الإنجليزية.",
+        },
+        {
+          icon: "🎬",
+          h: "بايت (Bias)",
+          p: `مصطلح إنجليزي اتبنى في ثقافة الكيبوب، معناه الفنان المفضّل عندك في الفرقة. لو عندك أكتر من واحد بتحبه بيقولوا "bias wrecker" للي بيهزّ قرارك.`,
+          fun: "",
+        },
+      ],
+    },
+    {
+      id: "drama-world",
+      chip: "🎬 عالم الدراما",
+      emoji: "🎬",
+      title: "قاموس مصطلحات الدراما",
+      desc: "علشان تفهم اللي بيتقال في مواقع التقييم",
+      facts: [
+        {
+          icon: "📺",
+          h: "الحلقات والمواسم",
+          p: `أغلب الدراما الكورية بتتصور وتتعرض كموسم واحد بس من 12-20 حلقة، مش زي المسلسلات الأمريكية اللي بتفضل لمواسم كتير. القصة بتخلص كاملة في الموسم الواحد غالباً.`,
+          fun: "",
+        },
+        {
+          icon: "💔",
+          h: "الـ Second Lead Syndrome",
+          p: `مصطلح شائع بين متابعين الدراما، لما المشاهد يتعاطف مع "الحبيب التاني" (مش البطل الرئيسي) أكتر من البطل نفسه.`,
+          fun: "",
+        },
+        {
+          icon: "🎭",
+          h: "الأنواع الشائعة",
+          p: `فيه أنواع متكررة: الرومانسية الكوميدية (로맨틱 코미디)، دراما الانتقام، الدراما التاريخية (사극)، ودراما الأشباح/الفانتازيا.`,
+          fun: "",
+        },
+      ],
+    },
+    {
+      id: "food-culture",
+      chip: "🍚 ثقافة الأكل",
+      emoji: "🍚",
+      title: "طقوس المائدة الكورية",
+      desc: "الأكل مش مجرد أكل — ده تجمّع اجتماعي",
+      facts: [
+        {
+          icon: "🥢",
+          h: "المشاركة في الطبق",
+          p: `الأكل الكوري غالباً بيتقدّم للمشاركة — طبق رئيسي في النص وكل الناس بتاكل منه بشوكة/ملعقة مشتركة، مش زي أطباق فردية دايماً.`,
+          fun: "",
+        },
+        {
+          icon: "🍲",
+          h: "반찬 (Banchan) — الأطباق الجانبية",
+          p: `أي وجبة كورية بتيجي مع كذا طبق صغير جانبي (كيمتشي، خضار متبّلة، إلخ) بيتحطوا كلهم مجاناً وبيتجدّدوا لو خلصوا.`,
+          fun: "💡 عدد الـ banchan ممكن يوصل لـ10 أطباق في بعض المطاعم!",
+        },
+        {
+          icon: "🔥",
+          h: "الشوي على المائدة (고기 구이)",
+          p: `في مطاعم اللحمة الكورية، بتشوي اللحمة بنفسك على شواية في نص الترابيزة — تجربة اجتماعية أكتر من كونها مجرد أكل.`,
+          fun: "",
+        },
+      ],
+    },
+    {
+      id: "daily-life",
+      chip: "🏙️ الحياة اليومية",
+      emoji: "🏙️",
+      title: "تفاصيل الحياة الكورية اليومية",
+      desc: "حاجات هتلاحظها في أي مشهد دراما",
+      facts: [
+        {
+          icon: "🎮",
+          h: "PC방 (PC bang) — مقاهي الألعاب",
+          p: `منتشرة جداً في كوريا، بيروحها الشباب يلعبوا كمبيوتر بأسعار رخيصة، وبتلاقيها كتير كمكان لقاء في الدراما.`,
+          fun: "",
+        },
+        {
+          icon: "🏪",
+          h: "متاجر 편의점 (Convenience stores)",
+          p: `منتشرة في كل ناصية، مفتوحة 24 ساعة، وفيها تراپيزات برّه للأكل فوراً — مشهد كلاسيكي في أي دراما مشهد ليلي.`,
+          fun: "",
+        },
+        {
+          icon: "🚇",
+          h: "المترو والمواصلات",
+          p: `نظام مترو سيول من أكتر الأنظمة تطوراً في العالم، وبيتستخدم كمسرح لمشاهد كتير في الدراما — لقاءات صدفة، وداع في المحطة، إلخ.`,
+          fun: "",
+        },
+      ],
+    },
+  ];
+
+  let currentTopicId = "etiquette";
+  const completedSet = new Set(JSON.parse(localStorage.getItem("korean_culture_completed") || "[]"));
+
+  function saveCompleted() {
+    localStorage.setItem("korean_culture_completed", JSON.stringify([...completedSet]));
+  }
+
+  // ---------------- Topics ----------------
+  const topicScroll = document.getElementById("topic-scroll");
+  topicScroll.innerHTML = TOPICS.map(
+    (t) => `<div class="topic-chip ${t.id === currentTopicId ? "active" : ""}" data-id="${t.id}">${t.chip}</div>`
+  ).join("");
+
+  topicScroll.querySelectorAll(".topic-chip").forEach((chip) => {
+    chip.addEventListener("click", () => {
+      currentTopicId = chip.dataset.id;
+      render();
+    });
+  });
+
+  function render() {
+    const topic = TOPICS.find((t) => t.id === currentTopicId);
+
+    topicScroll.querySelectorAll(".topic-chip").forEach((c) =>
+      c.classList.toggle("active", c.dataset.id === currentTopicId)
+    );
+
+    document.getElementById("topic-banner").innerHTML = `
+      <div class="emoji">${topic.emoji}</div>
+      <div class="title">${topic.title}</div>
+      <div class="desc">${topic.desc}</div>
+    `;
+
+    document.getElementById("facts-container").innerHTML = topic.facts
+      .map(
+        (f) => `
+        <div class="fact-card">
+          <div class="fact-icon">${f.icon}</div>
+          <h3>${f.h}</h3>
+          <p>${f.p}</p>
+          ${f.fun ? `<div class="fun-fact">${f.fun}</div>` : ""}
+        </div>`
+      )
+      .join("");
+
+    const completeBtn = document.getElementById("btn-complete");
+    const isDone = completedSet.has(topic.id);
+    completeBtn.textContent = isDone ? "✅ اتخلّص الموضوع ده" : "✅ خلّصت الموضوع ده (+5 نقط)";
+    completeBtn.classList.toggle("done", isDone);
+  }
+
+  document.getElementById("btn-complete").addEventListener("click", () => {
+    if (!completedSet.has(currentTopicId)) {
+      completedSet.add(currentTopicId);
+      saveCompleted();
+      KoreanProgress.completeLesson(`culture_${currentTopicId}`, 5);
+      showToast("🏮 +5 نقطة — موضوع ثقافي جديد!");
+      render();
+    }
+  });
+
+  function showToast(msg) {
+    const toast = document.getElementById("toast");
+    toast.textContent = msg;
+    toast.classList.add("show");
+    setTimeout(() => toast.classList.remove("show"), 1800);
+  }
+
+  render();
+</script>
+</body>
+</html>

@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>كلمة اليوم — 오늘의 단어</title>
+<style>
+  :root {
+    --primary: #6C4CE0;
+    --primary-light: #9B7FF0;
+    --accent: #FF6FA5;
+    --bg: #F7F5FF;
+    --card: #FFFFFF;
+    --text: #2A2140;
+    --success: #34C77B;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Tahoma', 'Segoe UI', sans-serif;
+    background: linear-gradient(180deg, var(--bg) 0%, #ECE7FF 100%);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 16px;
+    padding-bottom: 50px;
+  }
+  .app { max-width: 480px; margin: 0 auto; }
+
+  .back-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: white; color: var(--primary);
+    border: 2px solid #EDEAFB; border-radius: 12px;
+    padding: 8px 14px; font-size: 12.5px; font-weight: bold;
+    text-decoration: none; margin-bottom: 14px;
+  }
+
+  header { text-align: center; margin-bottom: 16px; }
+  header h1 { font-size: 19px; color: var(--primary); }
+  header p { font-size: 12px; color: #8A82A6; margin-top: 4px; }
+
+  .date-pill {
+    text-align: center; font-size: 12px; color: #9992B5;
+    background: white; border-radius: 999px; padding: 8px 16px;
+    display: inline-block; margin: 0 auto 18px; width: fit-content;
+    box-shadow: 0 3px 10px rgba(108,76,224,0.06);
+  }
+  .date-pill-wrap { text-align: center; }
+
+  .word-hero {
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    color: white; border-radius: 26px; padding: 32px 24px;
+    text-align: center; margin-bottom: 18px;
+    box-shadow: 0 8px 24px rgba(108,76,224,0.25);
+  }
+  .word-hero .badge {
+    display: inline-block; background: rgba(255,255,255,0.25);
+    font-size: 10.5px; padding: 4px 12px; border-radius: 999px;
+    margin-bottom: 14px; font-weight: bold;
+  }
+  .word-hero .word-kr { font-size: 42px; font-weight: bold; }
+  .word-hero .word-roman { font-size: 15px; opacity: 0.9; margin-top: 8px; }
+  .word-hero .word-ar { font-size: 20px; font-weight: bold; margin-top: 14px; }
+  .word-hero .play-btn-hero {
+    margin-top: 18px; background: rgba(255,255,255,0.25); color: white;
+    border: none; border-radius: 14px; padding: 10px 22px;
+    font-size: 13px; font-weight: bold; cursor: pointer;
+  }
+  .word-hero .play-btn-hero:active { transform: scale(0.96); }
+
+  .example-card {
+    background: var(--card); border-radius: 18px; padding: 18px;
+    box-shadow: 0 4px 14px rgba(108,76,224,0.08); margin-bottom: 16px;
+  }
+  .example-card .ex-label { font-size: 11.5px; color: #9992B5; margin-bottom: 8px; font-weight: bold; }
+  .example-card .ex-kr { font-size: 17px; font-weight: bold; }
+  .example-card .ex-roman { font-size: 12px; color: var(--primary); margin-top: 4px; }
+  .example-card .ex-ar { font-size: 13px; color: var(--text); margin-top: 8px; }
+  .example-card .ex-play {
+    margin-top: 12px; background: #F1ECFF; color: var(--primary);
+    border: none; border-radius: 12px; padding: 8px 16px;
+    font-size: 12px; font-weight: bold; cursor: pointer;
+  }
+
+  .claim-btn {
+    width: 100%; border: none; border-radius: 16px; padding: 15px;
+    font-size: 14px; font-weight: bold; cursor: pointer;
+    background: var(--primary); color: white; margin-bottom: 20px;
+  }
+  .claim-btn.done { background: var(--success); }
+  .claim-btn:disabled { opacity: 0.9; }
+
+  .stats-row { display: flex; gap: 10px; margin-bottom: 20px; }
+  .stat-mini {
+    flex: 1; background: white; border-radius: 14px; padding: 12px;
+    text-align: center; box-shadow: 0 3px 10px rgba(108,76,224,0.08);
+  }
+  .stat-mini .v { font-size: 16px; font-weight: bold; color: var(--primary); }
+  .stat-mini .l { font-size: 10px; color: #9992B5; margin-top: 2px; }
+
+  .archive-link {
+    display: block; text-align: center; font-size: 12.5px;
+    color: var(--primary); font-weight: bold; text-decoration: none;
+    padding: 10px;
+  }
+
+  .toast {
+    position: fixed; bottom: 24px; left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--text); color: white;
+    padding: 10px 18px; border-radius: 12px; font-size: 13px;
+    opacity: 0; transition: all 0.3s ease; pointer-events: none; white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <a href="index.html" class="back-btn">→ الرئيسية</a>
+
+  <header>
+    <h1>🌟 كلمة اليوم</h1>
+    <p>كلمة جديدة كل يوم — ارجع كل مرة تلاقي كلمة تانية</p>
+  </header>
+
+  <div class="date-pill-wrap">
+    <div class="date-pill" id="date-pill"></div>
+  </div>
+
+  <div class="word-hero">
+    <div class="badge" id="word-category-badge">كلمة اليوم</div>
+    <div class="word-kr" id="word-kr">-</div>
+    <div class="word-roman" id="word-roman">-</div>
+    <div class="word-ar" id="word-ar">-</div>
+    <button class="play-btn-hero" id="btn-play-hero">🔊 اسمع النطق</button>
+  </div>
+
+  <div class="example-card">
+    <div class="ex-label">💡 مثال في جملة</div>
+    <div class="ex-kr" id="ex-kr">-</div>
+    <div class="ex-roman" id="ex-roman">-</div>
+    <div class="ex-ar" id="ex-ar">-</div>
+    <button class="ex-play" id="btn-play-example">🔊 اسمع الجملة</button>
+  </div>
+
+  <button class="claim-btn" id="btn-claim">✅ حفظت كلمة اليوم (+5 نقط)</button>
+
+  <div class="stats-row">
+    <div class="stat-mini"><div class="v" id="stat-total-claimed">0</div><div class="l">كلمة اتحفظت</div></div>
+    <div class="stat-mini"><div class="v" id="stat-streak">0</div><div class="l">يوم متواصل</div></div>
+  </div>
+
+  <a href="vocabulary.html" class="archive-link">📚 عايز تراجع كل الكلمات؟ روح لقسم الكلمات الأساسية ←</a>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="progress.js"></script>
+<script>
+  // -------------------------------------------------------------
+  // بنك كلمات اليوم — كل كلمة بمثال جملة حقيقي
+  // الكلمة بتتغيّر تلقائياً كل يوم حسب تاريخ النهاردة
+  // -------------------------------------------------------------
+  const WORD_BANK = [
+    { kr: "행복", roman: "haengbok", ar: "سعادة", cat: "مشاعر", ex: { kr: "저는 지금 행복해요", roman: "jeoneun jigeum haengbokhaeyo", ar: "أنا سعيد دلوقتي" } },
+    { kr: "친구", roman: "chingu", ar: "صديق", cat: "علاقات", ex: { kr: "그는 제 친구예요", roman: "geuneun je chinguyeyo", ar: "هو صاحبي" } },
+    { kr: "꿈", roman: "kkum", ar: "حلم", cat: "مشاعر", ex: { kr: "제 꿈은 가수예요", roman: "je kkumeun gasuyeyo", ar: "حلمي إني أبقى مغني" } },
+    { kr: "여행", roman: "yeohaeng", ar: "سفر / رحلة", cat: "أنشطة", ex: { kr: "한국 여행을 가고 싶어요", roman: "hanguk yeohaengeul gago sipeoyo", ar: "عايز أسافر كوريا" } },
+    { kr: "노래", roman: "norae", ar: "أغنية", cat: "فن", ex: { kr: "이 노래 정말 좋아요", roman: "i norae jeongmal joayo", ar: "الأغنية دي حلوة أوي" } },
+    { kr: "사진", roman: "sajin", ar: "صورة", cat: "أنشطة", ex: { kr: "사진 좀 찍어 주세요", roman: "sajin jom jjigeo juseyo", ar: "ممكن تصورّلي صورة؟" } },
+    { kr: "날씨", roman: "nalssi", ar: "الجو", cat: "طبيعة", ex: { kr: "오늘 날씨가 좋아요", roman: "oneul nalssiga joayo", ar: "الجو النهاردة حلو" } },
+    { kr: "시작", roman: "sijak", ar: "بداية", cat: "أفعال", ex: { kr: "이제 시작해요", roman: "ije sijakhaeyo", ar: "بنبدأ دلوقتي" } },
+    { kr: "노력", roman: "noryeok", ar: "مجهود / اجتهاد", cat: "قيم", ex: { kr: "노력하면 돼요", roman: "noryeokhamyeon dwaeyo", ar: "لو اجتهدت هينفع" } },
+    { kr: "기억", roman: "gieok", ar: "ذكرى / تذكّر", cat: "مشاعر", ex: { kr: "그 순간을 기억해요", roman: "geu sunganeul gieokhaeyo", ar: "أنا فاكر اللحظة دي" } },
+    { kr: "약속", roman: "yaksok", ar: "وعد / ميعاد", cat: "علاقات", ex: { kr: "약속을 지켜요", roman: "yaksogeul jikyeoyo", ar: "بحافظ على وعدي" } },
+    { kr: "용기", roman: "yonggi", ar: "شجاعة", cat: "قيم", ex: { kr: "용기를 내세요", roman: "yonggireul naeseyo", ar: "خليك شجاع" } },
+    { kr: "비밀", roman: "bimil", ar: "سرّ", cat: "علاقات", ex: { kr: "이건 비밀이에요", roman: "igeon bimirieyo", ar: "ده سرّ" } },
+    { kr: "인연", roman: "inyeon", ar: "قدَر / نصيب (في العلاقات)", cat: "مشاعر", ex: { kr: "우리는 인연이에요", roman: "urineun inyeonieyo", ar: "إحنا نصيب لبعض" } },
+    { kr: "그리움", roman: "geuriwum", ar: "اشتياق", cat: "مشاعر", ex: { kr: "그리움이 커요", roman: "geuriwumi keoyo", ar: "الاشتياق كبير" } },
+    { kr: "설렘", roman: "seollem", ar: "خفقان / إثارة حلوة", cat: "مشاعر", ex: { kr: "설렘이 느껴져요", roman: "seollemi neukkyeojyeoyo", ar: "حاسس بخفقان" } },
+    { kr: "청춘", roman: "cheongchun", ar: "شباب / زهرة العمر", cat: "قيم", ex: { kr: "청춘은 아름다워요", roman: "cheongchuneun areumdawoyo", ar: "الشباب حلو" } },
+    { kr: "인생", roman: "insaeng", ar: "الحياة", cat: "قيم", ex: { kr: "인생은 짧아요", roman: "insaengeun jjalbayo", ar: "الحياة قصيرة" } },
+    { kr: "행운", roman: "haengun", ar: "حظ", cat: "قيم", ex: { kr: "행운을 빌어요", roman: "haenguneul bireoyo", ar: "بتمنالك التوفيق" } },
+    { kr: "미래", roman: "mirae", ar: "المستقبل", cat: "قيم", ex: { kr: "미래를 준비해요", roman: "miraereul junbihaeyo", ar: "بحضّر للمستقبل" } },
+  ];
+
+  // -------------------------------------------------------------
+  // اختيار كلمة اليوم — بتتغيّر أوتوماتيك كل يوم حسب تاريخ اليوم
+  // -------------------------------------------------------------
+  function getDayOfYear(date) {
+    const start = new Date(date.getFullYear(), 0, 0);
+    const diff = date - start;
+    return Math.floor(diff / (1000 * 60 * 60 * 24));
+  }
+
+  function getTodayWord() {
+    const today = new Date();
+    const dayIndex = getDayOfYear(today) % WORD_BANK.length;
+    return { word: WORD_BANK[dayIndex], dateKey: today.toISOString().slice(0, 10) };
+  }
+
+  const { word: todayWord, dateKey } = getTodayWord();
+  const claimedDates = new Set(JSON.parse(localStorage.getItem("korean_wotd_claimed") || "[]"));
+
+  function saveClaimedDates() {
+    localStorage.setItem("korean_wotd_claimed", JSON.stringify([...claimedDates]));
+  }
+
+  // ---------------- Voice ----------------
+  let koreanVoice = null;
+  function loadVoices() {
+    const voices = speechSynthesis.getVoices();
+    koreanVoice = voices.find((v) => v.lang === "ko-KR") || voices.find((v) => v.lang.startsWith("ko"));
+  }
+  if ("speechSynthesis" in window) {
+    loadVoices();
+    speechSynthesis.onvoiceschanged = loadVoices;
+  }
+
+  function speak(text) {
+    if (!("speechSynthesis" in window)) {
+      showToast("😔 المتصفح ده مش بيدعم النطق الصوتي");
+      return;
+    }
+    speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = "ko-KR";
+    if (koreanVoice) utter.voice = koreanVoice;
+    speechSynthesis.speak(utter);
+  }
+
+  // ---------------- Render ----------------
+  function formatArabicDate() {
+    const days = ["الأحد", "الإتنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
+    const today = new Date();
+    return `${days[today.getDay()]} — ${today.toLocaleDateString("ar-EG")}`;
+  }
+
+  function render() {
+    document.getElementById("date-pill").textContent = `📅 ${formatArabicDate()}`;
+    document.getElementById("word-category-badge").textContent = todayWord.cat;
+    document.getElementById("word-kr").textContent = todayWord.kr;
+    document.getElementById("word-roman").textContent = todayWord.roman;
+    document.getElementById("word-ar").textContent = todayWord.ar;
+
+    document.getElementById("ex-kr").textContent = todayWord.ex.kr;
+    document.getElementById("ex-roman").textContent = todayWord.ex.roman;
+    document.getElementById("ex-ar").textContent = todayWord.ex.ar;
+
+    const claimBtn = document.getElementById("btn-claim");
+    const isClaimed = claimedDates.has(dateKey);
+    claimBtn.textContent = isClaimed ? "✅ اتحفظت النهاردة" : "✅ حفظت كلمة اليوم (+5 نقط)";
+    claimBtn.classList.toggle("done", isClaimed);
+
+    const state = KoreanProgress.getState();
+    document.getElementById("stat-total-claimed").textContent = claimedDates.size;
+    document.getElementById("stat-streak").textContent = KoreanProgress.getStreak();
+  }
+
+  document.getElementById("btn-play-hero").addEventListener("click", () => speak(todayWord.kr));
+  document.getElementById("btn-play-example").addEventListener("click", () => speak(todayWord.ex.kr));
+
+  document.getElementById("btn-claim").addEventListener("click", () => {
+    if (!claimedDates.has(dateKey)) {
+      claimedDates.add(dateKey);
+      saveClaimedDates();
+      KoreanProgress.completeLesson(`wotd_${dateKey}`, 5);
+      showToast("🌟 +5 نقطة — كلمة اليوم اتحفظت!");
+      render();
+    }
+  });
+
+  function showToast(msg) {
+    const toast = document.getElementById("toast");
+    toast.textContent = msg;
+    toast.classList.add("show");
+    setTimeout(() => toast.classList.remove("show"), 1800);
+  }
+
+  render();
+</script>
+</body>
+</html>
