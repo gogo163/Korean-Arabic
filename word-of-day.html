@@ -155,6 +155,7 @@
 <div class="toast" id="toast"></div>
 
 <script src="progress.js"></script>
+<script src="audio-helper.js"></script>
 <script>
   // -------------------------------------------------------------
   // بنك كلمات اليوم — كل كلمة بمثال جملة حقيقي
@@ -205,27 +206,9 @@
     localStorage.setItem("korean_wotd_claimed", JSON.stringify([...claimedDates]));
   }
 
-  // ---------------- Voice ----------------
-  let koreanVoice = null;
-  function loadVoices() {
-    const voices = speechSynthesis.getVoices();
-    koreanVoice = voices.find((v) => v.lang === "ko-KR") || voices.find((v) => v.lang.startsWith("ko"));
-  }
-  if ("speechSynthesis" in window) {
-    loadVoices();
-    speechSynthesis.onvoiceschanged = loadVoices;
-  }
-
-  function speak(text) {
-    if (!("speechSynthesis" in window)) {
-      showToast("😔 المتصفح ده مش بيدعم النطق الصوتي");
-      return;
-    }
-    speechSynthesis.cancel();
-    const utter = new SpeechSynthesisUtterance(text);
-    utter.lang = "ko-KR";
-    if (koreanVoice) utter.voice = koreanVoice;
-    speechSynthesis.speak(utter);
+  // ---------------- Audio (WAV أولاً، speechSynthesis كبديل تلقائي) ----------------
+  function speak(kr, roman) {
+    playKoreanAudio(kr, roman, "audio/wotd");
   }
 
   // ---------------- Render ----------------
@@ -256,8 +239,8 @@
     document.getElementById("stat-streak").textContent = KoreanProgress.getStreak();
   }
 
-  document.getElementById("btn-play-hero").addEventListener("click", () => speak(todayWord.kr));
-  document.getElementById("btn-play-example").addEventListener("click", () => speak(todayWord.ex.kr));
+  document.getElementById("btn-play-hero").addEventListener("click", () => speak(todayWord.kr, todayWord.roman));
+  document.getElementById("btn-play-example").addEventListener("click", () => speak(todayWord.ex.kr, todayWord.ex.roman));
 
   document.getElementById("btn-claim").addEventListener("click", () => {
     if (!claimedDates.has(dateKey)) {
