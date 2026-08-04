@@ -81,6 +81,21 @@
   }
   .category-chip.active { background: var(--primary); color: white; border-color: var(--primary); }
 
+  .search-box {
+    display: flex; align-items: center; gap: 8px;
+    background: white; border-radius: 14px; padding: 10px 14px;
+    margin-bottom: 14px; box-shadow: 0 3px 10px rgba(108,76,224,0.08);
+  }
+  .search-box input {
+    border: none; outline: none; flex: 1; font-size: 13px;
+    font-family: inherit; background: transparent; color: var(--text);
+  }
+  .search-box .icon { color: var(--primary); }
+  .empty-state {
+    text-align: center; color: #B0A8CC; font-size: 13px;
+    padding: 30px 0;
+  }
+
   .word-card {
     background: var(--card);
     border-radius: 16px;
@@ -186,6 +201,10 @@
 
   <!-- ===================== BROWSE VIEW ===================== -->
   <div class="view active" id="view-browse">
+    <div class="search-box">
+      <span class="icon">🔍</span>
+      <input type="text" id="search-input" placeholder="دوّر عن كلمة... (عربي أو كوري)" />
+    </div>
     <div class="category-scroll" id="category-scroll"></div>
     <div id="word-list"></div>
   </div>
@@ -313,6 +332,7 @@
   });
 
   // ---------------- Browse mode ----------------
+  let searchQuery = "";
   const categoryScroll = document.getElementById("category-scroll");
   categoryScroll.innerHTML = CATEGORIES.map(
     (c) => `<div class="category-chip ${c.id === currentCategoryId ? "active" : ""}" data-id="${c.id}">${c.chip}</div>`
@@ -325,13 +345,39 @@
     });
   });
 
+  document.getElementById("search-input").addEventListener("input", (e) => {
+    searchQuery = e.target.value.trim().toLowerCase();
+    renderBrowse();
+  });
+
+  function getVisibleWords() {
+    if (searchQuery) {
+      return ALL_WORDS.filter(
+        (w) =>
+          w.ar.toLowerCase().includes(searchQuery) ||
+          w.roman.toLowerCase().includes(searchQuery) ||
+          w.kr.includes(searchQuery)
+      );
+    }
+    const cat = CATEGORIES.find((c) => c.id === currentCategoryId);
+    return cat ? cat.words : [];
+  }
+
   function renderBrowse() {
+    categoryScroll.style.display = searchQuery ? "none" : "flex";
     categoryScroll.querySelectorAll(".category-chip").forEach((c) =>
       c.classList.toggle("active", c.dataset.id === currentCategoryId)
     );
-    const cat = CATEGORIES.find((c) => c.id === currentCategoryId);
+
+    const words = getVisibleWords();
     const list = document.getElementById("word-list");
-    list.innerHTML = cat.words
+
+    if (words.length === 0) {
+      list.innerHTML = `<div class="empty-state">مفيش نتائج... جرّب كلمة تانية 🔍</div>`;
+      return;
+    }
+
+    list.innerHTML = words
       .map(
         (w) => `
         <div class="word-card">

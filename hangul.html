@@ -221,13 +221,19 @@
 
   <!-- ===================== LEARN TAB ===================== -->
   <section class="section active" id="tab-learn">
-    <div class="progress-summary" id="learn-progress">اتعلمت 0 من 24 حرف</div>
+    <div class="progress-summary" id="learn-progress">اتعلمت 0 من 40 حرف</div>
 
     <div class="group-title">الحروف الساكنة (자음)</div>
     <div class="char-grid" id="consonant-grid"></div>
 
     <div class="group-title">الحروف الصوتية (모음)</div>
     <div class="char-grid" id="vowel-grid"></div>
+
+    <div class="group-title">الحروف الساكنة المشدّدة (쌍자음)</div>
+    <div class="char-grid" id="double-consonant-grid"></div>
+
+    <div class="group-title">الحروف الصوتية المركّبة (이중모음)</div>
+    <div class="char-grid" id="compound-vowel-grid"></div>
   </section>
 
   <!-- ===================== BUILD TAB ===================== -->
@@ -322,6 +328,30 @@
     { g: "ㅣ", r: "i",  ar: "زي الكسرة (ي)", ex: { kr: "이름", tr: "ireum", ar: "اسم" } },
   ];
 
+  // الحروف الساكنة المشدّدة (double/tense consonants) — نطق أقوى وأشد من الأصلي
+  const DOUBLE_CONSONANTS = [
+    { g: "ㄲ", r: "kk", ar: "كاف مشدّدة قوية", ex: { kr: "까치", tr: "kkachi", ar: "عصفور العقعق" } },
+    { g: "ㄸ", r: "tt", ar: "تاء مشدّدة قوية", ex: { kr: "따다", tr: "ttada", ar: "يقطف" } },
+    { g: "ㅃ", r: "pp", ar: "باء مشدّدة قوية", ex: { kr: "빠르다", tr: "ppareuda", ar: "سريع" } },
+    { g: "ㅆ", r: "ss", ar: "سين مشدّدة قوية", ex: { kr: "쓰다", tr: "sseuda", ar: "يكتب" } },
+    { g: "ㅉ", r: "jj", ar: "چيم مشدّدة قوية", ex: { kr: "짜다", tr: "jjada", ar: "مالح" } },
+  ];
+
+  // الحروف الصوتية المركّبة (compound vowels) — دمج حرفين صوتيين في شكل واحد
+  const COMPOUND_VOWELS = [
+    { g: "ㅐ", r: "ae",  ar: "بين الفتحة والكسرة الخفيفة", ex: { kr: "개", tr: "gae", ar: "كلب" } },
+    { g: "ㅒ", r: "yae", ar: "ياء + فتحة خفيفة", ex: { kr: "얘기", tr: "yaegi", ar: "حكاية / كلام" } },
+    { g: "ㅔ", r: "e",   ar: "زي الفتحة القصيرة (e)", ex: { kr: "세계", tr: "segye", ar: "العالم" } },
+    { g: "ㅖ", r: "ye",  ar: "ياء + e خفيفة", ex: { kr: "예의", tr: "yeui", ar: "أدب" } },
+    { g: "ㅘ", r: "wa",  ar: "واو + فتحة (wa)", ex: { kr: "과일", tr: "gwail", ar: "فاكهة" } },
+    { g: "ㅙ", r: "wae", ar: "واو + ae", ex: { kr: "왜", tr: "wae", ar: "ليه؟" } },
+    { g: "ㅚ", r: "oe",  ar: "واو + e خفيفة", ex: { kr: "회사", tr: "hoesa", ar: "شركة" } },
+    { g: "ㅝ", r: "wo",  ar: "واو + o", ex: { kr: "뭐", tr: "mwo", ar: "إيه؟" } },
+    { g: "ㅞ", r: "we",  ar: "واو + e", ex: { kr: "웹툰", tr: "weptun", ar: "ويبتون (كوميك أونلاين)" } },
+    { g: "ㅟ", r: "wi",  ar: "واو + i", ex: { kr: "위", tr: "wi", ar: "فوق" } },
+    { g: "ㅢ", r: "ui",  ar: "eu + i سريعة", ex: { kr: "의사", tr: "uisa", ar: "دكتور" } },
+  ];
+
   const learnedSet = new Set(JSON.parse(localStorage.getItem("korean_hangul_learned") || "[]"));
 
   function saveLearned() {
@@ -345,13 +375,15 @@
     });
   }
 
+  const ALL_JAMO = [...CONSONANTS, ...VOWELS, ...DOUBLE_CONSONANTS, ...COMPOUND_VOWELS];
+
   function findItem(glyph) {
-    return [...CONSONANTS, ...VOWELS].find((i) => i.g === glyph);
+    return ALL_JAMO.find((i) => i.g === glyph);
   }
 
   function updateLearnProgress() {
     document.getElementById("learn-progress").textContent =
-      `اتعلمت ${learnedSet.size} من 24 حرف`;
+      `اتعلمت ${learnedSet.size} من 40 حرف`;
   }
 
   // ---------------- Modal ----------------
@@ -385,6 +417,8 @@
       showToast("✅ +5 نقطة — حرف جديد اتحفظ!");
       buildGrid("consonant-grid", CONSONANTS);
       buildGrid("vowel-grid", VOWELS);
+      buildGrid("double-consonant-grid", DOUBLE_CONSONANTS);
+      buildGrid("compound-vowel-grid", COMPOUND_VOWELS);
       updateLearnProgress();
     }
     overlay.classList.remove("show");
@@ -498,9 +532,29 @@
     "ㅠ": [[[10,35],[90,35]], [[40,35],[40,65]], [[60,35],[60,65]]],
     "ㅡ": [[[15,50],[85,50]]],
     "ㅣ": [[[50,10],[50,90]]],
+
+    // الحروف الساكنة المشدّدة — كل حرف عبارة عن نسخة يمين ونسخة شمال من الحرف الأصلي
+    "ㄲ": [[[10,20],[42,20],[42,80]], [[58,20],[90,20],[90,80]]],
+    "ㄸ": [[[10,20],[10,80],[42,80]], [[58,20],[58,80],[90,80]]],
+    "ㅃ": [[[15,20],[15,80]], [[35,20],[35,80]], [[65,20],[65,80]], [[85,20],[85,80]]],
+    "ㅆ": [[[25,15],[10,85]], [[75,15],[60,85]]],
+    "ㅉ": [[[20,20],[10,85]], [[80,20],[70,85]]],
+
+    // الحروف الصوتية المركّبة — دمج حرفين صوتيين، بترسم الأول وبعدين الإضافة
+    "ㅐ": [[[30,10],[30,90]], [[30,50],[55,50]], [[65,10],[65,90]]],
+    "ㅒ": [[[30,10],[30,90]], [[30,40],[55,40]], [[30,60],[55,60]], [[70,10],[70,90]]],
+    "ㅔ": [[[35,10],[35,90]], [[35,50],[60,50]], [[70,10],[70,90]]],
+    "ㅖ": [[[35,10],[35,90]], [[35,40],[60,40]], [[35,60],[60,60]], [[75,10],[75,90]]],
+    "ㅘ": [[[10,55],[55,55]], [[30,30],[30,55]], [[55,15],[55,90]], [[55,50],[80,50]]],
+    "ㅙ": [[[10,55],[55,55]], [[30,30],[30,55]], [[50,15],[50,90]], [[75,15],[75,90]]],
+    "ㅚ": [[[10,55],[70,55]], [[35,30],[35,55]], [[80,15],[80,90]]],
+    "ㅝ": [[[10,35],[90,35]], [[45,35],[45,60]], [[60,15],[60,90]], [[60,50],[85,50]]],
+    "ㅞ": [[[10,35],[90,35]], [[45,35],[45,60]], [[55,15],[55,90]], [[80,15],[80,90]]],
+    "ㅟ": [[[10,35],[70,35]], [[35,35],[35,60]], [[80,15],[80,90]]],
+    "ㅢ": [[[10,50],[70,50]], [[85,10],[85,90]]],
   };
 
-  const WRITE_QUEUE = [...CONSONANTS, ...VOWELS].map((i) => i.g);
+  const WRITE_QUEUE = [...CONSONANTS, ...VOWELS, ...DOUBLE_CONSONANTS, ...COMPOUND_VOWELS].map((i) => i.g);
   let writeIndex = 0;
   let currentStrokeIndex = 0;
   let userPath = [];
@@ -736,6 +790,8 @@
   // ---------------- Init ----------------
   buildGrid("consonant-grid", CONSONANTS);
   buildGrid("vowel-grid", VOWELS);
+  buildGrid("double-consonant-grid", DOUBLE_CONSONANTS);
+  buildGrid("compound-vowel-grid", COMPOUND_VOWELS);
   updateLearnProgress();
   resizeCanvas();
   updateStrokeCounter();
