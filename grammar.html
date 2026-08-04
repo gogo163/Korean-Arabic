@@ -139,6 +139,7 @@
 <div class="toast" id="toast"></div>
 
 <script src="progress.js"></script>
+<script src="audio-helper.js"></script>
 <script>
   // -------------------------------------------------------------
   // دروس القواعد الأساسية — كل درس فيه شرح + قاعدة + أمثلة
@@ -225,30 +226,9 @@
     localStorage.setItem("korean_grammar_completed", JSON.stringify([...completedSet]));
   }
 
-  // ---------------- Voice ----------------
-  let koreanVoice = null;
-  function loadVoices() {
-    const voices = speechSynthesis.getVoices();
-    koreanVoice = voices.find((v) => v.lang === "ko-KR") || voices.find((v) => v.lang.startsWith("ko"));
-    document.getElementById("voice-warning").classList.toggle("show", !koreanVoice);
-  }
-  if ("speechSynthesis" in window) {
-    loadVoices();
-    speechSynthesis.onvoiceschanged = loadVoices;
-  } else {
-    document.getElementById("voice-warning").classList.add("show");
-  }
-
-  function speak(text) {
-    if (!("speechSynthesis" in window)) {
-      showToast("😔 المتصفح ده مش بيدعم النطق الصوتي");
-      return;
-    }
-    speechSynthesis.cancel();
-    const utter = new SpeechSynthesisUtterance(text);
-    utter.lang = "ko-KR";
-    if (koreanVoice) utter.voice = koreanVoice;
-    speechSynthesis.speak(utter);
+  // ---------------- Audio (WAV أولاً، speechSynthesis كبديل تلقائي) ----------------
+  function speak(kr, roman) {
+    playKoreanAudio(kr, roman, "audio/grammar");
   }
 
   // ---------------- Topic list ----------------
@@ -295,7 +275,7 @@
         const highlighted = ex.kr.replace(ex.part, `<span class="part">${ex.part}</span>`);
         return `
         <div class="example-card">
-          <button class="ex-play" data-text="${ex.kr}">🔊</button>
+          <button class="ex-play" data-text="${ex.kr}" data-roman="${ex.roman}">🔊</button>
           <div class="ex-info">
             <div class="ex-kr">${highlighted}</div>
             <div class="ex-roman">${ex.roman}</div>
@@ -307,7 +287,7 @@
 
     holder.querySelectorAll(".ex-play").forEach((btn) => {
       btn.addEventListener("click", () => {
-        speak(btn.dataset.text);
+        speak(btn.dataset.text, btn.dataset.roman);
         btn.classList.add("playing");
         setTimeout(() => btn.classList.remove("playing"), 700);
       });

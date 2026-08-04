@@ -122,11 +122,6 @@
     <p>تعلّم من المواقف اللي هتسمعها فعلاً وانت بتتفرج</p>
   </header>
 
-  <div id="voice-warning">
-    ⚠️ المتصفح بتاعك مش لاقي صوت كوري مثبّت. الجُمل هتتعرض من غير صوت.
-    على أندرويد: هتحتاج تثبّت "Google Text-to-Speech" وتنزّل حزمة اللغة الكورية من إعدادات الجهاز.
-  </div>
-
   <div class="category-scroll" id="category-scroll"></div>
 
   <div class="scene-banner" id="scene-banner">
@@ -141,6 +136,7 @@
 <div class="toast" id="toast"></div>
 
 <script src="progress.js"></script>
+<script src="audio-helper.js"></script>
 <script>
   // -------------------------------------------------------------
   // بيانات العبارات — منظمة حسب "مشهد" شائع في الدراما الكورية
@@ -209,33 +205,9 @@
     localStorage.setItem("korean_drama_heard", JSON.stringify([...heardSet]));
   }
 
-  // ---------------- Voice support check ----------------
-  let koreanVoice = null;
-
-  function loadVoices() {
-    const voices = speechSynthesis.getVoices();
-    koreanVoice = voices.find((v) => v.lang === "ko-KR") || voices.find((v) => v.lang.startsWith("ko"));
-    document.getElementById("voice-warning").classList.toggle("show", !koreanVoice);
-  }
-
-  if ("speechSynthesis" in window) {
-    loadVoices();
-    speechSynthesis.onvoiceschanged = loadVoices;
-  } else {
-    document.getElementById("voice-warning").classList.add("show");
-  }
-
-  function speak(text, rate = 1) {
-    if (!("speechSynthesis" in window)) {
-      showToast("😔 المتصفح ده مش بيدعم النطق الصوتي");
-      return;
-    }
-    speechSynthesis.cancel();
-    const utter = new SpeechSynthesisUtterance(text);
-    utter.lang = "ko-KR";
-    utter.rate = rate;
-    if (koreanVoice) utter.voice = koreanVoice;
-    speechSynthesis.speak(utter);
+  // ---------------- Audio (WAV أولاً، speechSynthesis كبديل تلقائي) ----------------
+  function speak(kr, roman) {
+    playKoreanAudio(kr, roman, "audio/drama");
   }
 
   // ---------------- Render categories ----------------
@@ -277,12 +249,12 @@
               <div class="phrase-kr">${p.kr}</div>
               <div class="phrase-roman">${p.roman}</div>
             </div>
-            <button class="play-btn" data-text="${p.kr}" data-key="${phraseKey}">🔊</button>
+            <button class="play-btn" data-text="${p.kr}" data-roman="${p.roman}" data-key="${phraseKey}">🔊</button>
           </div>
           <div class="phrase-meaning">= ${p.ar}</div>
           <div class="phrase-context">💡 ${p.ctx}</div>
           <div class="phrase-actions">
-            <button class="btn-slow" data-text="${p.kr}">🐢 بطيء</button>
+            <button class="btn-slow" data-text="${p.kr}" data-roman="${p.roman}">🐢 بطيء</button>
             <button class="btn-mark-heard ${isHeard ? "done" : ""}" data-key="${phraseKey}">
               ${isHeard ? "✅ اتحفظت" : "احفظها (+3)"}
             </button>
@@ -293,14 +265,14 @@
 
     list.querySelectorAll(".play-btn").forEach((btn) => {
       btn.addEventListener("click", () => {
-        speak(btn.dataset.text, 1);
+        speak(btn.dataset.text, btn.dataset.roman, 1);
         btn.classList.add("playing");
         setTimeout(() => btn.classList.remove("playing"), 700);
       });
     });
 
     list.querySelectorAll(".btn-slow").forEach((btn) => {
-      btn.addEventListener("click", () => speak(btn.dataset.text, 0.6));
+      btn.addEventListener("click", () => speak(btn.dataset.text, btn.dataset.roman, 0.6));
     });
 
     list.querySelectorAll(".btn-mark-heard").forEach((btn) => {

@@ -144,11 +144,6 @@
     <div class="pill casual">😎 مع الأصحاب</div>
   </div>
 
-  <div id="voice-warning">
-    ⚠️ المتصفح بتاعك مش لاقي صوت كوري مثبّت. الجُمل هتتعرض من غير صوت.
-    على أندرويد: هتحتاج تثبّت وتفعّل حزمة اللغة الكورية في إعدادات Text-to-Speech بالجهاز.
-  </div>
-
   <div class="category-scroll" id="category-scroll"></div>
 
   <div id="phrase-list"></div>
@@ -157,6 +152,7 @@
 <div class="toast" id="toast"></div>
 
 <script src="progress.js"></script>
+<script src="audio-helper.js"></script>
 <script>
   // -------------------------------------------------------------
   // قاموس التحيات — مصنّف حسب الموقف ومستوى الأدب
@@ -226,30 +222,9 @@
 
   const formalityLabel = { formal: "رسمي", polite: "مؤدّب", casual: "كاجوال" };
 
-  // ---------------- Voice support ----------------
-  let koreanVoice = null;
-  function loadVoices() {
-    const voices = speechSynthesis.getVoices();
-    koreanVoice = voices.find((v) => v.lang === "ko-KR") || voices.find((v) => v.lang.startsWith("ko"));
-    document.getElementById("voice-warning").classList.toggle("show", !koreanVoice);
-  }
-  if ("speechSynthesis" in window) {
-    loadVoices();
-    speechSynthesis.onvoiceschanged = loadVoices;
-  } else {
-    document.getElementById("voice-warning").classList.add("show");
-  }
-
-  function speak(text) {
-    if (!("speechSynthesis" in window)) {
-      showToast("😔 المتصفح ده مش بيدعم النطق الصوتي");
-      return;
-    }
-    speechSynthesis.cancel();
-    const utter = new SpeechSynthesisUtterance(text);
-    utter.lang = "ko-KR";
-    if (koreanVoice) utter.voice = koreanVoice;
-    speechSynthesis.speak(utter);
+  // ---------------- Audio (WAV أولاً، speechSynthesis كبديل تلقائي) ----------------
+  function speak(kr, roman) {
+    playKoreanAudio(kr, roman, "audio/greetings");
   }
 
   // ---------------- Categories ----------------
@@ -315,7 +290,7 @@
               </div>
               <div class="phrase-roman">${p.roman}</div>
             </div>
-            <button class="play-btn" data-text="${p.kr}">🔊</button>
+            <button class="play-btn" data-text="${p.kr}" data-roman="${p.roman}">🔊</button>
           </div>
           <div class="phrase-meaning">= ${p.ar}</div>
           <div class="phrase-usage">💡 ${p.usage}</div>
@@ -325,7 +300,7 @@
 
     list.querySelectorAll(".play-btn").forEach((btn) => {
       btn.addEventListener("click", () => {
-        speak(btn.dataset.text);
+        speak(btn.dataset.text, btn.dataset.roman);
         btn.classList.add("playing");
         setTimeout(() => btn.classList.remove("playing"), 700);
         KoreanProgress.addPoints(1, "greeting_listen");

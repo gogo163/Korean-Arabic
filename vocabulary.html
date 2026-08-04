@@ -199,6 +199,7 @@
 <div class="toast" id="toast"></div>
 
 <script src="progress.js"></script>
+<script src="audio-helper.js"></script>
 <script>
   // -------------------------------------------------------------
   // بنك الكلمات الأساسية — مصنّف حسب الموضوع
@@ -294,30 +295,9 @@
   let currentCategoryId = "numbers";
   let currentMode = "browse";
 
-  // ---------------- Voice ----------------
-  let koreanVoice = null;
-  function loadVoices() {
-    const voices = speechSynthesis.getVoices();
-    koreanVoice = voices.find((v) => v.lang === "ko-KR") || voices.find((v) => v.lang.startsWith("ko"));
-    document.getElementById("voice-warning").classList.toggle("show", !koreanVoice);
-  }
-  if ("speechSynthesis" in window) {
-    loadVoices();
-    speechSynthesis.onvoiceschanged = loadVoices;
-  } else {
-    document.getElementById("voice-warning").classList.add("show");
-  }
-
-  function speak(text) {
-    if (!("speechSynthesis" in window)) {
-      showToast("😔 المتصفح ده مش بيدعم النطق الصوتي");
-      return;
-    }
-    speechSynthesis.cancel();
-    const utter = new SpeechSynthesisUtterance(text);
-    utter.lang = "ko-KR";
-    if (koreanVoice) utter.voice = koreanVoice;
-    speechSynthesis.speak(utter);
+  // ---------------- Audio (WAV أولاً، speechSynthesis كبديل تلقائي) ----------------
+  function speak(kr, roman) {
+    playKoreanAudio(kr, roman, "audio/vocabulary");
   }
 
   // ---------------- Mode tabs ----------------
@@ -355,7 +335,7 @@
       .map(
         (w) => `
         <div class="word-card">
-          <button class="play-btn" data-text="${w.kr}">🔊</button>
+          <button class="play-btn" data-text="${w.kr}" data-roman="${w.roman}">🔊</button>
           <div class="info">
             <div class="word-kr">${w.kr}</div>
             <div class="word-roman">${w.roman}</div>
@@ -367,7 +347,7 @@
 
     list.querySelectorAll(".play-btn").forEach((btn) => {
       btn.addEventListener("click", () => {
-        speak(btn.dataset.text);
+        speak(btn.dataset.text, btn.dataset.roman);
         btn.classList.add("playing");
         setTimeout(() => btn.classList.remove("playing"), 700);
       });
@@ -451,7 +431,7 @@
 
     document.getElementById("review-play-btn").addEventListener("click", (e) => {
       e.stopPropagation();
-      speak(word.kr);
+      speak(word.kr, word.roman);
     });
 
     document.querySelectorAll(".quality-buttons button").forEach((btn) => {

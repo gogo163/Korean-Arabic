@@ -148,6 +148,7 @@
 <div class="toast" id="toast"></div>
 
 <script src="progress.js"></script>
+<script src="audio-helper.js"></script>
 <script>
   // -------------------------------------------------------------
   // محادثات يومية واقعية — كل محادثة بين متحدّثين (A و B)
@@ -221,30 +222,9 @@
     localStorage.setItem("korean_convo_completed", JSON.stringify([...completedSet]));
   }
 
-  // ---------------- Voice ----------------
-  let koreanVoice = null;
-  function loadVoices() {
-    const voices = speechSynthesis.getVoices();
-    koreanVoice = voices.find((v) => v.lang === "ko-KR") || voices.find((v) => v.lang.startsWith("ko"));
-    document.getElementById("voice-warning").classList.toggle("show", !koreanVoice);
-  }
-  if ("speechSynthesis" in window) {
-    loadVoices();
-    speechSynthesis.onvoiceschanged = loadVoices;
-  } else {
-    document.getElementById("voice-warning").classList.add("show");
-  }
-
-  function speak(text) {
-    if (!("speechSynthesis" in window)) {
-      showToast("😔 المتصفح ده مش بيدعم النطق الصوتي");
-      return;
-    }
-    speechSynthesis.cancel();
-    const utter = new SpeechSynthesisUtterance(text);
-    utter.lang = "ko-KR";
-    if (koreanVoice) utter.voice = koreanVoice;
-    speechSynthesis.speak(utter);
+  // ---------------- Audio (WAV أولاً، speechSynthesis كبديل تلقائي) ----------------
+  function speak(kr, roman) {
+    playKoreanAudio(kr, roman, "audio/conversations");
   }
 
   // ---------------- Scenes ----------------
@@ -285,7 +265,7 @@
                 <div class="bubble-kr">${t.kr}</div>
                 <div class="bubble-roman">${t.roman}</div>
               </div>
-              <button class="mini-play" data-text="${t.kr}">🔊</button>
+              <button class="mini-play" data-text="${t.kr}" data-roman="${t.roman}">🔊</button>
             </div>
             <div class="bubble-meaning">${t.ar}</div>
           </div>
@@ -295,7 +275,7 @@
 
     thread.querySelectorAll(".mini-play").forEach((btn) => {
       btn.addEventListener("click", () => {
-        speak(btn.dataset.text);
+        speak(btn.dataset.text, btn.dataset.roman);
         btn.classList.add("playing");
         setTimeout(() => btn.classList.remove("playing"), 700);
       });
