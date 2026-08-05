@@ -1,0 +1,222 @@
+[
+  {
+    "kr": "행복",
+    "roman": "haengbok",
+    "ar": "سعادة",
+    "cat": "مشاعر",
+    "ex": {
+      "kr": "저는 지금 행복해요",
+      "roman": "jeoneun jigeum haengbokhaeyo",
+      "ar": "أنا سعيد دلوقتي"
+    }
+  },
+  {
+    "kr": "친구",
+    "roman": "chingu",
+    "ar": "صديق",
+    "cat": "علاقات",
+    "ex": {
+      "kr": "그는 제 친구예요",
+      "roman": "geuneun je chinguyeyo",
+      "ar": "هو صاحبي"
+    }
+  },
+  {
+    "kr": "꿈",
+    "roman": "kkum",
+    "ar": "حلم",
+    "cat": "مشاعر",
+    "ex": {
+      "kr": "제 꿈은 가수예요",
+      "roman": "je kkumeun gasuyeyo",
+      "ar": "حلمي إني أبقى مغني"
+    }
+  },
+  {
+    "kr": "여행",
+    "roman": "yeohaeng",
+    "ar": "سفر / رحلة",
+    "cat": "أنشطة",
+    "ex": {
+      "kr": "한국 여행을 가고 싶어요",
+      "roman": "hanguk yeohaengeul gago sipeoyo",
+      "ar": "عايز أسافر كوريا"
+    }
+  },
+  {
+    "kr": "노래",
+    "roman": "norae",
+    "ar": "أغنية",
+    "cat": "فن",
+    "ex": {
+      "kr": "이 노래 정말 좋아요",
+      "roman": "i norae jeongmal joayo",
+      "ar": "الأغنية دي حلوة أوي"
+    }
+  },
+  {
+    "kr": "사진",
+    "roman": "sajin",
+    "ar": "صورة",
+    "cat": "أنشطة",
+    "ex": {
+      "kr": "사진 좀 찍어 주세요",
+      "roman": "sajin jom jjigeo juseyo",
+      "ar": "ممكن تصورّلي صورة؟"
+    }
+  },
+  {
+    "kr": "날씨",
+    "roman": "nalssi",
+    "ar": "الجو",
+    "cat": "طبيعة",
+    "ex": {
+      "kr": "오늘 날씨가 좋아요",
+      "roman": "oneul nalssiga joayo",
+      "ar": "الجو النهاردة حلو"
+    }
+  },
+  {
+    "kr": "시작",
+    "roman": "sijak",
+    "ar": "بداية",
+    "cat": "أفعال",
+    "ex": {
+      "kr": "이제 시작해요",
+      "roman": "ije sijakhaeyo",
+      "ar": "بنبدأ دلوقتي"
+    }
+  },
+  {
+    "kr": "노력",
+    "roman": "noryeok",
+    "ar": "مجهود / اجتهاد",
+    "cat": "قيم",
+    "ex": {
+      "kr": "노력하면 돼요",
+      "roman": "noryeokhamyeon dwaeyo",
+      "ar": "لو اجتهدت هينفع"
+    }
+  },
+  {
+    "kr": "기억",
+    "roman": "gieok",
+    "ar": "ذكرى / تذكّر",
+    "cat": "مشاعر",
+    "ex": {
+      "kr": "그 순간을 기억해요",
+      "roman": "geu sunganeul gieokhaeyo",
+      "ar": "أنا فاكر اللحظة دي"
+    }
+  },
+  {
+    "kr": "약속",
+    "roman": "yaksok",
+    "ar": "وعد / ميعاد",
+    "cat": "علاقات",
+    "ex": {
+      "kr": "약속을 지켜요",
+      "roman": "yaksogeul jikyeoyo",
+      "ar": "بحافظ على وعدي"
+    }
+  },
+  {
+    "kr": "용기",
+    "roman": "yonggi",
+    "ar": "شجاعة",
+    "cat": "قيم",
+    "ex": {
+      "kr": "용기를 내세요",
+      "roman": "yonggireul naeseyo",
+      "ar": "خليك شجاع"
+    }
+  },
+  {
+    "kr": "비밀",
+    "roman": "bimil",
+    "ar": "سرّ",
+    "cat": "علاقات",
+    "ex": {
+      "kr": "이건 비밀이에요",
+      "roman": "igeon bimirieyo",
+      "ar": "ده سرّ"
+    }
+  },
+  {
+    "kr": "인연",
+    "roman": "inyeon",
+    "ar": "قدَر / نصيب (في العلاقات)",
+    "cat": "مشاعر",
+    "ex": {
+      "kr": "우리는 인연이에요",
+      "roman": "urineun inyeonieyo",
+      "ar": "إحنا نصيب لبعض"
+    }
+  },
+  {
+    "kr": "그리움",
+    "roman": "geuriwum",
+    "ar": "اشتياق",
+    "cat": "مشاعر",
+    "ex": {
+      "kr": "그리움이 커요",
+      "roman": "geuriwumi keoyo",
+      "ar": "الاشتياق كبير"
+    }
+  },
+  {
+    "kr": "설렘",
+    "roman": "seollem",
+    "ar": "خفقان / إثارة حلوة",
+    "cat": "مشاعر",
+    "ex": {
+      "kr": "설렘이 느껴져요",
+      "roman": "seollemi neukkyeojyeoyo",
+      "ar": "حاسس بخفقان"
+    }
+  },
+  {
+    "kr": "청춘",
+    "roman": "cheongchun",
+    "ar": "شباب / زهرة العمر",
+    "cat": "قيم",
+    "ex": {
+      "kr": "청춘은 아름다워요",
+      "roman": "cheongchuneun areumdawoyo",
+      "ar": "الشباب حلو"
+    }
+  },
+  {
+    "kr": "인생",
+    "roman": "insaeng",
+    "ar": "الحياة",
+    "cat": "قيم",
+    "ex": {
+      "kr": "인생은 짧아요",
+      "roman": "insaengeun jjalbayo",
+      "ar": "الحياة قصيرة"
+    }
+  },
+  {
+    "kr": "행운",
+    "roman": "haengun",
+    "ar": "حظ",
+    "cat": "قيم",
+    "ex": {
+      "kr": "행운을 빌어요",
+      "roman": "haenguneul bireoyo",
+      "ar": "بتمنالك التوفيق"
+    }
+  },
+  {
+    "kr": "미래",
+    "roman": "mirae",
+    "ar": "المستقبل",
+    "cat": "قيم",
+    "ex": {
+      "kr": "미래를 준비해요",
+      "roman": "miraereul junbihaeyo",
+      "ar": "بحضّر للمستقبل"
+    }
+  }
+]
