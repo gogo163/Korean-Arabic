@@ -214,7 +214,7 @@
       <div class="node-circle">📐</div>
       <div class="node-label">
         <div class="title">القواعد</div>
-        <div class="desc">6 قواعد أساسية بأمثلة صوتية</div>
+        <div class="desc">7 قواعد أساسية بأمثلة صوتية</div>
         <span class="node-badge">الخطوة 4</span>
       </div>
     </a>
@@ -297,21 +297,27 @@
     welcomeSub.textContent = "جاهز تكمل رحلتك في تعلّم الكورية اليوم؟";
   }
 
-  // Mark path nodes as "done" based on stored progress, if available
-  try {
-    const doneMap = {
-      "intro.html": state.completed && state.completed.intro,
-      "hangul.html": state.completed && state.completed.hangul,
-      "vocabulary.html": state.completed && state.completed.vocabulary,
-      "grammar.html": state.completed && state.completed.grammar,
-      "greetings.html": state.completed && state.completed.greetings,
-      "conversations.html": state.completed && state.completed.conversations,
-    };
-    document.querySelectorAll(".path-node").forEach(node => {
-      const href = node.getAttribute("href");
-      if (doneMap[href]) node.classList.add("done");
-    });
-  } catch (e) { /* progress.js may not expose "completed" — safe to ignore */ }
+  // Mark path nodes as "done" based on real progress stored per-section
+  function getDoneCount(key, isObject) {
+    try {
+      const raw = localStorage.getItem(key);
+      if (!raw) return 0;
+      const parsed = JSON.parse(raw);
+      return isObject ? Object.keys(parsed).length : parsed.length;
+    } catch (e) {
+      return 0;
+    }
+  }
+
+  const doneMap = {
+    "hangul.html": getDoneCount("korean_hangul_learned") >= 40,
+    "grammar.html": getDoneCount("korean_grammar_completed") >= 7,
+    "conversations.html": getDoneCount("korean_convo_completed") >= 4,
+  };
+  document.querySelectorAll(".path-node").forEach((node) => {
+    const href = node.getAttribute("href");
+    if (doneMap[href]) node.classList.add("done");
+  });
 </script>
 </body>
 </html>
