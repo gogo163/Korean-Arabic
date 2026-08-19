@@ -61,6 +61,7 @@
     margin-bottom: 20px;
   }
   .char-card {
+    position: relative;
     aspect-ratio: 1;
     background: var(--card);
     border-radius: 14px;
@@ -77,6 +78,13 @@
   .char-card:active { transform: scale(0.94); }
   .char-card .glyph { font-size: 26px; font-weight: bold; color: var(--text); }
   .char-card .roman { font-size: 9px; color: var(--primary); margin-top: 2px; }
+  .char-card .play-icon {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    font-size: 11px;
+    opacity: 0.5;
+  }
 
   .group-title {
     font-size: 13px;
@@ -106,6 +114,21 @@
   .modal .big-glyph { font-size: 64px; font-weight: bold; color: var(--primary); }
   .modal .roman-big { font-size: 16px; color: var(--accent); margin-top: 6px; font-weight: bold; }
   .modal .arabic-approx { font-size: 14px; color: #8A82A6; margin-top: 4px; }
+  .modal .play-btn {
+    background: var(--accent);
+    color: white;
+    border: none;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    font-size: 20px;
+    cursor: pointer;
+    margin: 10px auto 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal .play-btn:active { transform: scale(0.92); }
   .modal .example { margin-top: 14px; font-size: 13px; background: #F1ECFF; padding: 10px; border-radius: 12px; }
   .modal .example .kr { font-weight: bold; color: var(--text); }
   .modal-actions { display: flex; gap: 10px; margin-top: 18px; }
@@ -280,6 +303,7 @@
     <div class="big-glyph" id="modal-glyph">가</div>
     <div class="roman-big" id="modal-roman">ga</div>
     <div class="arabic-approx" id="modal-arabic">بينطق تقريباً زي: "جا"</div>
+    <button class="play-btn" id="btn-modal-play">🔊</button>
     <div class="example" id="modal-example">
       <div class="kr">가방</div>
       <div>= شنطة (gabang)</div>
@@ -328,7 +352,6 @@
     { g: "ㅣ", r: "i",  ar: "زي الكسرة (ي)", ex: { kr: "이름", tr: "ireum", ar: "اسم" } },
   ];
 
-  // الحروف الساكنة المشدّدة (double/tense consonants) — نطق أقوى وأشد من الأصلي
   const DOUBLE_CONSONANTS = [
     { g: "ㄲ", r: "kk", ar: "كاف مشدّدة قوية", ex: { kr: "까치", tr: "kkachi", ar: "عصفور العقعق" } },
     { g: "ㄸ", r: "tt", ar: "تاء مشدّدة قوية", ex: { kr: "따다", tr: "ttada", ar: "يقطف" } },
@@ -337,7 +360,6 @@
     { g: "ㅉ", r: "jj", ar: "چيم مشدّدة قوية", ex: { kr: "짜다", tr: "jjada", ar: "مالح" } },
   ];
 
-  // الحروف الصوتية المركّبة (compound vowels) — دمج حرفين صوتيين في شكل واحد
   const COMPOUND_VOWELS = [
     { g: "ㅐ", r: "ae",  ar: "بين الفتحة والكسرة الخفيفة", ex: { kr: "개", tr: "gae", ar: "كلب" } },
     { g: "ㅒ", r: "yae", ar: "ياء + فتحة خفيفة", ex: { kr: "얘기", tr: "yaegi", ar: "حكاية / كلام" } },
@@ -364,6 +386,7 @@
       .map(
         (item) => `
       <div class="char-card ${learnedSet.has(item.g) ? "learned" : ""}" data-glyph="${item.g}">
+        <span class="play-icon">🔊</span>
         <div class="glyph">${item.g}</div>
         <div class="roman">${item.r}</div>
       </div>`
@@ -371,7 +394,10 @@
       .join("");
 
     container.querySelectorAll(".char-card").forEach((card) => {
-      card.addEventListener("click", () => openModal(card.dataset.glyph));
+      card.addEventListener("click", () => {
+        playHangulAudio(card.dataset.glyph);
+        openModal(card.dataset.glyph);
+      });
     });
   }
 
@@ -384,6 +410,17 @@
   function updateLearnProgress() {
     document.getElementById("learn-progress").textContent =
       `اتعلمت ${learnedSet.size} من 40 حرف`;
+  }
+
+  // ---------------- Audio (hybrid: recorded file → speechSynthesis fallback) ----------------
+  function playHangulAudio(glyph) {
+    const audio = new Audio(`audio/hangul/${encodeURIComponent(glyph)}.wav`);
+    audio.play().catch(() => {
+      // fallback لو الملف مش موجود أو لسه ماترفعش
+      const utter = new SpeechSynthesisUtterance(glyph);
+      utter.lang = "ko-KR";
+      speechSynthesis.speak(utter);
+    });
   }
 
   // ---------------- Modal ----------------
@@ -407,6 +444,10 @@
 
   document.getElementById("btn-modal-close").addEventListener("click", () => {
     overlay.classList.remove("show");
+  });
+
+  document.getElementById("btn-modal-play").addEventListener("click", () => {
+    if (currentGlyph) playHangulAudio(currentGlyph);
   });
 
   document.getElementById("btn-modal-mark").addEventListener("click", () => {
@@ -461,7 +502,6 @@
     updateBuilderPreview();
   });
 
-  // خريطة تبسيطية لتركيب المقطع (مش شاملة كل الحالات، لكن كافية للتعليم الأساسي)
   const SYLLABLE_MAP = {
     "ㄱ": { "ㅏ": "가", "ㅑ": "갸", "ㅓ": "거", "ㅕ": "겨", "ㅗ": "고", "ㅛ": "교", "ㅜ": "구", "ㅠ": "규", "ㅡ": "그", "ㅣ": "기" },
     "ㄴ": { "ㅏ": "나", "ㅑ": "냐", "ㅓ": "너", "ㅕ": "녀", "ㅗ": "노", "ㅛ": "뇨", "ㅜ": "누", "ㅠ": "뉴", "ㅡ": "느", "ㅣ": "니" },
@@ -502,11 +542,6 @@
   }
 
   // ---------------- Writing / Stroke-Order Practice ----------------
-  // بيانات ترتيب الضربات — كل حرف عبارة عن مصفوفة ضربات
-  // كل ضربة: نقاط المسار (لرسم الدليل) — التحقق بيتم بمقارنة
-  // بداية ونهاية ضربة المستخدم مع بداية ونهاية الضربة المطلوبة
-  // (نظام مبسّط، مش تحليل شكل كامل زي HanziWriter، بس كافي لتعليم الترتيب والاتجاه)
-  // الإحداثيات على مقياس 0-100
   const STROKE_DATA = {
     "ㄱ": [[[20,20],[75,20],[75,80]]],
     "ㄴ": [[[25,15],[25,80],[80,80]]],
@@ -532,15 +567,11 @@
     "ㅠ": [[[10,35],[90,35]], [[40,35],[40,65]], [[60,35],[60,65]]],
     "ㅡ": [[[15,50],[85,50]]],
     "ㅣ": [[[50,10],[50,90]]],
-
-    // الحروف الساكنة المشدّدة — كل حرف عبارة عن نسخة يمين ونسخة شمال من الحرف الأصلي
     "ㄲ": [[[10,20],[42,20],[42,80]], [[58,20],[90,20],[90,80]]],
     "ㄸ": [[[10,20],[10,80],[42,80]], [[58,20],[58,80],[90,80]]],
     "ㅃ": [[[15,20],[15,80]], [[35,20],[35,80]], [[65,20],[65,80]], [[85,20],[85,80]]],
     "ㅆ": [[[25,15],[10,85]], [[75,15],[60,85]]],
     "ㅉ": [[[20,20],[10,85]], [[80,20],[70,85]]],
-
-    // الحروف الصوتية المركّبة — دمج حرفين صوتيين، بترسم الأول وبعدين الإضافة
     "ㅐ": [[[30,10],[30,90]], [[30,50],[55,50]], [[65,10],[65,90]]],
     "ㅒ": [[[30,10],[30,90]], [[30,40],[55,40]], [[30,60],[55,60]], [[70,10],[70,90]]],
     "ㅔ": [[[35,10],[35,90]], [[35,50],[60,50]], [[70,10],[70,90]]],
@@ -564,7 +595,6 @@
   const ctx = canvas.getContext("2d");
 
   function toCanvasCoord(pt) {
-    // بيحول نقطة من مقياس 0-100 لإحداثيات الكانفاس الفعلية
     return { x: (pt[0] / 100) * canvas.width, y: (pt[1] / 100) * canvas.height };
   }
 
@@ -592,8 +622,6 @@
 
   function redrawCanvas() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // ظل الحرف الشفاف في الخلفية
     ctx.fillStyle = "rgba(108,76,224,0.08)";
     ctx.font = `${canvas.width * 0.55}px Tahoma`;
     ctx.textAlign = "center";
@@ -601,13 +629,9 @@
     ctx.fillText(WRITE_QUEUE[writeIndex], canvas.width / 2, canvas.height / 2);
 
     const strokes = getCurrentStrokes();
-
-    // الضربات اللي خلصت (لون أخضر خفيف)
     for (let i = 0; i < currentStrokeIndex; i++) {
       drawGuideStroke(strokes[i], "rgba(52,199,123,0.6)", 5);
     }
-
-    // الضربة الحالية (دليل متقطع بنفسجي + رقمها)
     if (currentStrokeIndex < strokes.length) {
       drawGuideStroke(strokes[currentStrokeIndex], "rgba(108,76,224,0.35)", 4, true);
       drawStrokeNumber(strokes[currentStrokeIndex][0], currentStrokeIndex + 1);
@@ -662,8 +686,6 @@
     if (!drawing) return;
     const p = getPos(e);
     userPath.push(p);
-
-    // ارسم لمسة المستخدم الحية فوق الدليل
     redrawCanvas();
     ctx.beginPath();
     ctx.strokeStyle = "#6C4CE0";
@@ -700,7 +722,6 @@
     const userStartNorm = toNormalized(userPath[0].x, userPath[0].y);
     const userEndNorm = toNormalized(userPath[userPath.length - 1].x, userPath[userPath.length - 1].y);
 
-    // تسامح كبير — الهدف تعليم الترتيب والاتجاه مش رسم دقيق 100%
     const TOLERANCE = 45;
     const startOk = distance(userStartNorm, targetStart) < TOLERANCE;
     const endOk = distance(userEndNorm, targetEnd) < TOLERANCE;
@@ -718,7 +739,6 @@
     } else {
       failCount++;
       if (failCount >= 3) {
-        // بعد 3 محاولات، خلّيه يعدّي عشان مايتعلّقش
         failCount = 0;
         currentStrokeIndex++;
         showToast("👍 تمام، خلّيني أساعدك... ننتقل للي بعدها");
