@@ -472,6 +472,13 @@
       document.querySelectorAll(".section").forEach((s) => s.classList.remove("active"));
       btn.classList.add("active");
       document.getElementById(`tab-${btn.dataset.tab}`).classList.add("active");
+
+      if (btn.dataset.tab === "write") {
+        // الـ canvas كان مقفول (display:none) وقت أول resizeCanvas عند تحميل الصفحة
+        // فمقاسه كان بيتسجل صفر × صفر. لازم نعيد حسابه دلوقتي إنه بقى ظاهر فعلاً
+        resizeCanvas();
+        updateStrokeCounter();
+      }
     });
   });
 
@@ -608,6 +615,9 @@
 
   function resizeCanvas() {
     const rect = canvas.getBoundingClientRect();
+    // لو التاب لسه مخفي، getBoundingClientRect هترجع صفر × صفر —
+    // في الحالة دي منسيبش الـ canvas يتصفّر، سيبه زي ما هو لغاية ما يتفتح فعلاً
+    if (rect.width === 0 || rect.height === 0) return;
     canvas.width = rect.width;
     canvas.height = rect.height;
     resetCharacter();
