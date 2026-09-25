@@ -1,0 +1,72 @@
+// [الكوري, الروماني, العربي] — اسم ملف الصوت يتولّد من الروماني: audio/travel/<roman_with_underscores>.wav
+window.TRAVEL = [
+{id:'numbers',icon:'🔢',title:'الأرقام والأسعار',note:'الأسعار في كوريا بتتقال بالأرقام الصينية-الكورية',items:[
+['일','il','1'],['이','i','2'],['삼','sam','3'],['사','sa','4'],['오','o','5'],['육','yuk','6'],['칠','chil','7'],['팔','pal','8'],['구','gu','9'],['십','sip','10'],
+['백','baek','100'],['천','cheon','1000'],['만','man','10000'],['원','won','وون (العملة الكورية)']]},
+{id:'airport',icon:'✈️',title:'المطار',items:[
+['여권 여기 있어요','yeogwon yeogi isseoyo','جواز السفر تفضّل'],
+['관광하러 왔어요','gwanganghareo wasseoyo','جئت للسياحة'],
+['일주일 있을 거예요','iljuil isseul geoyeyo','سأبقى أسبوعًا'],
+['짐은 어디서 찾아요?','jimeun eodiseo chajayo','أين أستلم الحقائب؟'],
+['환전소가 어디예요?','hwanjeonsoga eodiyeyo','أين مكتب الصرافة؟'],
+['유심 카드 있어요?','yusim kadeu isseoyo','هل عندكم شريحة اتصال؟'],
+['공항버스는 어디서 타요?','gonghangbeoseuneun eodiseo tayo','من أين أركب حافلة المطار؟']]},
+{id:'transport',icon:'🚇',title:'المواصلات',items:[
+['지하철역이 어디예요?','jihacheolyeogi eodiyeyo','أين محطة المترو؟'],
+['티머니 카드 주세요','timeoni kadeu juseyo','أريد بطاقة T-money'],
+['카드를 충전해 주세요','kadeureul chungjeonhae juseyo','من فضلك اشحن البطاقة'],
+['이 버스 명동에 가요?','i beoseu myeongdonge gayo','هل هذه الحافلة تذهب إلى ميونغدونغ؟'],
+['어느 역에서 갈아타요?','eoneu yeogeseo garatayo','في أي محطة أغيّر الخط؟'],
+['다음 역은 뭐예요?','daeum yeogeun mwoyeyo','ما المحطة القادمة؟'],
+['택시 불러 주세요','taeksi bulleo juseyo','من فضلك نادِ لي تاكسي']]},
+{id:'hotel',icon:'🏨',title:'الفندق',items:[
+['예약했어요','yeyakhaesseoyo','لدي حجز'],
+['체크인 할게요','chekeuin halgeyo','أريد تسجيل الدخول'],
+['체크아웃은 몇 시예요?','chekeuauseun myeot siyeyo','متى موعد المغادرة؟'],
+['와이파이 비밀번호가 뭐예요?','waipai bimilbeonhoga mwoyeyo','ما كلمة سر الواي فاي؟'],
+['수건 좀 더 주세요','sugeon jom deo juseyo','أريد مناشف إضافية'],
+['방을 바꿔 주세요','bangeul bakkwo juseyo','من فضلك غيّر الغرفة'],
+['짐 좀 맡겨도 돼요?','jim jom matgyeodo dwaeyo','هل يمكن أن أترك حقائبي؟']]},
+{id:'restaurant',icon:'🍜',title:'المطعم',items:[
+['두 명이에요','du myeongieyo','نحن اثنان'],
+['메뉴판 주세요','menyupan juseyo','أريد قائمة الطعام'],
+['추천해 주세요','chucheonhae juseyo','رشّح لي شيئًا'],
+['물 좀 주세요','mul jom juseyo','أريد ماء'],
+['이거 하나 더 주세요','igeo hana deo juseyo','أريد واحدًا آخر من هذا'],
+['계산해 주세요','gyesanhae juseyo','الحساب من فضلك'],
+['포장해 주세요','pojanghae juseyo','أريده للطلب الخارجي']]},
+{id:'halal',icon:'🕌',title:'الحلال والصلاة',note:'اتأكد دايمًا من المكونات قبل الأكل',items:[
+['저는 무슬림이에요','jeoneun museullimieyo','أنا مسلم / مسلمة'],
+['할랄 음식 있어요?','hallal eumsik isseoyo','هل عندكم طعام حلال؟'],
+['돼지고기 들어가 있어요?','dwaejigogi deureoga isseoyo','هل فيه لحم خنزير؟'],
+['돼지고기 빼 주세요','dwaejigogi ppae juseyo','بدون لحم خنزير من فضلك'],
+['술이 들어가요?','suri deureogayo','هل فيه كحول؟'],
+['채식 메뉴 있어요?','chaesik menyu isseoyo','هل عندكم قائمة نباتية؟'],
+['기도실이 어디예요?','gidosiri eodiyeyo','أين مصلّى الصلاة؟'],
+['근처에 모스크가 있어요?','geuncheoe moseukeuga isseoyo','هل يوجد مسجد قريب؟']]},
+{id:'directions',icon:'🧭',title:'الاتجاهات',items:[
+['길을 잃었어요','gireul ireosseoyo','ضللت الطريق'],
+['여기가 어디예요?','yeogiga eodiyeyo','أين أنا الآن؟'],
+['지도로 보여 주세요','jidoro boyeo juseyo','أرني على الخريطة'],
+['똑바로 가세요','ttokbaro gaseyo','امشِ مباشرة'],
+['오른쪽으로 가세요','oreunjjogeuro gaseyo','اذهب يمينًا'],
+['왼쪽으로 가세요','oenjjogeuro gaseyo','اذهب يسارًا'],
+['걸어서 갈 수 있어요?','georeoseo gal su isseoyo','هل أستطيع الذهاب مشيًا؟']]},
+{id:'sightseeing',icon:'📸',title:'السياحة والتواصل',items:[
+['입장료가 얼마예요?','ipjangnyoga eolmayeyo','كم سعر الدخول؟'],
+['표 두 장 주세요','pyo du jang juseyo','تذكرتان من فضلك'],
+['사진 찍어도 돼요?','sajin jjigeodo dwaeyo','هل يمكن التصوير؟'],
+['몇 시에 문 닫아요?','myeot sie mun dadayo','متى يُغلق؟'],
+['영어 할 수 있어요?','yeongeo hal su isseoyo','هل تتكلم الإنجليزية؟'],
+['한국어 조금 해요','hangugeo jogeum haeyo','أتكلم الكورية قليلًا'],
+['천천히 말해 주세요','cheoncheonhi malhae juseyo','تكلّم ببطء من فضلك']]},
+{id:'emergency',icon:'🚑',title:'الطوارئ',items:[
+['도와주세요!','dowajuseyo','ساعدوني!'],
+['병원에 가고 싶어요','byeongwone gago sipeoyo','أريد الذهاب إلى المستشفى'],
+['약국이 어디예요?','yakgugi eodiyeyo','أين الصيدلية؟'],
+['배가 아파요','baega apayo','بطني يؤلمني'],
+['머리가 아파요','meoriga apayo','رأسي يؤلمني'],
+['여권을 잃어버렸어요','yeogwoneul ireobeoryeosseoyo','أضعت جواز سفري'],
+['경찰을 불러 주세요','gyeongchareul bulleo juseyo','نادِ الشرطة'],
+['대사관이 어디예요?','daesagwani eodiyeyo','أين السفارة؟']]}
+];

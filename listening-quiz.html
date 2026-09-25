@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>اختبار السمع</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;700&family=Noto+Sans+KR:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F1F5F9;--ink:#14213D;--muted:#5B6B82;--card:#fff;--accent:#E8781A;--ok:#23845B;--bad:#C0392B;--line:#D5DEE9}
+@media(prefers-color-scheme:dark){:root{--bg:#101826;--ink:#E8EEF7;--muted:#93A3BA;--card:#1A2536;--line:#2C3B52}}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:'Noto Sans Arabic',system-ui,sans-serif}
+main{max-width:480px;margin:0 auto;padding:16px}
+.top{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:14px;margin-bottom:12px}
+.bar{height:6px;background:var(--line);border-radius:3px;overflow:hidden;margin-bottom:20px}
+.bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .3s}
+.tabs{display:flex;gap:8px;margin-bottom:20px}
+.tabs button{flex:1;padding:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;font:inherit}
+.tabs button[aria-pressed=true]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);font-weight:700}
+.play{display:block;margin:8px auto 24px;width:120px;height:120px;border-radius:50%;border:0;background:var(--accent);color:#fff;font-size:44px;cursor:pointer}
+.play:active{transform:scale(.96)}
+.opts{display:grid;gap:10px}
+.opt{padding:14px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;font:inherit;font-size:18px;text-align:center}
+.opt.ok{background:var(--ok);border-color:var(--ok);color:#fff}
+.opt.bad{background:var(--bad);border-color:var(--bad);color:#fff}
+input{width:100%;padding:14px;font:700 24px 'Noto Sans KR',sans-serif;text-align:center;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);direction:ltr}
+.go{width:100%;margin-top:10px;padding:14px;border:0;border-radius:10px;background:var(--ink);color:var(--bg);font:700 16px inherit}
+.ko{font:700 32px 'Noto Sans KR',sans-serif;text-align:center;margin:16px 0}
+.msg{text-align:center;min-height:28px;margin-top:14px;font-weight:700}
+.big{font-size:56px;text-align:center;margin:20px 0 8px}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<main>
+  <div class="top"><span id="cnt"></span><span id="score"></span></div>
+  <div class="bar"><i id="prog"></i></div>
+
+  <section id="quiz">
+    <div class="tabs" role="group" aria-label="نوع التمرين">
+      <button id="m-pick" aria-pressed="true">اسمع واختار</button>
+      <button id="m-type" aria-pressed="false">اسمع واكتب</button>
+    </div>
+    <button class="play" id="play" aria-label="شغّل الصوت">🔊</button>
+    <div id="pick" class="opts"></div>
+    <div id="typ" hidden>
+      <input id="ans" autocomplete="off" autocapitalize="off" placeholder="اكتب بالهانغول">
+      <button class="go" id="check">تحقق</button>
+    </div>
+    <div class="msg" id="msg" aria-live="polite"></div>
+  </section>
+
+  <section id="end" hidden>
+    <div class="big">🐯</div>
+    <div class="ko" id="final"></div>
+    <button class="go" id="again">جولة جديدة</button>
+  </section>
+</main>
+
+<script src="progress.js"></script>
+<script>
+// ===== إعدادات: عدّل حسب ملفاتك =====
+const AUDIO_ROOT = 'audio/';   // audio/<folder>/<file>.wav
+const ROUND = 10;
+// [اسم الملف بدون .wav, الكوري, العربي]
+const DATA = {
+  vocabulary: [
+    ['hana','하나','واحد'],['dul','둘','اثنان'],['set','셋','ثلاثة'],['net','넷','أربعة'],
+    ['daseot','다섯','خمسة'],['yeoseot','여섯','ستة'],['ilgop','일곱','سبعة'],['yeodeol','여덟','ثمانية'],
+    ['ppalgansaek','빨간색','أحمر'],['paransaek','파란색','أزرق'],['noransaek','노란색','أصفر'],['chorosaek','초록색','أخضر'],
+    ['geomeunsaek','검은색','أسود'],['huinsaek','흰색','أبيض'],['bunhongsaek','분홍색','وردي'],['borasaek','보라색','بنفسجي'],
+    ['gajok','가족','عائلة'],['abeoji','아버지','الأب'],['eomeoni','어머니','الأم'],['hyeongje','형제','إخوة'],
+    ['eonni','언니','أخت كبيرة (للبنت)'],['oppa','오빠','أخ كبير (للبنت)'],['dongsaeng','동생','أخ أو أخت أصغر'],['halmeoni','할머니','الجدّة'],
+    ['bap','밥','أرز / وجبة'],['mul','물','ماء'],['gimchi','김치','كيمتشي'],['gogi','고기','لحم'],
+    ['gwail','과일','فاكهة'],['keopi','커피','قهوة'],['ppang','빵','خبز'],['masisseoyo','맛있어요','لذيذ'],
+    ['oneul','오늘','اليوم'],['naeil','내일','غدًا'],['eoje','어제','أمس'],['jigeum','지금','الآن'],
+    ['achim','아침','صباح'],['jeonyeok','저녁','مساء'],['maeil','매일','كل يوم'],['sigan','시간','وقت'],
+    ['jip','집','بيت'],['hakgyo','학교','مدرسة'],['hoesa','회사','شركة'],['byeongwon','병원','مستشفى'],
+    ['hwajangsil','화장실','حمّام'],['gonghang','공항','مطار'],['sijang','시장','سوق'],['yeok','역','محطة']
+  ],
+  greetings: [
+    ['annyeonghaseyo','안녕하세요','مرحبًا (رسمي)'],['annyeonghasimnikka','안녕하십니까','مرحبًا (رسمي جدًا)'],['annyeong','안녕','مرحبًا (غير رسمي)'],
+    ['cheoeum_boepgetseumnida','처음 뵙겠습니다','تشرفت بلقائك لأول مرة'],['mannaseo_bangawoyo','만나서 반가워요','سعيد بلقائك'],
+    ['joeun_achimieyo','좋은 아침이에요','صباح الخير'],['jal_jayo','잘 자요','تصبح على خير'],['joeun_haru_doeseyo','좋은 하루 되세요','أتمنى لك يومًا سعيدًا'],
+    ['sugohaseyo','수고하세요','تعبك راحة (تحية للعاملين)'],['annyeonghi_gaseyo','안녕히 가세요','مع السلامة (لمن يغادر)'],['annyeonghi_gyeseyo','안녕히 계세요','مع السلامة (لمن يبقى)'],
+    ['daeume_bwayo','다음에 봐요','نلتقي المرة القادمة'],['jal_ga','잘 가','مع السلامة (غير رسمي)'],['tto_bwayo','또 봐요','أراك مجددًا'],
+    ['gamsahamnida','감사합니다','شكرًا'],['gomapseumnida','고맙습니다','شكرًا جزيلًا'],['gomawo','고마워','شكرًا (غير رسمي)'],
+    ['joesonghamnida','죄송합니다','أعتذر'],['mianhae','미안해','آسف (غير رسمي)'],['cheonmaneyo','천만에요','عفوًا'],
+    ['saengil_chukhahaeyo','생일 축하해요','عيد ميلاد سعيد'],['saehae_bok_mani_badeuseyo','새해 복 많이 받으세요','سنة جديدة سعيدة'],
+    ['chukhahamnida','축하합니다','مبروك'],['hwaiting','화이팅!','هيا! بالتوفيق']
+  ]
+  // لإضافة drama / conversations / wotd: أضف مفتاحًا بنفس اسم الفولدر
+};
+const WORDS = Object.entries(DATA).flatMap(([dir,l])=>l.map(([id,ko,ar])=>({dir,id,ko,ar})));
+function onFinish(score,total){
+  const P=window.KoreanProgress;
+  if(P)P.addPoints(score*2+(score===total?10:0),'listening_quiz'); // 2 لكل إجابة صح + 10 للدرجة الكاملة
+}
+// =====================================
+
+const $=id=>document.getElementById(id);
+let mode='pick',q=[],i=0,score=0,locked=false,audio=null;
+
+const shuffle=a=>{a=a.slice();for(let k=a.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[a[k],a[j]]=[a[j],a[k]]}return a};
+
+function speak(w){
+  if(audio){audio.pause();audio=null}
+  const fallback=()=>{
+    if(!('speechSynthesis' in window))return;
+    speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(w.ko);u.lang='ko-KR';u.rate=.85;speechSynthesis.speak(u);
+  };
+  audio=new Audio(AUDIO_ROOT+w.dir+'/'+w.id+'.wav');
+  audio.onerror=fallback;
+  audio.play().catch(fallback);
+}
+
+function start(){
+  q=shuffle(WORDS).slice(0,Math.min(ROUND,WORDS.length));
+  i=0;score=0;
+  $('quiz').hidden=false;$('end').hidden=true;
+  show();
+}
+
+function show(){
+  locked=false;
+  const w=q[i];
+  $('cnt').textContent=(i+1)+' / '+q.length;
+  $('score').textContent='✔ '+score;
+  $('prog').style.width=(i/q.length*100)+'%';
+  $('msg').textContent='';
+  $('pick').hidden=mode!=='pick';
+  $('typ').hidden=mode!=='type';
+  if(mode==='pick'){
+    const wrong=shuffle(WORDS.filter(x=>x!==w)).slice(0,3);
+    $('pick').innerHTML='';
+    shuffle([w,...wrong]).forEach(o=>{
+      const b=document.createElement('button');
+      b.className='opt';b.textContent=o.ar;
+      b.onclick=()=>answer(o===w,b);
+      $('pick').appendChild(b);
+    });
+  }else{
+    $('ans').value='';$('ans').disabled=false;$('ans').focus();
+  }
+  speak(w);
+}
+
+function answer(ok,btn){
+  if(locked)return;locked=true;
+  const w=q[i];
+  if(ok)score++;
+  if(btn)btn.classList.add(ok?'ok':'bad');
+  if(mode==='pick'&&!ok){
+    [...$('pick').children].forEach(b=>{if(b.textContent===w.ar)b.classList.add('ok')});
+  }
+  $('msg').style.color=ok?'var(--ok)':'var(--bad)';
+  $('msg').textContent=ok?'صح!':'الصح: '+w.ko+' = '+w.ar;
+  $('score').textContent='✔ '+score;
+  setTimeout(()=>{i++;i<q.length?show():finish()},ok?800:1800);
+}
+
+function finish(){
+  $('prog').style.width='100%';
+  $('quiz').hidden=true;$('end').hidden=false;
+  $('final').textContent=score+' من '+q.length;
+  onFinish(score,q.length);
+}
+
+function setMode(m){
+  mode=m;
+  $('m-pick').setAttribute('aria-pressed',m==='pick');
+  $('m-type').setAttribute('aria-pressed',m==='type');
+  start();
+}
+
+$('play').onclick=()=>speak(q[i]);
+$('m-pick').onclick=()=>setMode('pick');
+$('m-type').onclick=()=>setMode('type');
+$('check').onclick=()=>{
+  if(locked)return;
+  const clean=t=>t.replace(/[\s!?.,]/g,'');
+  const v=clean($('ans').value);
+  answer(v===clean(q[i].ko),null);
+};
+$('ans').addEventListener('keydown',e=>{if(e.key==='Enter')$('check').click()});
+$('again').onclick=start;
+start();
+</script>
+</body>
+</html>
