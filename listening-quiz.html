@@ -6,11 +6,13 @@
 <title>اختبار السمع</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;700&family=Noto+Sans+KR:wght@500;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#F1F5F9;--ink:#14213D;--muted:#5B6B82;--card:#fff;--accent:#E8781A;--ok:#23845B;--bad:#C0392B;--line:#D5DEE9}
-@media(prefers-color-scheme:dark){:root{--bg:#101826;--ink:#E8EEF7;--muted:#93A3BA;--card:#1A2536;--line:#2C3B52}}
+:root{--bg:#FFF7EF;--ink:#1F1B16;--muted:#9C6B3E;--card:#FFFFFF;--accent:#E8781A;--ok:#23845B;--bad:#C0392B;--line:#FBD8B0}
+@media(prefers-color-scheme:dark){:root{--bg:#241A10;--ink:#FFF3E6;--muted:#D9A46A;--card:#332415;--line:#4A3521}}
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--bg);color:var(--ink);font-family:'Noto Sans Arabic',system-ui,sans-serif}
 main{max-width:480px;margin:0 auto;padding:16px}
+.back{display:inline-flex;align-items:center;gap:6px;color:var(--accent);font-weight:700;text-decoration:none;font-size:14px;margin-bottom:10px}
+.back:active{opacity:.7}
 .top{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:14px;margin-bottom:12px}
 .bar{height:6px;background:var(--line);border-radius:3px;overflow:hidden;margin-bottom:20px}
 .bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .3s}
@@ -24,7 +26,7 @@ main{max-width:480px;margin:0 auto;padding:16px}
 .opt.ok{background:var(--ok);border-color:var(--ok);color:#fff}
 .opt.bad{background:var(--bad);border-color:var(--bad);color:#fff}
 input{width:100%;padding:14px;font:700 24px 'Noto Sans KR',sans-serif;text-align:center;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);direction:ltr}
-.go{width:100%;margin-top:10px;padding:14px;border:0;border-radius:10px;background:var(--ink);color:var(--bg);font:700 16px inherit}
+.go{width:100%;margin-top:10px;padding:14px;border:0;border-radius:10px;background:var(--accent);color:#fff;font:700 16px inherit}
 .ko{font:700 32px 'Noto Sans KR',sans-serif;text-align:center;margin:16px 0}
 .msg{text-align:center;min-height:28px;margin-top:14px;font-weight:700}
 .big{font-size:56px;text-align:center;margin:20px 0 8px}
@@ -34,6 +36,7 @@ input{width:100%;padding:14px;font:700 24px 'Noto Sans KR',sans-serif;text-align
 </head>
 <body>
 <main>
+  <a href="index.html" class="back">→ الرئيسية</a>
   <div class="top"><span id="cnt"></span><span id="score"></span></div>
   <div class="bar"><i id="prog"></i></div>
 
