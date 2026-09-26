@@ -6,11 +6,13 @@
 <title>السفر والسياحة</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;700&family=Noto+Sans+KR:wght@500;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#F1F5F9;--ink:#14213D;--muted:#5B6B82;--card:#fff;--accent:#E8781A;--line:#D5DEE9}
-@media(prefers-color-scheme:dark){:root{--bg:#101826;--ink:#E8EEF7;--muted:#93A3BA;--card:#1A2536;--line:#2C3B52}}
+:root{--bg:#FFF7EF;--ink:#1F1B16;--muted:#9C6B3E;--card:#FFFFFF;--accent:#E8781A;--line:#FBD8B0}
+@media(prefers-color-scheme:dark){:root{--bg:#241A10;--ink:#FFF3E6;--muted:#D9A46A;--card:#332415;--line:#4A3521}}
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--bg);color:var(--ink);font-family:'Noto Sans Arabic',system-ui,sans-serif}
 main{max-width:520px;margin:0 auto;padding:16px}
+.back{display:inline-flex;align-items:center;gap:6px;color:var(--accent);font-weight:700;text-decoration:none;font-size:14px;margin-bottom:10px}
+.back:active{opacity:.7}
 h1{font-size:22px;margin:4px 0 16px}
 details{background:var(--card);border:1px solid var(--line);border-radius:12px;margin-bottom:10px;overflow:hidden}
 summary{padding:14px;font-weight:700;font-size:17px;cursor:pointer;display:flex;gap:10px;align-items:center;list-style:none}
@@ -30,6 +32,7 @@ summary span.n{margin-inline-start:auto;font-weight:400;font-size:13px;color:var
 </head>
 <body>
 <main>
+  <a href="index.html" class="back">→ الرئيسية</a>
   <h1>🐯 السفر والسياحة</h1>
   <div id="list"></div>
 </main>
