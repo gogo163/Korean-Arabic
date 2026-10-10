@@ -298,7 +298,7 @@
     </div>
     <div class="arrow">‹</div>
   </a>
-  <a href="pronunciation.html" class="menu-card">
+  <a href="pronunciation.html" class="menu-card" onclick="return openPronunciation(event)">
     <div class="emoji">🎤</div>
     <div class="info">
       <div class="title">تدرّب على النطق</div>
@@ -310,6 +310,20 @@
 </div>
 
 <script src="progress.js"></script>
+<script src="rating.js"></script>
+<script>
+  // داخل Kodular: يفتح شاشة "pronunciation" (CustomWebView بإذن الميكروفون). خارجه: يفتح الصفحة عادي.
+  function openPronunciation(e) {
+    try {
+      if (window.AppInventor && typeof window.AppInventor.setWebViewString === "function") {
+        e.preventDefault();
+        window.AppInventor.setWebViewString("open_pronunciation");
+        return false;
+      }
+    } catch (err) {}
+    return true;
+  }
+</script>
 <script>
   const state = KoreanProgress.getState();
   const { current } = KoreanProgress.getLevelInfo();

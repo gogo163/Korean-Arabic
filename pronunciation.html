@@ -69,7 +69,7 @@
 </head>
 <body>
 <div class="app">
-  <a href="index.html" class="back-btn">→ الرئيسية</a>
+  <a href="index.html" class="back-btn" onclick="return goBack(event)">→ الرئيسية</a>
   <header>
     <h1>🎤 النطق</h1>
     <p>اسمع النطق الأصلي، سجّل صوتك، وقارن بينهم</p>
@@ -204,6 +204,19 @@ function playNative(it){
   try{ const a=new Audio(AUDIO_DIR+'/'+it.roman+'.wav'); a.onerror=fb; const p=a.play(); if(p&&p.catch) p.catch(fb); }catch(e){ fb(); }
 }
 
+/* ---------- الرجوع: داخل Kodular يغلق الشاشة (الرسالة "back")، وخارجه يرجع للرئيسية ---------- */
+function goBack(e){
+  try{
+    if(window.AppInventor && typeof window.AppInventor.setWebViewString === 'function'){
+      e.preventDefault();
+      window.AppInventor.setWebViewString('back');
+      setTimeout(function(){ location.href = 'index.html'; }, 900); // احتياطي لو الشاشة ما اتقفلتش
+      return false;
+    }
+  }catch(err){}
+  return true;
+}
+
 /* ---------- التبويبات ---------- */
 document.querySelectorAll('.tab').forEach(b => b.addEventListener('click', () => {
   document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
@@ -214,6 +227,7 @@ document.querySelectorAll('.tab').forEach(b => b.addEventListener('click', () =>
 
 /* ---------- التدرّب ---------- */
 let filter = 'all', list = ITEMS.slice(), idx = 0, lastUrl = null, rec = null, stream = null, rated = false;
+let micOff = false;
 const $ = id => document.getElementById(id);
 
 function attempts(){ try{ return parseInt(localStorage.getItem(ATT_KEY),10) || 0; }catch(e){ return 0; } }
@@ -228,8 +242,61 @@ function renderFilters(){
     idx = 0; renderFilters(); renderCard();
   });
 }
+// لو الميكروفون مش متاح (زي WebView في Kodular): وضع التدرّب بدون تسجيل
+function setMicOff(){
+  micOff = true;
+  $('btn-rec').style.display = 'none';
+  $('btn-mine').style.display = 'none';
+  $('rate').classList.add('show');
+  $('msg').classList.remove('err');
+  $('msg').textContent = 'التسجيل مش متاح في التطبيق حاليًا. اسمع النطق الأصلي وكرّره بصوتك، وبعدين قيّم نفسك.';
+}
+/* ---------- التسجيل عبر Kodular (SoundRecorder) — زي التطبيق الياباني ----------
+   الرسائل المستخدمة بالظبط: RECORD_START / RECORD_STOP / PLAY_LAST
+   والرد من Kodular: "RECORDED:<مسار الملف>" عبر WebViewString. */
+// وضع المسجّل الأصلي (Sound Recorder) اختياري: يعمل فقط لو فتحت الصفحة بـ ?native=1
+// الافتراضي: التسجيل بالمتصفح (getUserMedia) داخل CustomWebView اللي بيمنح إذن الميكروفون.
+const HAS_BRIDGE = /[?&]native=1\b/.test(location.search) && !!(window.AppInventor && typeof window.AppInventor.setWebViewString === 'function');
+let nativeRecording = false, nativeHas = false, pollTimer = null;
+function bridgeSend(cmd){ try{ window.AppInventor.setWebViewString(cmd); }catch(e){} }
+function waitRecorded(cb){
+  let tries = 0;
+  clearInterval(pollTimer);
+  pollTimer = setInterval(() => {
+    tries++;
+    let v = '';
+    try{ v = String(window.AppInventor.getWebViewString() || ''); }catch(e){}
+    if(v.indexOf('RECORDED:') === 0){ clearInterval(pollTimer); cb(true); }
+    else if(tries >= 25){ clearInterval(pollTimer); cb(false); }
+  }, 300);
+}
+function nativeToggle(){
+  const btn = $('btn-rec');
+  if(!nativeRecording){
+    resetRecording();
+    nativeRecording = true;
+    bridgeSend('RECORD_START');
+    btn.classList.add('on'); btn.textContent = '⏹ وقّف';
+    $('msg').textContent = 'بيسجّل... انطق الكلمة وبعدين دوس وقّف.';
+    return;
+  }
+  nativeRecording = false;
+  bridgeSend('RECORD_STOP');
+  btn.classList.remove('on'); btn.textContent = '🎤 سجّل';
+  $('msg').textContent = 'بيحفظ التسجيل...';
+  waitRecorded(ok => {
+    if(!ok){ $('msg').textContent = 'التسجيل ما اتحفظش، جرّب تاني.'; $('msg').classList.add('err'); return; }
+    nativeHas = true;
+    $('btn-mine').disabled = false;
+    $('rate').classList.add('show');
+    $('msg').textContent = 'اسمع صوتك وقارنه بالنطق الأصلي، وبعدين قيّم نفسك.';
+    bridgeSend('PLAY_LAST');
+  });
+}
+
 function resetRecording(){
   if(lastUrl){ URL.revokeObjectURL(lastUrl); lastUrl = null; }
+  nativeHas = false; clearInterval(pollTimer);
   $('btn-mine').disabled = true;
   $('rate').classList.remove('show');
   $('msg').textContent = ''; $('msg').classList.remove('err');
@@ -239,6 +306,7 @@ function renderCard(){
   const it = list[idx];
   resetRecording();
   $('count').textContent = (idx+1) + ' / ' + list.length;
+  if(micOff) setMicOff();
   $('card').innerHTML =
     '<div class="big"><span class="ko">'+it.kr+'</span></div>'
     + (it.kind==='W' ? '<div class="say">النطق الفعلي: <span class="ko">['+it.say+']</span></div>' : '<div class="say"><span class="ko">'+it.roman+'</span></div>')
@@ -253,12 +321,13 @@ $('next').onclick = () => { idx = (idx + 1) % list.length; renderCard(); };
 
 $('btn-rec').onclick = async () => {
   const btn = $('btn-rec');
+  if(HAS_BRIDGE){ nativeToggle(); return; }
   if(rec && rec.state === 'recording'){ rec.stop(); return; }
   if(!window.MediaRecorder || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
-    $('msg').textContent = 'التسجيل مش مدعوم على الجهاز ده.'; $('msg').classList.add('err'); return;
+    setMicOff(); return;
   }
   try{ stream = await navigator.mediaDevices.getUserMedia({audio:true}); }
-  catch(e){ $('msg').textContent = 'لازم تسمح للتطبيق باستخدام الميكروفون عشان تسجّل.'; $('msg').classList.add('err'); return; }
+  catch(e){ setMicOff(); return; }
   resetRecording();
   const chunks = [];
   rec = new MediaRecorder(stream);
@@ -278,7 +347,10 @@ $('btn-rec').onclick = async () => {
   btn.classList.add('on'); btn.textContent = '⏹ وقّف';
   $('msg').textContent = 'بيسجّل... انطق الكلمة وبعدين دوس وقّف.';
 };
-$('btn-mine').onclick = () => { if(lastUrl) new Audio(lastUrl).play().catch(() => {}); };
+$('btn-mine').onclick = () => {
+  if(HAS_BRIDGE){ if(nativeHas) bridgeSend('PLAY_LAST'); return; }
+  if(lastUrl) new Audio(lastUrl).play().catch(() => {});
+};
 
 function rate(close){
   if(rated) return; rated = true;
