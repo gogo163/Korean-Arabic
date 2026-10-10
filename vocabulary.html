@@ -67,6 +67,17 @@
   .view { display: none; }
   .view.active { display: block; }
 
+  /* ---- Level tabs (أساسي / B1 / B2) ---- */
+  .level-tabs { display: flex; gap: 8px; margin-bottom: 12px; }
+  .level-btn {
+    flex: 1; background: white; color: #9992B5;
+    border: 2px solid #EDEAFB; border-radius: 12px;
+    padding: 8px 4px; font-size: 12.5px; font-weight: bold; cursor: pointer;
+    font-family: inherit;
+  }
+  .level-btn small { display: block; font-size: 10px; font-weight: normal; }
+  .level-btn.active { background: var(--primary); border-color: var(--primary); color: white; }
+
   /* ---- Browse mode ---- */
   .category-scroll {
     display: flex; gap: 8px; overflow-x: auto;
@@ -167,6 +178,17 @@
   .q-good { background: var(--primary-light); }
   .q-easy { background: var(--success); }
 
+  .word-ex {
+    margin-top: 8px; padding: 8px 10px; border-radius: 10px;
+    background: #F7F4FF; cursor: pointer;
+  }
+  .word-ex .ex-ko { display: block; font-size: 13px; color: var(--text); direction: ltr; text-align: left; }
+  .word-ex .ex-ar { display: block; font-size: 11.5px; color: #8A82A6; margin-top: 2px; }
+  .flashcard .fc-ex { display: none; margin-top: 14px; padding-top: 12px; border-top: 1px dashed #E4DCFB; width: 100%; }
+  .flashcard.flipped .fc-ex { display: block; }
+  .fc-ex .ex-ko { font-size: 14px; direction: ltr; }
+  .fc-ex .ex-ar { font-size: 12px; color: #8A82A6; margin-top: 3px; }
+
   .toast {
     position: fixed; bottom: 24px; left: 50%;
     transform: translateX(-50%) translateY(20px);
@@ -199,6 +221,9 @@
     </button>
   </div>
 
+  <!-- مستوى الكلمات -->
+  <div class="level-tabs" id="level-tabs"></div>
+
   <!-- ===================== BROWSE VIEW ===================== -->
   <div class="view active" id="view-browse">
     <div class="search-box">
@@ -221,11 +246,20 @@
 <script src="audio-helper.js"></script>
 <script>
   // -------------------------------------------------------------
-  // بنك الكلمات الأساسية — مصنّف حسب الموضوع
+  // بنك الكلمات — مصنّف حسب المستوى (level) ثم الموضوع
+  // level: "basic" | "b1" | "b2"
+  // لإضافة كلمات جديدة: انسخ سطر كلمة وعدّل عليه
   // -------------------------------------------------------------
+  const LEVELS = [
+    { id: "basic", label: "أساسي", sub: "A1–A2" },
+    { id: "b1", label: "B1", sub: "متوسط" },
+    { id: "b2", label: "B2", sub: "فوق المتوسط" },
+  ];
+
   const CATEGORIES = [
+    /* ===================== أساسي ===================== */
     {
-      id: "numbers",
+      id: "numbers", level: "basic",
       chip: "🔢 أرقام",
       words: [
         { kr: "하나", roman: "hana", ar: "واحد" },
@@ -239,7 +273,7 @@
       ],
     },
     {
-      id: "colors",
+      id: "colors", level: "basic",
       chip: "🎨 ألوان",
       words: [
         { kr: "빨간색", roman: "ppalgansaek", ar: "أحمر" },
@@ -253,7 +287,7 @@
       ],
     },
     {
-      id: "family",
+      id: "family", level: "basic",
       chip: "👨‍👩‍👧 العائلة",
       words: [
         { kr: "가족", roman: "gajok", ar: "عيلة" },
@@ -267,7 +301,7 @@
       ],
     },
     {
-      id: "food",
+      id: "food", level: "basic",
       chip: "🍜 أكل وشرب",
       words: [
         { kr: "밥", roman: "bap", ar: "رز / أكل بشكل عام" },
@@ -281,7 +315,7 @@
       ],
     },
     {
-      id: "time",
+      id: "time", level: "basic",
       chip: "🕐 الوقت",
       words: [
         { kr: "오늘", roman: "oneul", ar: "النهاردة" },
@@ -295,7 +329,7 @@
       ],
     },
     {
-      id: "places",
+      id: "places", level: "basic",
       chip: "📍 أماكن",
       words: [
         { kr: "집", roman: "jip", ar: "بيت" },
@@ -308,15 +342,918 @@
         { kr: "역", roman: "yeok", ar: "محطة (مترو/قطر)" },
       ],
     },
+
+    /* ===================== B1 ===================== */
+    {
+      id: "b1_work", level: "b1",
+      chip: "💼 الشغل",
+      words: [
+        { kr: "직업", roman: "jigeop", ar: "مهنة / شغلانة" },
+        { kr: "월급", roman: "wolgeup", ar: "مرتب" },
+        { kr: "면접", roman: "myeonjeop", ar: "مقابلة شغل" },
+        { kr: "회의", roman: "hoeui", ar: "اجتماع" },
+        { kr: "동료", roman: "dongnyo", ar: "زميل شغل" },
+        { kr: "사장님", roman: "sajangnim", ar: "المدير / صاحب الشغل" },
+        { kr: "출근하다", roman: "chulgeunhada", ar: "يروح الشغل" },
+        { kr: "퇴근하다", roman: "toegeunhada", ar: "يخلّص شغل ويمشي" },
+        { kr: "지각하다", roman: "jigakada", ar: "يتأخر (عن الشغل/المدرسة)" },
+        { kr: "휴가", roman: "hyuga", ar: "إجازة" },
+        { kr: "야근", roman: "yageun", ar: "شغل بالليل / ساعات زيادة" },
+        { kr: "취직하다", roman: "chwijikada", ar: "يتوظّف" },
+      ],
+    },
+    {
+      id: "b1_health", level: "b1",
+      chip: "🏥 الصحة",
+      words: [
+        { kr: "건강", roman: "geongang", ar: "صحة" },
+        { kr: "감기", roman: "gamgi", ar: "برد / إنفلونزا" },
+        { kr: "두통", roman: "dutong", ar: "صداع" },
+        { kr: "열", roman: "yeol", ar: "سخونية / حرارة" },
+        { kr: "약", roman: "yak", ar: "دوا" },
+        { kr: "처방전", roman: "cheobangjeon", ar: "روشتة" },
+        { kr: "아프다", roman: "apeuda", ar: "يوجع / تعبان" },
+        { kr: "기침", roman: "gichim", ar: "كحّة" },
+        { kr: "주사", roman: "jusa", ar: "حقنة" },
+        { kr: "수술", roman: "susul", ar: "عملية جراحية" },
+        { kr: "입원하다", roman: "ibwonhada", ar: "يدخل المستشفى" },
+        { kr: "낫다", roman: "natda", ar: "يتعافى / يخفّ" },
+      ],
+    },
+    {
+      id: "b1_life", level: "b1",
+      chip: "🏠 الحياة اليومية",
+      words: [
+        { kr: "이웃", roman: "iut", ar: "جار" },
+        { kr: "교통", roman: "gyotong", ar: "مواصلات" },
+        { kr: "월세", roman: "wolse", ar: "إيجار شهري" },
+        { kr: "이사하다", roman: "isahada", ar: "ينقل / يغيّر سكنه" },
+        { kr: "약속", roman: "yaksok", ar: "ميعاد" },
+        { kr: "계획", roman: "gyehoek", ar: "خطة" },
+        { kr: "예약하다", roman: "yeyakada", ar: "يحجز" },
+        { kr: "취소하다", roman: "chwisohada", ar: "يلغي" },
+        { kr: "신청하다", roman: "sincheonghada", ar: "يقدّم طلب / يسجّل" },
+        { kr: "이용하다", roman: "iyonghada", ar: "يستخدم" },
+        { kr: "소개하다", roman: "sogaehada", ar: "يعرّف / يقدّم (شخص)" },
+        { kr: "준비하다", roman: "junbihada", ar: "يجهّز" },
+      ],
+    },
+    {
+      id: "b1_feelings", level: "b1",
+      chip: "😊 المشاعر",
+      words: [
+        { kr: "기분", roman: "gibun", ar: "مزاج / إحساس" },
+        { kr: "걱정하다", roman: "geokjeonghada", ar: "يقلق" },
+        { kr: "긴장하다", roman: "ginjanghada", ar: "يتوتّر" },
+        { kr: "부럽다", roman: "bureopda", ar: "يغير (بإعجاب) / يتمنى زيّ غيره" },
+        { kr: "외롭다", roman: "oeropda", ar: "يحس بالوحدة" },
+        { kr: "지루하다", roman: "jiruhada", ar: "ممل" },
+        { kr: "답답하다", roman: "dapdapada", ar: "مخنوق / متضايق" },
+        { kr: "서운하다", roman: "seounhada", ar: "زعلان شوية (خيبة أمل)" },
+        { kr: "놀라다", roman: "nollada", ar: "يتفاجئ" },
+        { kr: "실망하다", roman: "silmanghada", ar: "يتخيّب أمله" },
+        { kr: "감동하다", roman: "gamdonghada", ar: "يتأثّر" },
+        { kr: "자랑스럽다", roman: "jarangseureopda", ar: "فخور" },
+      ],
+    },
+    {
+      id: "b1_tech", level: "b1",
+      chip: "📱 تكنولوجيا",
+      words: [
+        { kr: "인터넷", roman: "inteonet", ar: "إنترنت" },
+        { kr: "검색하다", roman: "geomsaekada", ar: "يدوّر / يبحث" },
+        { kr: "다운로드하다", roman: "daunrodeuhada", ar: "يحمّل" },
+        { kr: "비밀번호", roman: "bimilbeonho", ar: "كلمة السر" },
+        { kr: "문자", roman: "munja", ar: "رسالة نصية" },
+        { kr: "영상", roman: "yeongsang", ar: "فيديو" },
+        { kr: "앱", roman: "aep", ar: "تطبيق" },
+        { kr: "충전하다", roman: "chungjeonhada", ar: "يشحن" },
+        { kr: "화면", roman: "hwamyeon", ar: "شاشة" },
+        { kr: "로그인", roman: "rogeuin", ar: "تسجيل دخول" },
+        { kr: "연결하다", roman: "yeongyeolhada", ar: "يوصّل / يربط" },
+        { kr: "저장하다", roman: "jeojanghada", ar: "يحفظ" },
+      ],
+    },
+    {
+      id: "b1_study", level: "b1",
+      chip: "📖 الدراسة",
+      words: [
+        { kr: "숙제", roman: "sukje", ar: "واجب" },
+        { kr: "시험", roman: "siheom", ar: "امتحان" },
+        { kr: "성적", roman: "seongjeok", ar: "درجات" },
+        { kr: "장학금", roman: "janghakgeum", ar: "منحة دراسية" },
+        { kr: "졸업하다", roman: "joreopada", ar: "يتخرّج" },
+        { kr: "입학하다", roman: "ipakada", ar: "يلتحق بالدراسة" },
+        { kr: "전공", roman: "jeongong", ar: "تخصّص" },
+        { kr: "발표하다", roman: "balpyohada", ar: "يقدّم عرض" },
+        { kr: "복습하다", roman: "bokseupada", ar: "يراجع" },
+        { kr: "예습하다", roman: "yeseupada", ar: "يذاكر مقدّمًا" },
+        { kr: "외우다", roman: "oeuda", ar: "يحفظ" },
+        { kr: "이해하다", roman: "ihaehada", ar: "يفهم" },
+      ],
+    },
+
+    /* ===================== B2 ===================== */
+    {
+      id: "b2_society", level: "b2",
+      chip: "⚖️ المجتمع والاقتصاد",
+      words: [
+        { kr: "경제", roman: "gyeongje", ar: "اقتصاد" },
+        { kr: "물가", roman: "mulga", ar: "الأسعار (مستوى الغلاء)" },
+        { kr: "실업", roman: "sireop", ar: "بطالة" },
+        { kr: "환경", roman: "hwangyeong", ar: "بيئة" },
+        { kr: "인구", roman: "ingu", ar: "عدد السكان" },
+        { kr: "사회", roman: "sahoe", ar: "مجتمع" },
+        { kr: "정부", roman: "jeongbu", ar: "حكومة" },
+        { kr: "정책", roman: "jeongchaek", ar: "سياسة (قرارات)" },
+        { kr: "문화", roman: "munhwa", ar: "ثقافة" },
+        { kr: "전통", roman: "jeontong", ar: "تراث / تقاليد" },
+        { kr: "세대", roman: "sedae", ar: "جيل" },
+        { kr: "격차", roman: "gyeokcha", ar: "فجوة" },
+      ],
+    },
+    {
+      id: "b2_opinion", level: "b2",
+      chip: "💭 الرأي والنقاش",
+      words: [
+        { kr: "의견", roman: "uigyeon", ar: "رأي" },
+        { kr: "이유", roman: "iyu", ar: "سبب" },
+        { kr: "근거", roman: "geungeo", ar: "دليل / أساس" },
+        { kr: "주장하다", roman: "jujanghada", ar: "يتمسّك برأيه / يؤكّد" },
+        { kr: "동의하다", roman: "donguihada", ar: "يوافق" },
+        { kr: "반대하다", roman: "bandaehada", ar: "يعارض" },
+        { kr: "비교하다", roman: "bigyohada", ar: "يقارن" },
+        { kr: "분석하다", roman: "bunseokada", ar: "يحلّل" },
+        { kr: "설명하다", roman: "seolmyeonghada", ar: "يشرح" },
+        { kr: "강조하다", roman: "gangjohada", ar: "يشدّد على" },
+        { kr: "제안하다", roman: "jeanhada", ar: "يقترح" },
+        { kr: "결론", roman: "gyeollon", ar: "خلاصة / استنتاج" },
+      ],
+    },
+    {
+      id: "b2_business", level: "b2",
+      chip: "📊 الأعمال",
+      words: [
+        { kr: "계약", roman: "gyeyak", ar: "عقد" },
+        { kr: "협력하다", roman: "hyeomnyeokada", ar: "يتعاون" },
+        { kr: "성과", roman: "seonggwa", ar: "إنجاز / نتيجة" },
+        { kr: "책임", roman: "chaegim", ar: "مسؤولية" },
+        { kr: "경쟁", roman: "gyeongjaeng", ar: "منافسة" },
+        { kr: "투자하다", roman: "tujahada", ar: "يستثمر" },
+        { kr: "매출", roman: "maechul", ar: "مبيعات / إيرادات" },
+        { kr: "광고", roman: "gwanggo", ar: "إعلان" },
+        { kr: "보고서", roman: "bogoseo", ar: "تقرير" },
+        { kr: "제출하다", roman: "jechulhada", ar: "يقدّم (مستند)" },
+        { kr: "평가하다", roman: "pyeonggahada", ar: "يقيّم" },
+        { kr: "개선하다", roman: "gaeseonhada", ar: "يحسّن" },
+      ],
+    },
+    {
+      id: "b2_abstract", level: "b2",
+      chip: "✨ تعبيرات متقدمة",
+      words: [
+        { kr: "적극적", roman: "jeokgeukjeok", ar: "إيجابي / مبادر" },
+        { kr: "소극적", roman: "sogeukjeok", ar: "سلبي / متردّد" },
+        { kr: "현실적", roman: "hyeonsiljeok", ar: "واقعي" },
+        { kr: "일반적", roman: "ilbanjeok", ar: "عام / عادي" },
+        { kr: "구체적", roman: "guchejeok", ar: "محدّد / بالتفصيل" },
+        { kr: "상황", roman: "sanghwang", ar: "وضع / موقف" },
+        { kr: "경험", roman: "gyeongheom", ar: "خبرة / تجربة" },
+        { kr: "습관", roman: "seupgwan", ar: "عادة" },
+        { kr: "영향", roman: "yeonghyang", ar: "تأثير" },
+        { kr: "기회", roman: "gihoe", ar: "فرصة" },
+        { kr: "노력", roman: "noryeok", ar: "مجهود" },
+        { kr: "가능성", roman: "ganeungseong", ar: "احتمال / إمكانية" },
+      ],
+    },
   ];
 
-  const ALL_WORDS = CATEGORIES.flatMap((c) => c.words.map((w) => ({ ...w, categoryId: c.id })));
-  let currentCategoryId = "numbers";
+  // جمل أمثلة لكل الكلمات (المفتاح = الكلمة الكورية)
+  const EXAMPLES = {
+    "하나": [
+      "사과가 하나 있어요.",
+      "فيه تفاحة واحدة."
+    ],
+    "둘": [
+      "친구가 둘 있어요.",
+      "عندي صديقين."
+    ],
+    "셋": [
+      "커피 셋 주세요.",
+      "تلات قهوات لو سمحت."
+    ],
+    "넷": [
+      "우리 가족은 넷이에요.",
+      "عيلتنا أربعة أفراد."
+    ],
+    "다섯": [
+      "다섯 시에 만나요.",
+      "نتقابل الساعة خمسة."
+    ],
+    "여섯": [
+      "여섯 시에 저녁을 먹어요.",
+      "باكل العشا الساعة ستة."
+    ],
+    "일곱": [
+      "일곱 시에 일어나요.",
+      "بصحى الساعة سبعة."
+    ],
+    "여덟": [
+      "여덟 시에 학교에 가요.",
+      "بروح المدرسة الساعة تمانية."
+    ],
+    "빨간색": [
+      "빨간색 사과를 좋아해요.",
+      "بحب التفاح الأحمر."
+    ],
+    "파란색": [
+      "하늘이 파란색이에요.",
+      "السما زرقا."
+    ],
+    "노란색": [
+      "바나나는 노란색이에요.",
+      "الموز لونه أصفر."
+    ],
+    "초록색": [
+      "나무는 초록색이에요.",
+      "الشجر أخضر."
+    ],
+    "검은색": [
+      "검은색 가방을 샀어요.",
+      "اشتريت شنطة سودا."
+    ],
+    "흰색": [
+      "우유는 흰색이에요.",
+      "اللبن لونه أبيض."
+    ],
+    "분홍색": [
+      "분홍색 꽃이 예뻐요.",
+      "الورد الوردي حلو."
+    ],
+    "보라색": [
+      "보라색 옷을 입었어요.",
+      "لبست هدوم بنفسجي."
+    ],
+    "가족": [
+      "우리 가족은 네 명이에요.",
+      "عيلتنا أربع أفراد."
+    ],
+    "아버지": [
+      "아버지는 의사예요.",
+      "أبويا دكتور."
+    ],
+    "어머니": [
+      "어머니는 요리를 잘하세요.",
+      "أمي بتطبخ حلو."
+    ],
+    "형제": [
+      "저는 형제가 두 명 있어요.",
+      "عندي أخين."
+    ],
+    "언니": [
+      "언니는 대학생이에요.",
+      "أختي الكبيرة طالبة جامعة."
+    ],
+    "오빠": [
+      "오빠는 회사에 다녀요.",
+      "أخويا الكبير بيشتغل في شركة."
+    ],
+    "동생": [
+      "동생은 고등학생이에요.",
+      "أخويا الصغير طالب ثانوي."
+    ],
+    "할머니": [
+      "할머니는 시골에 사세요.",
+      "جدّتي عايشة في الريف."
+    ],
+    "밥": [
+      "아침에 밥을 먹어요.",
+      "باكل رز الصبح."
+    ],
+    "물": [
+      "물 한 잔 주세요.",
+      "كوباية مية لو سمحت."
+    ],
+    "김치": [
+      "김치가 조금 매워요.",
+      "الكيمتشي حار شوية."
+    ],
+    "고기": [
+      "저는 고기를 좋아해요.",
+      "أنا بحب اللحمة."
+    ],
+    "과일": [
+      "매일 과일을 먹어요.",
+      "باكل فاكهة كل يوم."
+    ],
+    "커피": [
+      "커피 한 잔 마셔요.",
+      "بشرب فنجان قهوة."
+    ],
+    "빵": [
+      "아침에 빵을 먹어요.",
+      "باكل عيش الصبح."
+    ],
+    "맛있어요": [
+      "이 음식은 정말 맛있어요.",
+      "الأكل ده لذيذ قوي."
+    ],
+    "오늘": [
+      "오늘 날씨가 좋아요.",
+      "الجو النهاردة حلو."
+    ],
+    "내일": [
+      "내일 학교에 가요.",
+      "بكرة هروح المدرسة."
+    ],
+    "어제": [
+      "어제 친구를 만났어요.",
+      "قابلت صاحبي إمبارح."
+    ],
+    "지금": [
+      "지금 뭐 해요?",
+      "بتعمل إيه دلوقتي؟"
+    ],
+    "아침": [
+      "아침에 운동해요.",
+      "بتمرّن الصبح."
+    ],
+    "저녁": [
+      "저녁에 집에 있어요.",
+      "بكون في البيت بالليل."
+    ],
+    "매일": [
+      "매일 한국어를 공부해요.",
+      "بذاكر كورية كل يوم."
+    ],
+    "시간": [
+      "지금 시간 있어요?",
+      "عندك وقت دلوقتي؟"
+    ],
+    "집": [
+      "저는 집에 있어요.",
+      "أنا في البيت."
+    ],
+    "학교": [
+      "학교에 가요.",
+      "بروح المدرسة."
+    ],
+    "회사": [
+      "아버지는 회사에 가요.",
+      "أبويا بيروح الشغل."
+    ],
+    "병원": [
+      "병원에 가야 해요.",
+      "لازم أروح المستشفى."
+    ],
+    "화장실": [
+      "화장실이 어디예요?",
+      "الحمّام فين؟"
+    ],
+    "공항": [
+      "공항에서 친구를 만나요.",
+      "بقابل صاحبي في المطار."
+    ],
+    "시장": [
+      "시장에서 과일을 사요.",
+      "باشتري فاكهة من السوق."
+    ],
+    "역": [
+      "역이 집 근처에 있어요.",
+      "المحطة قريبة من البيت."
+    ],
+    "직업": [
+      "제 직업은 선생님이에요.",
+      "مهنتي مدرّس."
+    ],
+    "월급": [
+      "이번 달 월급을 받았어요.",
+      "استلمت مرتّب الشهر ده."
+    ],
+    "면접": [
+      "내일 회사에서 면접이 있어요.",
+      "عندي بكرة مقابلة شغل في الشركة."
+    ],
+    "회의": [
+      "오후 두 시에 회의가 있어요.",
+      "عندنا اجتماع الساعة تنتين بعد الضهر."
+    ],
+    "동료": [
+      "회사 동료들과 점심을 먹었어요.",
+      "أكلت الغدا مع زمايلي في الشغل."
+    ],
+    "사장님": [
+      "사장님은 지금 외출 중이에요.",
+      "المدير مش موجود دلوقتي، هو برّه."
+    ],
+    "출근하다": [
+      "저는 아침 여덟 시에 출근해요.",
+      "بروح الشغل الساعة تمانية الصبح."
+    ],
+    "퇴근하다": [
+      "보통 여섯 시에 퇴근해요.",
+      "عادةً بخلّص شغل الساعة ستة."
+    ],
+    "지각하다": [
+      "버스가 늦어서 학교에 지각했어요.",
+      "الأتوبيس اتأخر فاتأخرت على المدرسة."
+    ],
+    "휴가": [
+      "다음 달에 휴가를 갈 거예요.",
+      "هاخد إجازة الشهر الجاي."
+    ],
+    "야근": [
+      "오늘은 일이 많아서 야근해요.",
+      "الشغل كتير النهاردة فهفضل شغّال ساعات زيادة."
+    ],
+    "취직하다": [
+      "작년에 한국 회사에 취직했어요.",
+      "اتوظّفت السنة اللي فاتت في شركة كورية."
+    ],
+    "건강": [
+      "건강이 제일 중요해요.",
+      "الصحة أهم حاجة."
+    ],
+    "감기": [
+      "감기에 걸려서 학교에 못 갔어요.",
+      "جالي برد ومقدرتش أروح المدرسة."
+    ],
+    "두통": [
+      "어제부터 두통이 심해요.",
+      "الصداع شديد من إمبارح."
+    ],
+    "열": [
+      "아이가 열이 나서 병원에 갔어요.",
+      "الطفل حرارته عالية فرحنا المستشفى."
+    ],
+    "약": [
+      "식사 후에 약을 드세요.",
+      "خد الدوا بعد الأكل."
+    ],
+    "처방전": [
+      "의사가 처방전을 써 줬어요.",
+      "الدكتور كتبلي روشتة."
+    ],
+    "아프다": [
+      "배가 너무 아파요.",
+      "بطني بتوجعني قوي."
+    ],
+    "기침": [
+      "기침이 계속 나요.",
+      "الكحّة مش بتقف."
+    ],
+    "주사": [
+      "주사를 맞으면 금방 나아요.",
+      "لو أخدت حقنة هتخفّ بسرعة."
+    ],
+    "수술": [
+      "다음 주에 수술을 받아요.",
+      "هعمل عملية الأسبوع الجاي."
+    ],
+    "입원하다": [
+      "할아버지가 병원에 입원하셨어요.",
+      "جدي دخل المستشفى."
+    ],
+    "낫다": [
+      "푹 쉬면 곧 나을 거예요.",
+      "لو ارتحت كويس هتخفّ قريب."
+    ],
+    "이웃": [
+      "이웃과 인사를 나눴어요.",
+      "سلّمت على الجيران."
+    ],
+    "교통": [
+      "서울은 교통이 편리해요.",
+      "المواصلات في سيول مريحة."
+    ],
+    "월세": [
+      "월세가 너무 비싸요.",
+      "الإيجار الشهري غالي قوي."
+    ],
+    "이사하다": [
+      "다음 달에 이사할 거예요.",
+      "هننقل بيت الشهر الجاي."
+    ],
+    "약속": [
+      "내일 친구와 약속이 있어요.",
+      "عندي بكرة ميعاد مع صاحبي."
+    ],
+    "계획": [
+      "주말 계획이 뭐예요?",
+      "إيه خطتك لنهاية الأسبوع؟"
+    ],
+    "예약하다": [
+      "식당을 예약했어요.",
+      "حجزت في المطعم."
+    ],
+    "취소하다": [
+      "비가 와서 약속을 취소했어요.",
+      "الدنيا مطرت فلغينا الميعاد."
+    ],
+    "신청하다": [
+      "인터넷으로 수업을 신청했어요.",
+      "سجّلت في الكورس من الإنترنت."
+    ],
+    "이용하다": [
+      "지하철을 자주 이용해요.",
+      "بستخدم المترو كتير."
+    ],
+    "소개하다": [
+      "제 친구를 소개해 드릴게요.",
+      "هعرّفك على صاحبي."
+    ],
+    "준비하다": [
+      "시험을 준비하고 있어요.",
+      "بجهّز للامتحان."
+    ],
+    "기분": [
+      "오늘 기분이 정말 좋아요.",
+      "مزاجي النهاردة حلو قوي."
+    ],
+    "걱정하다": [
+      "부모님이 저를 걱정하세요.",
+      "أهلي قلقانين عليّا."
+    ],
+    "긴장하다": [
+      "발표 전에 너무 긴장했어요.",
+      "اتوترت قوي قبل العرض."
+    ],
+    "부럽다": [
+      "한국어를 잘하는 친구가 부러워요.",
+      "بغير من صاحبي اللي كوريته كويسة."
+    ],
+    "외롭다": [
+      "혼자 살면 가끔 외로워요.",
+      "لما بعيش لوحدي بحس بالوحدة أحيانًا."
+    ],
+    "지루하다": [
+      "이 영화는 너무 지루해요.",
+      "الفيلم ده ممل قوي."
+    ],
+    "답답하다": [
+      "방이 좁아서 답답해요.",
+      "الأوضة ضيّقة فبحس إني مخنوق."
+    ],
+    "서운하다": [
+      "친구가 제 생일을 잊어서 서운해요.",
+      "زعلان شوية إن صاحبي نسي عيد ميلادي."
+    ],
+    "놀라다": [
+      "갑자기 소리가 나서 놀랐어요.",
+      "اتفاجئت لما سمعت صوت فجأة."
+    ],
+    "실망하다": [
+      "시험 결과에 실망했어요.",
+      "اتخيّب أملي في نتيجة الامتحان."
+    ],
+    "감동하다": [
+      "그 영화를 보고 감동했어요.",
+      "اتأثّرت لما شفت الفيلم ده."
+    ],
+    "자랑스럽다": [
+      "저는 우리 팀이 자랑스러워요.",
+      "أنا فخور بفريقنا."
+    ],
+    "인터넷": [
+      "집에 인터넷이 안 돼요.",
+      "الإنترنت مش شغّال في البيت."
+    ],
+    "검색하다": [
+      "인터넷에서 길을 검색했어요.",
+      "دوّرت على الطريق في الإنترنت."
+    ],
+    "다운로드하다": [
+      "앱을 다운로드했어요.",
+      "نزّلت التطبيق."
+    ],
+    "비밀번호": [
+      "비밀번호를 잊어버렸어요.",
+      "نسيت كلمة السر."
+    ],
+    "문자": [
+      "친구에게 문자를 보냈어요.",
+      "بعتّ رسالة لصاحبي."
+    ],
+    "영상": [
+      "이 영상은 정말 재미있어요.",
+      "الفيديو ده حلو قوي."
+    ],
+    "앱": [
+      "이 앱으로 한국어를 공부해요.",
+      "بذاكر كورية بالتطبيق ده."
+    ],
+    "충전하다": [
+      "휴대폰을 충전해야 해요.",
+      "لازم أشحن الموبايل."
+    ],
+    "화면": [
+      "화면이 너무 어두워요.",
+      "الشاشة غامقة قوي."
+    ],
+    "로그인": [
+      "먼저 로그인을 해 주세요.",
+      "سجّل دخول الأول لو سمحت."
+    ],
+    "연결하다": [
+      "와이파이에 연결했어요.",
+      "وصّلت على الواي فاي."
+    ],
+    "저장하다": [
+      "사진을 휴대폰에 저장했어요.",
+      "حفظت الصورة على الموبايل."
+    ],
+    "숙제": [
+      "숙제가 너무 많아요.",
+      "الواجب كتير قوي."
+    ],
+    "시험": [
+      "내일 한국어 시험을 봐요.",
+      "عندي بكرة امتحان كوري."
+    ],
+    "성적": [
+      "이번 학기 성적이 좋아요.",
+      "درجاتي الترم ده كويسة."
+    ],
+    "장학금": [
+      "장학금을 받아서 기뻐요.",
+      "مبسوط إني خدت منحة."
+    ],
+    "졸업하다": [
+      "내년에 대학교를 졸업해요.",
+      "هتخرّج من الجامعة السنة الجاية."
+    ],
+    "입학하다": [
+      "올해 대학교에 입학했어요.",
+      "دخلت الجامعة السنة دي."
+    ],
+    "전공": [
+      "제 전공은 경제학이에요.",
+      "تخصّصي اقتصاد."
+    ],
+    "발표하다": [
+      "수업 시간에 발표했어요.",
+      "قدّمت عرض في الحصة."
+    ],
+    "복습하다": [
+      "집에서 매일 복습해요.",
+      "براجع كل يوم في البيت."
+    ],
+    "예습하다": [
+      "수업 전에 예습을 해요.",
+      "بذاكر قبل الحصة."
+    ],
+    "외우다": [
+      "단어를 매일 열 개씩 외워요.",
+      "بحفظ عشر كلمات كل يوم."
+    ],
+    "이해하다": [
+      "선생님의 설명을 이해했어요.",
+      "فهمت شرح المدرّس."
+    ],
+    "경제": [
+      "한국 경제는 빠르게 성장했어요.",
+      "الاقتصاد الكوري نما بسرعة."
+    ],
+    "물가": [
+      "요즘 물가가 많이 올랐어요.",
+      "الأسعار غليت قوي الأيام دي."
+    ],
+    "실업": [
+      "실업 문제가 심각해요.",
+      "مشكلة البطالة خطيرة."
+    ],
+    "환경": [
+      "환경을 보호해야 해요.",
+      "لازم نحمي البيئة."
+    ],
+    "인구": [
+      "서울은 인구가 많아요.",
+      "عدد سكان سيول كبير."
+    ],
+    "사회": [
+      "사회는 빠르게 변하고 있어요.",
+      "المجتمع بيتغيّر بسرعة."
+    ],
+    "정부": [
+      "정부가 새 정책을 발표했어요.",
+      "الحكومة أعلنت سياسة جديدة."
+    ],
+    "정책": [
+      "이 정책은 청년들에게 도움이 돼요.",
+      "السياسة دي بتفيد الشباب."
+    ],
+    "문화": [
+      "나라마다 문화가 달라요.",
+      "كل بلد ليها ثقافة مختلفة."
+    ],
+    "전통": [
+      "한국의 전통 음식을 먹어 봤어요.",
+      "جرّبت أكل كوري تقليدي."
+    ],
+    "세대": [
+      "세대마다 생각이 달라요.",
+      "كل جيل ليه تفكير مختلف."
+    ],
+    "격차": [
+      "빈부 격차가 커지고 있어요.",
+      "الفجوة بين الغني والفقير بتكبر."
+    ],
+    "의견": [
+      "제 의견을 말씀드릴게요.",
+      "هقولّك رأيي."
+    ],
+    "이유": [
+      "늦은 이유를 설명해 주세요.",
+      "اشرحلي سبب تأخيرك."
+    ],
+    "근거": [
+      "그 주장에는 근거가 부족해요.",
+      "الكلام ده مفيهوش أدلة كفاية."
+    ],
+    "주장하다": [
+      "그는 자기가 옳다고 주장했어요.",
+      "هو أصرّ إنه صح."
+    ],
+    "동의하다": [
+      "저는 그 의견에 동의해요.",
+      "أنا موافق على الرأي ده."
+    ],
+    "반대하다": [
+      "부모님이 제 계획에 반대하셨어요.",
+      "أهلي عارضوا خطتي."
+    ],
+    "비교하다": [
+      "두 가격을 비교해 보세요.",
+      "قارن بين السعرين."
+    ],
+    "분석하다": [
+      "데이터를 분석했어요.",
+      "حلّلت البيانات."
+    ],
+    "설명하다": [
+      "문법을 쉽게 설명해 주셨어요.",
+      "شرحلنا القواعد بسهولة."
+    ],
+    "강조하다": [
+      "선생님이 복습이 중요하다고 강조하셨어요.",
+      "المدرّس شدّد على إن المراجعة مهمة."
+    ],
+    "제안하다": [
+      "새로운 방법을 제안했어요.",
+      "اقترحت طريقة جديدة."
+    ],
+    "결론": [
+      "결론부터 말씀드리겠습니다.",
+      "هقولّك الخلاصة الأول."
+    ],
+    "계약": [
+      "다음 주에 계약서를 쓸 거예요.",
+      "هنكتب العقد الأسبوع الجاي."
+    ],
+    "협력하다": [
+      "두 회사가 서로 협력하기로 했어요.",
+      "الشركتين اتفقوا يتعاونوا مع بعض."
+    ],
+    "성과": [
+      "이번 프로젝트에서 좋은 성과를 냈어요.",
+      "حقّقنا نتيجة كويسة في المشروع ده."
+    ],
+    "책임": [
+      "이 일은 제가 책임을 지겠습니다.",
+      "أنا هتحمّل مسؤولية الشغل ده."
+    ],
+    "경쟁": [
+      "시장에서 경쟁이 심해요.",
+      "المنافسة شديدة في السوق."
+    ],
+    "투자하다": [
+      "새 사업에 투자했어요.",
+      "استثمرت في مشروع جديد."
+    ],
+    "매출": [
+      "올해 매출이 두 배로 늘었어요.",
+      "مبيعات السنة دي زادت للضعف."
+    ],
+    "광고": [
+      "텔레비전에서 새 광고를 봤어요.",
+      "شفت إعلان جديد في التلفزيون."
+    ],
+    "보고서": [
+      "보고서를 내일까지 써야 해요.",
+      "لازم أكتب التقرير لحد بكرة."
+    ],
+    "제출하다": [
+      "서류를 오늘까지 제출하세요.",
+      "قدّم الورق لحد النهاردة."
+    ],
+    "평가하다": [
+      "팀의 성과를 평가했어요.",
+      "قيّمنا أداء الفريق."
+    ],
+    "개선하다": [
+      "서비스를 계속 개선하고 있어요.",
+      "بنحسّن الخدمة باستمرار."
+    ],
+    "적극적": [
+      "그는 적극적으로 일해요.",
+      "هو بيشتغل بإيجابية ومبادرة."
+    ],
+    "소극적": [
+      "저는 발표할 때 소극적이에요.",
+      "أنا بكون متردد وقت العرض."
+    ],
+    "현실적": [
+      "현실적인 계획이 필요해요.",
+      "محتاجين خطة واقعية."
+    ],
+    "일반적": [
+      "일반적으로 아침에 커피를 마셔요.",
+      "عادةً بشرب قهوة الصبح."
+    ],
+    "구체적": [
+      "구체적인 예를 들어 주세요.",
+      "اديني مثال محدد."
+    ],
+    "상황": [
+      "지금 상황이 어려워요.",
+      "الوضع صعب دلوقتي."
+    ],
+    "경험": [
+      "해외에서 일한 경험이 있어요.",
+      "عندي خبرة في الشغل برّه."
+    ],
+    "습관": [
+      "일찍 일어나는 습관을 길렀어요.",
+      "اتعوّدت أصحى بدري."
+    ],
+    "영향": [
+      "날씨가 기분에 영향을 줘요.",
+      "الجو بيأثّر على المزاج."
+    ],
+    "기회": [
+      "좋은 기회를 놓쳤어요.",
+      "فوّتّ فرصة كويسة."
+    ],
+    "노력": [
+      "노력하면 꼭 좋은 결과가 있을 거예요.",
+      "لو اجتهدت هتلاقي نتيجة كويسة أكيد."
+    ],
+    "가능성": [
+      "비가 올 가능성이 높아요.",
+      "احتمال المطر كبير."
+    ]
+  };
+
+  function withMeta(w, c) {
+    const e = EXAMPLES[w.kr];
+    return { ...w, categoryId: c.id, level: c.level, ex: e ? e[0] : "", exAr: e ? e[1] : "" };
+  }
+  const ALL_WORDS = CATEGORIES.flatMap((c) => c.words.map((w) => withMeta(w, c)));
+
+  const LEVEL_KEY = "korean_vocab_level";
+  const NEW_PER_ROUND = 15; // أقصى عدد كلمات جديدة في كل جولة مراجعة
+
+  function loadLevel() {
+    try {
+      const v = localStorage.getItem(LEVEL_KEY);
+      if (LEVELS.some((l) => l.id === v)) return v;
+    } catch (e) {}
+    return "basic";
+  }
+  function saveLevel(v) {
+    try { localStorage.setItem(LEVEL_KEY, v); } catch (e) {}
+  }
+
+  let currentLevel = loadLevel();
+  let currentCategoryId = (CATEGORIES.find((c) => c.level === currentLevel) || CATEGORIES[0]).id;
   let currentMode = "browse";
 
   // ---------------- Audio (WAV أولاً، speechSynthesis كبديل تلقائي) ----------------
   function speak(kr, roman) {
     playKoreanAudio(kr, roman, "audio/vocabulary");
+  }
+
+  // نطق جملة المثال: ملف WAV أولاً (audio/vocabulary/ex_<roman>.wav) ثم صوت المتصفح كبديل
+  function speakSentence(text, roman) {
+    if (!roman) { speakSentenceTTS(text); return; }
+    let fell = false;
+    const fb = () => { if (!fell) { fell = true; speakSentenceTTS(text); } };
+    try {
+      const a = new Audio("audio/vocabulary/ex_" + roman + ".wav");
+      a.onerror = fb;
+      const pr = a.play();
+      if (pr && pr.catch) pr.catch(fb);
+    } catch (e) { fb(); }
+  }
+  function speakSentenceTTS(text) {
+    if (!("speechSynthesis" in window)) return;
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "ko-KR";
+    u.rate = 0.9;
+    const v = speechSynthesis.getVoices().find((x) => x.lang && x.lang.replace("_", "-").toLowerCase().indexOf("ko") === 0);
+    if (v) u.voice = v;
+    speechSynthesis.speak(u);
   }
 
   // ---------------- Mode tabs ----------------
@@ -331,19 +1268,46 @@
     });
   });
 
+  // ---------------- Level tabs ----------------
+  const levelTabs = document.getElementById("level-tabs");
+  function renderLevels() {
+    levelTabs.innerHTML = LEVELS.map(
+      (l) =>
+        `<button class="level-btn ${l.id === currentLevel ? "active" : ""}" data-level="${l.id}">${l.label}<small>${l.sub}</small></button>`
+    ).join("");
+    levelTabs.querySelectorAll(".level-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        currentLevel = btn.dataset.level;
+        saveLevel(currentLevel);
+        currentCategoryId = CATEGORIES.find((c) => c.level === currentLevel).id;
+        renderLevels();
+        renderChips();
+        renderBrowse();
+        updateDueBadge();
+        if (currentMode === "review") renderReview();
+      });
+    });
+  }
+
   // ---------------- Browse mode ----------------
   let searchQuery = "";
   const categoryScroll = document.getElementById("category-scroll");
-  categoryScroll.innerHTML = CATEGORIES.map(
-    (c) => `<div class="category-chip ${c.id === currentCategoryId ? "active" : ""}" data-id="${c.id}">${c.chip}</div>`
-  ).join("");
 
-  categoryScroll.querySelectorAll(".category-chip").forEach((chip) => {
-    chip.addEventListener("click", () => {
-      currentCategoryId = chip.dataset.id;
-      renderBrowse();
+  function renderChips() {
+    const cats = CATEGORIES.filter((c) => c.level === currentLevel);
+    categoryScroll.innerHTML = cats
+      .map(
+        (c) =>
+          `<div class="category-chip ${c.id === currentCategoryId ? "active" : ""}" data-id="${c.id}">${c.chip}</div>`
+      )
+      .join("");
+    categoryScroll.querySelectorAll(".category-chip").forEach((chip) => {
+      chip.addEventListener("click", () => {
+        currentCategoryId = chip.dataset.id;
+        renderBrowse();
+      });
     });
-  });
+  }
 
   document.getElementById("search-input").addEventListener("input", (e) => {
     searchQuery = e.target.value.trim().toLowerCase();
@@ -360,7 +1324,7 @@
       );
     }
     const cat = CATEGORIES.find((c) => c.id === currentCategoryId);
-    return cat ? cat.words : [];
+    return cat ? cat.words.map((w) => withMeta(w, cat)) : [];
   }
 
   function renderBrowse() {
@@ -386,10 +1350,15 @@
             <div class="word-kr">${w.kr}</div>
             <div class="word-roman">${w.roman}</div>
             <div class="word-ar">${w.ar}</div>
+            ${w.ex ? `<div class="word-ex" data-ex="${w.ex}" data-roman="${w.roman}"><span class="ex-ko">🔈 ${w.ex}</span><span class="ex-ar">${w.exAr}</span></div>` : ""}
           </div>
         </div>`
       )
       .join("");
+
+    list.querySelectorAll(".word-ex").forEach((el) => {
+      el.addEventListener("click", () => speakSentence(el.dataset.ex, el.dataset.roman));
+    });
 
     list.querySelectorAll(".play-btn").forEach((btn) => {
       btn.addEventListener("click", () => {
@@ -409,20 +1378,30 @@
     return `vocab_${w.categoryId}_${w.kr}`;
   }
 
+  // الكلمات المستحقة للمراجعة + أول NEW_PER_ROUND كلمة جديدة (من المستوى المختار أولاً)
+  function getReviewQueue() {
+    const dueSet = new Set(KoreanProgress.getDueCards(ALL_WORDS.map(getWordKey)));
+    const due = ALL_WORDS.filter((w) => dueSet.has(getWordKey(w)));
+    const seen = due.filter((w) => KoreanProgress.getCardInfo(getWordKey(w)));
+    const fresh = due
+      .filter((w) => !KoreanProgress.getCardInfo(getWordKey(w)))
+      .sort((a, b) => (b.level === currentLevel) - (a.level === currentLevel));
+    return seen.concat(fresh.slice(0, NEW_PER_ROUND));
+  }
+
   function updateDueBadge() {
-    const dueIds = KoreanProgress.getDueCards(ALL_WORDS.map(getWordKey));
+    const count = getReviewQueue().length;
     const badge = document.getElementById("due-badge");
-    if (dueIds.length > 0) {
+    if (count > 0) {
       badge.style.display = "inline-block";
-      badge.textContent = dueIds.length;
+      badge.textContent = count;
     } else {
       badge.style.display = "none";
     }
   }
 
   function renderReview() {
-    const dueIds = new Set(KoreanProgress.getDueCards(ALL_WORDS.map(getWordKey)));
-    reviewQueue = ALL_WORDS.filter((w) => dueIds.has(getWordKey(w)));
+    reviewQueue = getReviewQueue();
     reviewIndex = 0;
     isFlipped = false;
     renderReviewCard();
@@ -444,7 +1423,7 @@
       content.innerHTML = `
         <div class="review-empty">
           <div class="big-emoji">✅</div>
-          <p>خلّصت كل مراجعات النهاردة! جاهز كمان بكرة.</p>
+          <p>خلّصت الجولة دي! لو عايز كلمات جديدة افتح "مراجعة اليوم" تاني، أو ارجع بكرة.</p>
         </div>`;
       updateDueBadge();
       return;
@@ -458,9 +1437,11 @@
         <div class="fc-roman">${word.roman}</div>
         <div class="fc-hint">👆 دوس عشان تشوف المعنى</div>
         <div class="fc-ar">${word.ar}</div>
+        ${word.ex ? `<div class="fc-ex"><div class="ex-ko">${word.ex}</div><div class="ex-ar">${word.exAr}</div></div>` : ""}
       </div>
       <div style="text-align:center;">
         <button class="review-play" id="review-play-btn">🔊 اسمع النطق</button>
+        ${word.ex ? `<button class="review-play" id="review-ex-btn" style="margin-right:8px;">🔈 اسمع الجملة</button>` : ""}
       </div>
       <div class="quality-buttons" id="quality-buttons">
         <button class="q-again" data-q="1">غلط 😖</button>
@@ -479,6 +1460,9 @@
       e.stopPropagation();
       speak(word.kr, word.roman);
     });
+
+    const exBtn = document.getElementById("review-ex-btn");
+    if (exBtn) exBtn.addEventListener("click", (e) => { e.stopPropagation(); speakSentence(word.ex, word.roman); });
 
     document.querySelectorAll(".quality-buttons button").forEach((btn) => {
       btn.addEventListener("click", (e) => {
@@ -500,6 +1484,8 @@
   }
 
   // ---------------- Init ----------------
+  renderLevels();
+  renderChips();
   renderBrowse();
   updateDueBadge();
 </script>

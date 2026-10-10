@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>اختبار TOPIK</title>
+<style>
+:root{
+  --ink:#1c2541; --muted:#5d6b82; --paper:#f3f5f8; --card:#ffffff; --line:#d8dee8;
+  --tiger:#e8871e; --tiger-soft:#fdeedb; --jade:#1f7a6b; --jade-soft:#dff2ee; --red:#c8423f; --red-soft:#fbe4e3;
+  --ar:"Noto Sans Arabic","Segoe UI",Tahoma,Arial,sans-serif;
+  --ko:"Noto Sans KR","Malgun Gothic","Apple SD Gothic Neo","Nanum Gothic",sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--ar);line-height:1.7}
+body{min-height:100vh;padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0)}
+.wrap{max-width:560px;margin:0 auto;padding:14px 16px 40px}
+.ko{font-family:var(--ko);direction:ltr;unicode-bidi:isolate;display:inline-block}
+header.top{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+header.top .back{background:none;border:0;font-size:22px;color:var(--ink);padding:6px 4px;cursor:pointer}
+header.top h1{font-size:20px;margin:0;flex:1}
+.tiger{font-size:26px}
+.lead{color:var(--muted);font-size:14px;margin:0 0 14px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 16px}
+.chip{border:1.5px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:7px 14px;font:inherit;font-size:14px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+.sec{display:flex;align-items:center;gap:14px;width:100%;text-align:right;background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:10px;font:inherit;color:inherit;cursor:pointer}
+.sec:active{border-color:var(--tiger)}
+.sec .badge{flex:none;width:52px;height:52px;border-radius:12px;background:var(--tiger-soft);display:grid;place-items:center;font-family:var(--ko);font-size:17px;font-weight:700;color:#9a560b;direction:ltr}
+.sec .body{flex:1;min-width:0}
+.sec .name{font-weight:700;font-size:16px}
+.sec .meta{font-size:13px;color:var(--muted)}
+.sec .best{font-size:13px;font-weight:700;color:var(--jade)}
+.note{background:var(--card);border-right:4px solid var(--tiger);border-radius:8px;padding:12px 14px;font-size:13.5px;color:var(--muted);margin-top:18px}
+.bar{height:8px;background:var(--line);border-radius:999px;overflow:hidden;margin:6px 0 16px}
+.bar i{display:block;height:100%;background:var(--tiger);width:0;transition:width .25s}
+.qmeta{display:flex;justify-content:space-between;font-size:13px;color:var(--muted)}
+.card{background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+.instr{font-size:13.5px;color:var(--muted);margin:0 0 8px}
+.q{font-size:22px;line-height:1.6;margin:4px 0}
+.passage{font-size:18px;line-height:1.9;background:var(--paper);border-radius:10px;padding:12px 14px;margin:6px 0 10px}
+.opt{display:block;width:100%;text-align:right;background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:13px 14px;margin-bottom:9px;font:inherit;font-size:18px;color:var(--ink);cursor:pointer}
+.opt .ko{font-size:19px}
+.opt:focus-visible,.chip:focus-visible,.sec:focus-visible,.btn:focus-visible,.play:focus-visible{outline:3px solid var(--tiger);outline-offset:2px}
+.opt.ok{background:var(--jade-soft);border-color:var(--jade)}
+.opt.no{background:var(--red-soft);border-color:var(--red)}
+.opt[disabled]{cursor:default}
+.fb{border-radius:12px;padding:12px 14px;margin:6px 0 12px;font-size:15px}
+.fb.ok{background:var(--jade-soft);color:#0f4f44}
+.fb.no{background:var(--red-soft);color:#7a1f1d}
+.fb b{display:block;margin-bottom:2px}
+.btn{display:block;width:100%;border:0;border-radius:12px;padding:13px;font:inherit;font-size:16px;font-weight:700;cursor:pointer;background:var(--tiger);color:#fff;margin-bottom:10px}
+.btn.alt{background:var(--card);color:var(--ink);border:1.5px solid var(--line)}
+.play{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;border:0;border-radius:12px;padding:16px;font:inherit;font-size:17px;font-weight:700;background:var(--ink);color:#fff;cursor:pointer;margin-bottom:8px}
+.play.slow{background:var(--card);color:var(--ink);border:1.5px solid var(--line);padding:10px;font-size:14px}
+.script{background:var(--paper);border-radius:10px;padding:10px 12px;margin-top:8px;font-size:16px}
+.script small{display:block;color:var(--muted);font-size:13.5px;margin-top:4px}
+.score{text-align:center;padding:10px 0 4px}
+.score .pct{font-size:56px;font-weight:800;line-height:1.1;color:var(--tiger)}
+.score .msg{font-size:16px;margin:6px 0 4px}
+.hidden{display:none}
+@media (prefers-reduced-motion:reduce){.bar i{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+
+<script src="progress.js"></script>
+<script>
+/* =========================================================
+   بيانات الأسئلة — لإضافة سؤال جديد انسخ أي كائن وعدّله
+   lvl: 1 = TOPIK I (A1–A2)   |   lvl: 2 = TOPIK II (B1 وما فوق)
+   صوت اختياري للاستماع: ضع الملف في audio/topik/<id>.wav
+   وإن لم يوجد يُستخدم صوت المتصفح ko-KR تلقائيًا
+   ========================================================= */
+const QUESTIONS = [
+/* ---------- القواعد والمفردات ---------- */
+{id:'g01',sec:'grammar',lvl:1,q:'저는 매일 아침에 커피를 ( ).',opts:['마셔요','먹어요','읽어요','입어요'],ans:0,why:'마시다 = يشرب (القهوة). 먹다 = يأكل، 읽다 = يقرأ، 입다 = يلبس.'},
+{id:'g02',sec:'grammar',lvl:1,q:'어제 친구를 ( ).',opts:['만났어요','만나요','만날 거예요','만나고 있어요'],ans:0,why:'الجملة فيها 어제 (أمس) فالفعل يكون في الماضي: ـ았/었어요.'},
+{id:'g03',sec:'grammar',lvl:1,q:'이 가방은 너무 ( ) 못 사요.',opts:['비싸서','비싸고','비싸지만','비싸면'],ans:0,why:'ـ아서/어서 تعني «لأن/لذلك»: الحقيبة غالية جدًا لذلك لا أستطيع شراءها.'},
+{id:'g04',sec:'grammar',lvl:1,q:'내일 학교( ) 가요.',opts:['에','에서','을','가'],ans:0,why:'ـ에 تأتي مع أفعال الحركة مثل 가요 للدلالة على الوجهة.'},
+{id:'g05',sec:'grammar',lvl:1,q:'도서관( ) 책을 읽어요.',opts:['에서','에','로','를'],ans:0,why:'ـ에서 تدل على المكان الذي يحدث فيه الفعل (القراءة في المكتبة).'},
+{id:'g06',sec:'grammar',lvl:1,q:'비가 오( ) 우산을 가져가세요.',opts:['니까','지만','고','는데'],ans:0,why:'ـ(으)니까 = «بما أن/لأن» وتُستخدم مع الأمر والاقتراح: بما أن السماء تمطر خذ مظلة.'},
+{id:'g07',sec:'grammar',lvl:1,q:'한국어를 공부한 지 ( ) 됐어요.',opts:['일 년이','일 년을','일 년에','일 년도'],ans:0,why:'النمط: ـ(으)ㄴ 지 + مدة + 이/가 되다 = مرّت مدة منذ أن بدأتُ الفعل.'},
+{id:'g08',sec:'grammar',lvl:2,q:'시험에 합격하려면 열심히 ( ).',opts:['공부해야 해요','공부했어요','공부하고 있어요','공부할 뻔했어요'],ans:0,why:'ـ(으)려면 = «إذا أردتَ ...» وجوابها غالبًا ـ아야/어야 해요 (يجب).'},
+{id:'g09',sec:'grammar',lvl:2,q:'그 영화를 ( ) 정말 재미있었어요.',opts:['보니까','보려고','보면','보러'],ans:0,why:'ـ(으)니까 بمعنى «لمّا فعلتُ ... اكتشفتُ أنّ ...»: لمّا شاهدتُ الفيلم وجدته ممتعًا.'},
+{id:'g10',sec:'grammar',lvl:2,q:'친구가 도와준 ( ) 일을 빨리 끝냈어요.',opts:['덕분에','때문에','탓에','대신에'],ans:0,why:'덕분에 = «بفضل» (سبب إيجابي). 때문에 = بسبب (محايد)، 탓에 = بسبب (سلبي).'},
+{id:'g11',sec:'grammar',lvl:2,q:'약속 시간에 늦을 ( ) 택시를 탔어요.',opts:['것 같아서','것 같지만','것 같고','것 같은데'],ans:0,why:'ـ(으)ㄹ 것 같다 = «يبدو أنني سـ...» + ـ아서 = لأن: ركبتُ التاكسي لأنني ظننتُ أنني سأتأخر.'},
+{id:'g12',sec:'grammar',lvl:2,q:'열심히 노력한 ( ) 성공했어요.',opts:['끝에','동안','사이에','처럼'],ans:0,why:'ـ(으)ㄴ 끝에 = «بعد جهد/عناء طويل ... في النهاية».'},
+
+{id:'g13',sec:'grammar',lvl:1,q:'내일 같이 영화를 ( )?',opts:['볼까요','봤어요','보고 있어요','본 적이 있어요'],ans:0,why:'ـ(으)ㄹ까요? = «هل نفعل...؟» (اقتراح). مع 내일 (غدًا) لا يصلح الماضي ولا المضارع المستمر.'},
+{id:'g14',sec:'grammar',lvl:1,q:'날씨가 ( ) 창문을 열었어요.',opts:['더워서','추워서','배고파서','바빠서'],ans:0,why:'فتحتُ النافذة لأن الجو حارّ: 덥다 = حارّ. 춥다 = بارد، 배고프다 = جائع، 바쁘다 = مشغول.'},
+{id:'g15',sec:'grammar',lvl:1,q:'이 길로 ( ) 가면 은행이 있어요.',opts:['쭉','어제','같이','아직'],ans:0,why:'쭉 가다 = يمشي مباشرة (بخط مستقيم). 어제 = أمس، 같이 = معًا، 아직 = بعدُ/ما زال.'},
+{id:'g16',sec:'grammar',lvl:2,q:'열심히 공부했는데도 시험에 ( ).',opts:['떨어졌어요','합격했어요','붙을 거예요','쉬웠어요'],ans:0,why:'ـ(으)ㄴ/는데도 = «رغم أنّ ...» فالنتيجة تكون عكس المتوقع: رغم الاجتهاد رسب (떨어졌어요).'},
+{id:'g17',sec:'grammar',lvl:2,q:'다음 달부터 새 회사에서 일하( ) 됐어요.',opts:['게','기','는','지'],ans:0,why:'ـ게 되다 = «أصبح / صار الأمر أن...» (تغيّر خارج عن إرادتك): 일하게 됐어요 = صرتُ سأعمل.'},
+{id:'g18',sec:'grammar',lvl:2,q:'올해부터 매일 운동하( ) 했어요.',opts:['기로','는데','면서','아서'],ans:0,why:'ـ기로 하다 = «قرّرتُ أن...»: 운동하기로 했어요 = قرّرتُ أن أتمرّن.'},
+{id:'g19',sec:'grammar',lvl:2,q:'길을 걷( ) 친구를 만났어요.',opts:['다가','려면','기로','도록'],ans:0,why:'ـ다가 = «بينما كنتُ ... (انقطع الفعل الأول وحدث آخر)»: بينما كنتُ أمشي قابلتُ صديقًا.'},
+{id:'g20',sec:'grammar',lvl:2,q:'친구가 내일 시험이 ( ) 말했어요.',opts:['있다고','있고','있지만','있어서'],ans:0,why:'الكلام غير المباشر: ـ다고 하다/말하다 = «قال إنّ...»: 내일 시험이 있다고 말했어요.'},
+{id:'g21',sec:'grammar',lvl:2,q:'문이 저절로 ( ).',opts:['열렸어요','열었어요','열게 했어요','열고 싶어요'],ans:0,why:'열리다 = ينفتح (مبني للمجهول). الباب انفتح من نفسه، بينما 열다 = يفتح (فاعل).'},
+{id:'g22',sec:'grammar',lvl:2,q:'그 사람은 말( ) 행동도 정말 친절해요.',opts:['뿐만 아니라','때문에','동안','처럼'],ans:0,why:'ـ뿐만 아니라 = «ليس فقط ... بل أيضًا»: ليس كلامه فقط بل تصرفاته أيضًا لطيفة.'},
+
+/* ---------- القراءة ---------- */
+{id:'r01',sec:'reading',lvl:1,passage:'저는 수미예요. 한국 사람이에요. 서울에 살아요. 저는 학교에서 영어를 가르쳐요.',tr:'أنا سومي. أنا كورية. أعيش في سيول. أُدرّس الإنجليزية في المدرسة.',q:'수미 씨는 무엇을 해요?',opts:['영어를 가르쳐요','학생이에요','영어를 배워요','회사에 다녀요'],ans:0,why:'النص يقول: 학교에서 영어를 가르쳐요 = تدرّس الإنجليزية في المدرسة.'},
+{id:'r02',sec:'reading',lvl:1,passage:'내일은 친구 생일이에요. 그래서 오늘 백화점에서 선물을 샀어요. 케이크도 만들 거예요.',tr:'غدًا عيد ميلاد صديقي. لذلك اشتريتُ اليوم هدية من المتجر الكبير. وسأصنع كعكة أيضًا.',q:'내용과 같은 것을 고르십시오.',opts:['오늘 선물을 샀어요','내일 케이크를 샀어요','오늘이 생일이에요','백화점에서 케이크를 샀어요'],ans:0,why:'اشترى الهدية اليوم (오늘 선물을 샀어요)، أما الكعكة فسيصنعها (만들 거예요).'},
+{id:'r03',sec:'reading',lvl:2,passage:'요즘 많은 사람들이 건강을 위해 걷기 운동을 한다. 걷기는 돈이 들지 않고 누구나 쉽게 할 수 있다. 하지만 너무 오래 걸으면 오히려 몸에 무리가 될 수 있으므로 자신에게 맞는 시간을 정하는 것이 좋다.',tr:'في هذه الأيام يمارس كثيرون رياضة المشي من أجل الصحة. المشي لا يكلّف مالًا ويستطيع أي شخص فعله بسهولة. لكن المشي لوقت طويل جدًا قد يرهق الجسم، لذلك يُستحسن تحديد وقت يناسب الشخص.',q:'이 글의 내용과 같은 것을 고르십시오.',opts:['걷기는 누구나 쉽게 할 수 있다','걷기는 돈이 많이 든다','오래 걸을수록 항상 좋다','걷기는 젊은 사람만 한다'],ans:0,why:'النص يقول: 누구나 쉽게 할 수 있다 = يستطيع أي شخص فعله بسهولة.'},
+{id:'r04',sec:'reading',lvl:2,passage:'저는 작년에 한국에 와서 처음에는 한국 음식이 매워서 먹기 힘들었습니다. 그런데 지금은 매운 음식을 아주 좋아합니다. 특히 떡볶이를 자주 먹습니다.',tr:'جئتُ إلى كوريا العام الماضي، وفي البداية كان الطعام الكوري حارًّا فصعُب عليّ أكله. أما الآن فأحب الطعام الحار كثيرًا. وآكل التوكبوكي كثيرًا بالأخص.',q:'이 사람은 지금 어떻습니까?',opts:['매운 음식을 좋아합니다','한국 음식을 못 먹습니다','작년에 한국을 떠났습니다','떡볶이를 안 먹습니다'],ans:0,why:'النص: 지금은 매운 음식을 아주 좋아합니다 = الآن يحب الطعام الحار كثيرًا.'},
+
+{id:'r05',sec:'reading',lvl:1,passage:'저는 아침 7시에 일어나요. 8시에 회사에 가요. 저녁 6시에 집에 와요. 저녁에는 한국어를 공부해요.',tr:'أستيقظ الساعة السابعة صباحًا. أذهب إلى الشركة في الثامنة. أعود إلى البيت في السادسة مساءً. وفي المساء أدرس الكورية.',q:'이 사람은 저녁에 뭐 해요?',opts:['한국어를 공부해요','회사에 가요','일어나요','운동해요'],ans:0,why:'النص: 저녁에는 한국어를 공부해요 = في المساء يدرس الكورية.'},
+{id:'r06',sec:'reading',lvl:1,passage:'오늘 오후 3시에 도서관에서 한국어 수업이 있습니다. 수업은 한 시간 동안 합니다. 책을 가지고 오세요.',tr:'اليوم الساعة 3 عصرًا يوجد درس كوري في المكتبة. مدة الدرس ساعة واحدة. أحضروا الكتاب معكم.',q:'내용과 같은 것을 고르십시오.',opts:['수업은 오후 3시에 있습니다','수업은 두 시간 동안 합니다','수업은 학교에서 합니다','책을 가지고 오지 않아도 됩니다'],ans:0,why:'الدرس في الثالثة عصرًا (오후 3시). مدته ساعة (한 시간) ومكانه المكتبة، ومطلوب إحضار الكتاب.'},
+{id:'r07',sec:'reading',lvl:2,passage:'우리 동네에는 작은 시장이 있다. 값이 싸고 신선한 채소가 많아서 가까운 사람들이 자주 간다. 그런데 주차할 곳이 없어서 차를 가지고 가는 사람은 불편해한다.',tr:'في حيّنا سوق صغير. الخضار فيه رخيصة وطازجة وكثيرة، لذلك يذهب إليه الجيران كثيرًا. لكن لا يوجد مكان لركن السيارة، فيتضايق من يذهب بالسيارة.',q:'이 시장에 대한 설명으로 맞는 것을 고르십시오.',opts:['채소 값이 싸다','주차하기 편하다','멀어서 사람이 적다','채소가 신선하지 않다'],ans:0,why:'النص: 값이 싸고 신선한 채소 = خضار رخيصة وطازجة. أما الركن فصعب، والناس تذهب إليه كثيرًا.'},
+{id:'r08',sec:'reading',lvl:2,passage:'많은 사람들이 아침을 먹지 않고 출근한다. 그러나 아침을 먹으면 집중력이 좋아지고 점심에 너무 많이 먹는 것도 막을 수 있다. 그래서 간단하게라도 아침을 먹는 것이 좋다.',tr:'كثيرون يذهبون إلى العمل دون إفطار. لكن تناول الإفطار يحسّن التركيز ويمنع الإفراط في الأكل وقت الغداء. لذلك يُستحسن أن تأكل إفطارًا ولو بسيطًا.',q:'이 글을 쓴 이유로 맞는 것을 고르십시오.',opts:['아침 식사가 필요하다고 말하려고','점심 메뉴를 소개하려고','출근 시간을 알려 주려고','음식 만드는 방법을 설명하려고'],ans:0,why:'الكاتب يشرح فوائد الإفطار وينتهي بنصيحة: 아침을 먹는 것이 좋다 = من الأفضل أن تفطر.'},
+
+/* ---------- الاستماع ---------- */
+{id:'l01',sec:'listening',lvl:1,tts:'이 사과 얼마예요?',script:'이 사과 얼마예요?',tr:'بكم هذه التفاحة؟',q:'무엇을 물어봐요?',opts:['가격','장소','시간','이름'],ans:0,why:'얼마예요? = بكم؟ فهو يسأل عن السعر (가격).'},
+{id:'l02',sec:'listening',lvl:1,tts:'저는 내일 오후 세 시에 병원에 가요.',script:'저는 내일 오후 세 시에 병원에 가요.',tr:'سأذهب إلى المستشفى غدًا الساعة الثالثة بعد الظهر.',q:'언제 병원에 가요?',opts:['내일 오후','오늘 아침','내일 아침','오늘 오후'],ans:0,why:'내일 = غدًا، 오후 = بعد الظهر.'},
+{id:'l03',sec:'listening',lvl:1,tts:'주말에 뭐 할 거예요? 친구하고 영화를 볼 거예요.',script:'여자: 주말에 뭐 할 거예요?<br>남자: 친구하고 영화를 볼 거예요.',tr:'هي: ماذا ستفعل في عطلة نهاية الأسبوع؟ هو: سأشاهد فيلمًا مع صديق.',q:'남자는 주말에 뭐 해요?',opts:['영화를 봐요','운동해요','쇼핑해요','집에서 쉬어요'],ans:0,why:'الرجل قال: 친구하고 영화를 볼 거예요 = سأشاهد فيلمًا مع صديق.'},
+{id:'l04',sec:'listening',lvl:1,tts:'죄송하지만 지금 회의 중이라서 나중에 다시 전화해 주시겠어요?',script:'죄송하지만 지금 회의 중이라서 나중에 다시 전화해 주시겠어요?',tr:'آسف، أنا في اجتماع الآن، هل يمكنك الاتصال لاحقًا؟',q:'이 사람은 왜 이렇게 말해요?',opts:['지금 바빠서 전화를 못 받아요','전화번호를 몰라요','회의에 늦었어요','나중에 만나고 싶어요'],ans:0,why:'회의 중이라서 = لأنني في اجتماع، فلا يستطيع الرد الآن.'},
+{id:'l05',sec:'listening',lvl:2,tts:'회의가 길어져서 점심 약속에 조금 늦을 것 같아요. 먼저 식사하고 계세요.',script:'회의가 길어져서 점심 약속에 조금 늦을 것 같아요. 먼저 식사하고 계세요.',tr:'الاجتماع طال، لذا أظن أنني سأتأخر قليلًا عن موعد الغداء. تفضّل وابدأ الأكل أولًا.',q:'이 사람은 왜 전화했어요?',opts:['점심 약속에 늦을 것 같아서','회의를 취소하려고','식당을 예약하려고','점심을 같이 먹자고'],ans:0,why:'늦을 것 같아요 = أظن أنني سأتأخر، وطلب منهم البدء بالأكل أولًا.'},
+{id:'l06',sec:'listening',lvl:1,tts:'지금 몇 시예요? 두 시 반이에요.',script:'여자: 지금 몇 시예요?<br>남자: 두 시 반이에요.',tr:'هي: كم الساعة الآن؟ هو: الثانية والنصف.',q:'지금 몇 시예요?',opts:['두 시 반','세 시 반','두 시','열두 시 반'],ans:0,why:'두 시 = الساعة الثانية، 반 = نصف. فهي 2:30.'},
+{id:'l07',sec:'listening',lvl:1,tts:'어서 오세요. 뭘 드릴까요? 비빔밥 하나 주세요.',script:'점원: 어서 오세요. 뭘 드릴까요?<br>손님: 비빔밥 하나 주세요.',tr:'الموظف: أهلًا بك، ماذا تريد؟ الزبون: أعطني طبق بيبيمباب واحدًا.',q:'두 사람은 지금 어디에 있어요?',opts:['식당','병원','학교','은행'],ans:0,why:'뭘 드릴까요? (ماذا تأخذ؟) مع طلب 비빔밥 تدل على أنهما في مطعم.'},
+{id:'l08',sec:'listening',lvl:2,tts:'요즘 날씨가 갑자기 추워져서 감기에 걸린 사람이 많습니다. 외출할 때는 따뜻한 옷을 입고 손을 자주 씻으세요.',script:'요즘 날씨가 갑자기 추워져서 감기에 걸린 사람이 많습니다. 외출할 때는 따뜻한 옷을 입고 손을 자주 씻으세요.',tr:'في هذه الأيام أصبح الجو باردًا فجأة فأُصيب كثيرون بالبرد. عند الخروج ارتدوا ملابس دافئة واغسلوا أيديكم كثيرًا.',q:'이 방송의 내용으로 맞는 것을 고르십시오.',opts:['감기를 조심하라고 알려 줍니다','여행 장소를 소개합니다','새 영화를 광고합니다','날씨가 더워졌다고 말합니다'],ans:0,why:'الإعلان يحذّر من نزلات البرد وينصح بالملابس الدافئة وغسل اليدين.'},
+{id:'l09',sec:'listening',lvl:2,tts:'이번 주 금요일 모임에 올 수 있어요? 아, 그날은 부모님이 오셔서 어려울 것 같아요. 다음에 꼭 갈게요.',script:'여자: 이번 주 금요일 모임에 올 수 있어요?<br>남자: 아, 그날은 부모님이 오셔서 어려울 것 같아요. 다음에 꼭 갈게요.',tr:'هي: هل تستطيع الحضور إلى لقاء هذا الجمعة؟ هو: آه، في ذلك اليوم سيأتي والداي فأظن أن الأمر صعب. سأحضر المرة القادمة بالتأكيد.',q:'남자는 왜 모임에 못 가요?',opts:['부모님이 오시기 때문에','일이 많아서','몸이 아파서','약속을 잊어서'],ans:0,why:'قال: 부모님이 오셔서 = لأن والديه سيأتيان، فلا يستطيع الحضور.'}
+];
+
+const SECS = {
+  grammar:  {name:'القواعد والمفردات', badge:'문법', hint:'اختر الإجابة الصحيحة لملء الفراغ'},
+  reading:  {name:'القراءة',            badge:'읽기', hint:'اقرأ النص ثم أجب عن السؤال'},
+  listening:{name:'الاستماع',           badge:'듣기', hint:'استمع ثم اختر الإجابة الصحيحة'}
+};
+const LVL_LABEL = {0:'الكل',1:'TOPIK I',2:'TOPIK II'};
+
+/* ---------- التخزين (localStorage) ---------- */
+const KEY = 'topik_v1';
+function load(){ try{ return JSON.parse(localStorage.getItem(KEY)) || {best:{}}; }catch(e){ return {best:{}}; } }
+function save(d){ try{ localStorage.setItem(KEY, JSON.stringify(d)); }catch(e){} }
+
+/* ---------- الصوت: ملف WAV أولًا ثم صوت المتصفح ---------- */
+function speak(text, rate){
+  if(!('speechSynthesis' in window)) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'ko-KR'; u.rate = rate;
+  const v = speechSynthesis.getVoices().find(x => x.lang && x.lang.replace('_','-').toLowerCase().indexOf('ko') === 0);
+  if(v) u.voice = v;
+  speechSynthesis.speak(u);
+}
+function play(id, text, rate){
+  let fell = false;
+  const fallback = () => { if(!fell){ fell = true; speak(text, rate); } };
+  try{
+    const a = new Audio('audio/topik/' + id + '.wav');
+    a.playbackRate = rate;
+    a.onerror = fallback;
+    const p = a.play();
+    if(p && p.catch) p.catch(fallback);
+  }catch(e){ fallback(); }
+}
+
+/* ---------- الحالة ---------- */
+const app = document.getElementById('app');
+let lvl = 0;
+let S = null; // جلسة الاختبار الحالية
+
+function shuffle(a){ a = a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function pool(sec){ return QUESTIONS.filter(q => q.sec===sec && (lvl===0 || q.lvl===lvl)); }
+
+/* ---------- الشاشة الرئيسية ---------- */
+function home(){
+  const d = load();
+  let h = '<header class="top"><span class="tiger">🐯</span><h1>اختبار TOPIK</h1></header>';
+  h += '<p class="lead">تدرّب على أسئلة بنفس شكل امتحان TOPIK، مع شرح كل إجابة بالعربي.</p>';
+  h += '<div class="chips" role="group" aria-label="المستوى">';
+  [0,1,2].forEach(l => { h += '<button class="chip" data-lvl="'+l+'" aria-pressed="'+(lvl===l)+'">'+LVL_LABEL[l]+'</button>'; });
+  h += '</div>';
+  Object.keys(SECS).forEach(k => {
+    const n = pool(k).length, b = d.best[k+'_'+lvl];
+    h += '<button class="sec" data-sec="'+k+'"'+(n?'':' disabled')+'>'
+      + '<span class="badge">'+SECS[k].badge+'</span>'
+      + '<span class="body"><span class="name">'+SECS[k].name+'</span><br><span class="meta">'+n+' أسئلة</span></span>'
+      + (b!=null ? '<span class="best">أفضل نتيجة '+b+'%</span>' : '')
+      + '</button>';
+  });
+  h += '<div class="note"><b>TOPIK I</b> (المستويان 1–2) يقابل تقريبًا A1–A2.<br><b>TOPIK II</b> (المستويات 3–6) يبدأ من B1 تقريبًا.</div>';
+  app.innerHTML = h;
+  app.querySelectorAll('[data-lvl]').forEach(b => b.onclick = () => { lvl = +b.dataset.lvl; home(); });
+  app.querySelectorAll('[data-sec]').forEach(b => b.onclick = () => start(b.dataset.sec, shuffle(pool(b.dataset.sec))));
+}
+
+/* ---------- الاختبار ---------- */
+function start(sec, list){
+  S = {sec, list, i:0, score:0, wrong:[], done:false};
+  question();
+}
+function question(){
+  const q = S.list[S.i], total = S.list.length;
+  const opts = shuffle(q.opts.map((t,i)=>({t, ok:i===q.ans})));
+  S.cur = {q, opts, answered:false};
+  let h = '<header class="top"><button class="back" id="back" aria-label="رجوع">→</button><h1>'+SECS[S.sec].name+'</h1></header>';
+  h += '<div class="qmeta"><span>السؤال '+(S.i+1)+' من '+total+'</span><span>'+LVL_LABEL[q.lvl]+'</span></div>';
+  h += '<div class="bar"><i style="width:'+(S.i/total*100)+'%"></i></div>';
+  h += '<div class="card"><p class="instr">'+SECS[S.sec].hint+'</p>';
+  if(S.sec==='listening'){
+    h += '<button class="play" id="p1">🔊 استمع</button><button class="play slow" id="p2">🐢 أبطأ</button>';
+  }
+  if(q.passage) h += '<div class="passage"><span class="ko">'+q.passage+'</span></div>';
+  if(q.q) h += '<p class="q"><span class="ko">'+q.q+'</span></p>';
+  h += '</div><div id="opts">';
+  opts.forEach((o,i) => { h += '<button class="opt" data-i="'+i+'"><span class="ko">'+o.t+'</span></button>'; });
+  h += '</div><div id="fb"></div>';
+  app.innerHTML = h;
+  document.getElementById('back').onclick = () => { if(speechSynthesis) speechSynthesis.cancel(); home(); };
+  if(S.sec==='listening'){
+    document.getElementById('p1').onclick = () => play(q.id, q.tts, 1);
+    document.getElementById('p2').onclick = () => play(q.id, q.tts, 0.65);
+  }
+  app.querySelectorAll('.opt').forEach(b => b.onclick = () => answer(+b.dataset.i));
+}
+function answer(i){
+  const c = S.cur; if(c.answered) return; c.answered = true;
+  const q = c.q, ok = c.opts[i].ok;
+  if(ok) S.score++; else S.wrong.push(q);
+  app.querySelectorAll('.opt').forEach((b,k) => { b.disabled = true; if(c.opts[k].ok) b.classList.add('ok'); else if(k===i) b.classList.add('no'); });
+  let h = '<div class="fb '+(ok?'ok':'no')+'"><b>'+(ok?'إجابة صحيحة 🐯':'إجابة غير صحيحة')+'</b>'+q.why+'</div>';
+  if(q.tr || q.script){
+    h += '<div class="script">';
+    if(q.script) h += '<span class="ko">'+q.script+'</span>';
+    if(q.tr) h += '<small>'+q.tr+'</small>';
+    h += '</div>';
+  }
+  const last = S.i === S.list.length-1;
+  h += '<div style="height:12px"></div><button class="btn" id="next">'+(last?'عرض النتيجة':'السؤال التالي')+'</button>';
+  document.getElementById('fb').innerHTML = h;
+  document.getElementById('next').onclick = () => { if(last) finish(); else { S.i++; question(); } };
+}
+function finish(){
+  if(speechSynthesis) speechSynthesis.cancel();
+  const total = S.list.length, pct = Math.round(S.score/total*100);
+  const d = load(), k = S.sec+'_'+lvl;
+  if(S.list.length === pool(S.sec).length && (d.best[k]==null || pct>d.best[k])) d.best[k] = pct;
+  save(d);
+  // ربط اختياري بنظام النقاط المشترك progress.js إن وُجد (غيّر الاسم حسب ملفك)
+  try{
+    const P = window.KoreanProgress;
+    if(P && typeof P.addPoints==='function' && S.score>0){
+      P.addPoints(S.score*5, 'topik:'+S.sec);
+    }
+  }catch(e){}
+  const msg = pct>=80 ? 'ممتاز! مستواك قوي هنا.' : pct>=50 ? 'جيد. راجع الأخطاء وأعد المحاولة.' : 'لا بأس، راجع الشرح وجرّب مرة ثانية.';
+  let h = '<header class="top"><span class="tiger">🐯</span><h1>النتيجة</h1></header>';
+  h += '<div class="card score"><div class="pct">'+pct+'%</div><div class="msg">'+S.score+' من '+total+'</div><div>'+msg+'</div></div>';
+  if(S.wrong.length) h += '<button class="btn" id="rev">راجع الأخطاء ('+S.wrong.length+')</button>';
+  h += '<button class="btn alt" id="again">أعد الاختبار</button><button class="btn alt" id="home">الرئيسية</button>';
+  app.innerHTML = h;
+  const rev = document.getElementById('rev');
+  if(rev) rev.onclick = () => start(S.sec, shuffle(S.wrong));
+  document.getElementById('again').onclick = () => start(S.sec, shuffle(pool(S.sec)));
+  document.getElementById('home').onclick = home;
+}
+
+if('speechSynthesis' in window){ speechSynthesis.getVoices(); }
+home();
+</script>
+</body>
+</html>

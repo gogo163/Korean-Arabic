@@ -236,6 +236,15 @@
         <span class="node-badge">الخطوة 6</span>
       </div>
     </a>
+
+    <a href="advanced.html" class="path-node side-right big">
+      <div class="node-circle">🚀</div>
+      <div class="node-label">
+        <div class="title">المستوى المتقدم B1 – B2</div>
+        <div class="desc">23 درس قواعد بشرح عربي وأمثلة صوتية</div>
+        <span class="node-badge">الخطوة 7</span>
+      </div>
+    </a>
   </div>
 
   <div class="section-label">التميّز 🌟</div>
@@ -278,6 +287,22 @@
     <div class="info">
       <div class="title">اختبار السمع</div>
       <div class="desc">اسمع الكلمة واختار معناها أو اكتبها بالهانغول</div>
+    </div>
+    <div class="arrow">‹</div>
+  </a>
+  <a href="topik.html" class="menu-card">
+    <div class="emoji">🎓</div>
+    <div class="info">
+      <div class="title">اختبار TOPIK</div>
+      <div class="desc">قواعد وقراءة واستماع بنمط الامتحان — مع شرح بالعربي</div>
+    </div>
+    <div class="arrow">‹</div>
+  </a>
+  <a href="pronunciation.html" class="menu-card">
+    <div class="emoji">🎤</div>
+    <div class="info">
+      <div class="title">تدرّب على النطق</div>
+      <div class="desc">سجّل صوتك وقارنه بالنطق الأصلي — مع قواعد النطق الكورية</div>
     </div>
     <div class="arrow">‹</div>
   </a>
@@ -329,6 +354,7 @@
     "hangul.html": getDoneCount("korean_hangul_learned") >= 40,
     "grammar.html": getDoneCount("korean_grammar_completed") >= 7,
     "conversations.html": getDoneCount("korean_convo_completed") >= 4,
+    "advanced.html": getDoneCount("korean_advanced_completed") >= 23,
   };
   document.querySelectorAll(".path-node").forEach((node) => {
     const href = node.getAttribute("href");

@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>المستوى المتقدم B1 – B2 | KoreanArabic</title>
+<style>
+  :root{
+    --primary:#6C4CE0; --primary-light:#9B7FF0; --primary-dark:#4E33B8;
+    --accent:#FF6FA5; --gold:#FFB020; --bg:#F7F5FF; --card:#fff; --text:#2A2140;
+    --muted:#9992B5; --track:#E4DCFB; --ok:#3EBE7E; --ok-soft:#E3F6EC; --no:#E5484D; --no-soft:#FDE8E9;
+    --ko:"Noto Sans KR","Malgun Gothic","Apple SD Gothic Neo","Nanum Gothic",sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Tahoma','Segoe UI',sans-serif;background:linear-gradient(180deg,var(--bg),#ECE7FF);color:var(--text);min-height:100vh;
+       padding:16px;padding-top:calc(16px + env(safe-area-inset-top,0px));padding-bottom:calc(60px + env(safe-area-inset-bottom,0px));line-height:1.75}
+  .app{max-width:480px;margin:0 auto}
+  .ko{font-family:var(--ko);direction:ltr;unicode-bidi:isolate;display:inline-block}
+  .head{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+  .head a,.head button{background:#fff;border:0;border-radius:50%;width:38px;height:38px;font-size:18px;color:var(--primary);
+       box-shadow:0 3px 10px rgba(108,76,224,.1);text-decoration:none;display:grid;place-items:center;cursor:pointer;font-family:inherit}
+  .head h1{font-size:17px;color:var(--primary);flex:1}
+  .tabs{display:flex;gap:8px;margin-bottom:12px}
+  .tab{flex:1;border:2px solid var(--track);background:#fff;border-radius:14px;padding:10px;font:inherit;font-weight:bold;font-size:14px;color:var(--text);cursor:pointer}
+  .tab small{display:block;font-weight:normal;font-size:11px;color:var(--muted)}
+  .tab[aria-pressed="true"]{background:var(--primary);border-color:var(--primary);color:#fff}
+  .tab[aria-pressed="true"] small{color:#EAE3FF}
+  .bar{height:8px;background:var(--track);border-radius:99px;overflow:hidden;margin:4px 0 16px}
+  .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--primary-light),var(--primary));width:0;transition:width .3s}
+  .lead{font-size:12.5px;color:var(--muted);margin-bottom:12px}
+  .item{display:flex;align-items:center;gap:14px;width:100%;text-align:right;background:#fff;border:0;border-radius:18px;padding:13px 14px;margin-bottom:10px;
+        box-shadow:0 4px 14px rgba(108,76,224,.08);font:inherit;color:inherit;cursor:pointer}
+  .item:active{transform:scale(.98)}
+  .item .num{flex:0 0 auto;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;font-weight:bold;color:#fff;
+        background:linear-gradient(145deg,var(--primary-light),var(--primary));box-shadow:0 4px 0 var(--primary-dark)}
+  .item.done .num{background:linear-gradient(145deg,#7ED9A6,#3EBE7E);box-shadow:0 4px 0 #2A9463}
+  .item .info{flex:1;min-width:0}
+  .item .t{font-size:14px;font-weight:bold}
+  .item .d{font-size:11px;color:var(--muted)}
+  .item.review{border:2px solid var(--gold);background:linear-gradient(120deg,#FFF6E9,#FFE9CF)}
+  .item.review .num{background:linear-gradient(145deg,#FFC95C,var(--gold));box-shadow:0 4px 0 #D6900F}
+  .card{background:#fff;border-radius:18px;padding:16px;margin-bottom:12px;box-shadow:0 4px 14px rgba(108,76,224,.08)}
+  .card h2{font-size:13px;color:var(--primary);margin-bottom:8px}
+  .lvl{display:inline-block;font-size:10.5px;font-weight:bold;color:var(--primary);background:#EFE9FF;border-radius:10px;padding:2px 9px}
+  .title{font-size:22px;font-weight:bold;margin:6px 0 2px}
+  .sub{font-size:13px;color:var(--muted)}
+  .pat{background:#F1ECFF;border-radius:12px;padding:10px 12px;margin-bottom:6px}
+  .pat div{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:12.5px;padding:3px 0}
+  .pat .ko{font-size:16px;font-weight:bold;color:var(--primary-dark)}
+  .txt{font-size:14.5px}
+  .ex{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--track)}
+  .ex:last-child{border-bottom:0}
+  .ex .sp{flex:0 0 auto;width:38px;height:38px;border-radius:50%;border:0;background:var(--primary);color:#fff;font-size:16px;cursor:pointer}
+  .ex .body{flex:1;min-width:0}
+  .ex .k{font-size:18px;line-height:1.5}
+  .ex .a{font-size:12.5px;color:var(--muted)}
+  .tip{background:#FFF6E9;border:1.5px solid var(--gold);border-radius:12px;padding:10px 12px;font-size:13px;color:#7A5410}
+  .q{font-size:20px;line-height:1.6;margin-bottom:4px}
+  .hint{font-size:12.5px;color:var(--muted);margin-bottom:10px}
+  .opt{display:block;width:100%;text-align:right;background:#fff;border:2px solid var(--track);border-radius:12px;padding:12px 14px;margin-bottom:8px;font:inherit;font-size:17px;color:var(--text);cursor:pointer}
+  .opt.ok{background:var(--ok-soft);border-color:var(--ok)}
+  .opt.no{background:var(--no-soft);border-color:var(--no)}
+  .fb{border-radius:12px;padding:10px 12px;margin:8px 0;font-size:13.5px}
+  .fb.ok{background:var(--ok-soft);color:#14583a}.fb.no{background:var(--no-soft);color:#8a1d21}
+  .btn{display:block;width:100%;border:0;border-radius:14px;padding:13px;font:inherit;font-size:15px;font-weight:bold;cursor:pointer;color:#fff;
+       background:linear-gradient(120deg,var(--primary),var(--primary-light));margin-top:8px;box-shadow:0 4px 12px rgba(108,76,224,.25)}
+  .btn.alt{background:#fff;color:var(--primary);box-shadow:none;border:2px solid var(--track)}
+  .score{text-align:center}.score .pct{font-size:52px;font-weight:bold;color:var(--primary);line-height:1.2}
+  button:focus-visible,a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+</style>
+</head>
+<body>
+<div class="app" id="app"></div>
+
+<script src="progress.js"></script>
+<script>
+/* =====================================================================
+   بيانات الدروس — لإضافة درس جديد انسخ أي كائن وغيّر محتواه
+   id: معرّف فريد | lvl: B1 أو B2
+   pattern: صفوف [وصف بالعربي، الصيغة بالكورية]
+   examples: [الجملة الكورية، الترجمة]
+   q: سؤال التدريب (opts أول خيار = الصحيح، يتم خلطها تلقائيًا)
+   صوت اختياري: audio/advanced/<id>_<رقم المثال>.wav  (مثال: b1_01_1.wav)
+   ===================================================================== */
+const LESSONS = [
+/* ============================ B1 ============================ */
+{id:'b1_01',lvl:'B1',title:'-(으)려면 / -(으)려고',sub:'الغرض والنية',
+ pattern:[['فعل ينتهي بحرف علة','-려면 / -려고'],['فعل ينتهي بحرف ساكن','-으려면 / -으려고']],
+ explain:'-(으)려고 = «لكي / بقصد أن» وبعدها ما فعلتَه لتحقيق الهدف.<br>-(으)려면 = «إذا أردتَ أن ...» وبعدها غالبًا نصيحة أو شرط مثل -아야/어야 해요 (يجب).',
+ examples:[['한국어를 잘하려면 매일 연습해야 해요.','إذا أردتَ أن تتقن الكورية فعليك التدرّب يوميًا.'],['친구를 만나려고 서울에 갔어요.','ذهبتُ إلى سيول لكي أقابل صديقًا.'],['드라마를 이해하려고 한국어를 배워요.','أتعلّم الكورية لكي أفهم الدراما.']],
+ tip:'-(으)려고 لا يأتي بعدها أمر (-세요) ولا اقتراح (-(으)ㄹ까요) في الجملة الثانية.',
+ q:{q:'한국에 ( ) 비행기 표를 사야 해요.',hint:'المعنى: إذا أردتَ الذهاب إلى كوريا يجب أن تشتري تذكرة طيران.',opts:['가려면','가는데','갔지만','가면서'],why:'-(으)려면 = «إذا أردتَ ...» وجوابها -아야/어야 해요 (يجب).'}},
+
+{id:'b1_02',lvl:'B1',title:'-(으)니까 / -아서·어서',sub:'الفرق بين أداتَي السبب',
+ pattern:[['سبب عام (لا أمر بعده)','-아서 / -어서'],['سبب يقبل الأمر والاقتراح','-(으)니까']],
+ explain:'كلاهما يعني «لأن / لذلك»، لكن:<br>• -아서/어서 لا يقبل بعده أمرًا ولا اقتراحًا.<br>• -(으)니까 يقبل الأمر والاقتراح، ويُستخدم لسبب تراه واضحًا أو شخصيًا.',
+ examples:[['늦었으니까 택시를 타세요.','بما أنكم تأخرتم، خذوا تاكسي. (أمر)'],['늦어서 택시를 탔어요.','تأخرتُ فركبتُ تاكسي. (خبر)'],['시간이 없으니까 빨리 가요.','لا يوجد وقت، فلنذهب بسرعة. (اقتراح)']],
+ tip:'قاعدة سريعة: إذا كانت الجملة الثانية أمرًا أو اقتراحًا ← استخدم -(으)니까.',
+ q:{q:'비가 많이 ( ) 집에 계세요.',hint:'المعنى: بما أن المطر غزير، ابقَ في البيت.',opts:['오니까','와서','오지만','오고'],why:'الجملة الثانية أمر (계세요) فنستخدم -(으)니까، ولا يصح -아서/어서 هنا.'}},
+
+{id:'b1_03',lvl:'B1',title:'-(으)ㄴ/는데도',sub:'«رغم أنّ ...»',
+ pattern:[['فعل (حاضر)','-는데도'],['صفة','-(으)ㄴ데도'],['الماضي','-았/었는데도']],
+ explain:'تعني «رغم أنّ ...» وتكون النتيجة بعدها عكس المتوقع.',
+ examples:[['밥을 많이 먹었는데도 배가 고파요.','رغم أنني أكلتُ كثيرًا ما زلتُ جائعًا.'],['비가 오는데도 사람들이 많아요.','رغم المطر، الناس كثيرون.'],['열심히 했는데도 결과가 안 좋았어요.','رغم اجتهادي لم تكن النتيجة جيدة.']],
+ tip:'الفرق عن -지만: في -는데도 شعور بالدهشة وأن النتيجة غير متوقعة.',
+ q:{q:'약을 먹었는데도 아직 ( ).',hint:'المعنى: رغم أنني تناولتُ الدواء ما زلتُ ...',opts:['아파요','나았어요','좋아졌어요','괜찮아요'],why:'-는데도 تتطلب نتيجة عكس المتوقع: رغم الدواء ما زال مريضًا (아프다).'}},
+
+{id:'b1_04',lvl:'B1',title:'-(으)ㄴ 지 ... 되다',sub:'المدة التي مرّت منذ فعل ما',
+ pattern:[['الصيغة','-(으)ㄴ 지 + مدة + 이/가 되다']],
+ explain:'للتعبير عن المدة التي مرّت منذ حدوث فعل. تأتي المدة بعد 지 مع 이/가، ثم 되다 أو 지나다 أو 넘다.',
+ examples:[['한국에 온 지 삼 개월이 됐어요.','مرّت ثلاثة أشهر منذ أن جئتُ إلى كوريا.'],['이 일을 시작한 지 오래됐어요.','مرّ وقت طويل منذ أن بدأتُ هذا العمل.'],['친구를 만난 지 일 년이 넘었어요.','مرّ أكثر من سنة منذ أن قابلتُ صديقي.']],
+ tip:'الفعل قبل 지 يأتي بصيغة -(으)ㄴ دائمًا (온 지، 만난 지، 먹은 지).',
+ q:{q:'이 노래를 들은 ( ) 한 시간이 됐어요.',hint:'المعنى: مرّت ساعة منذ أن سمعتُ هذه الأغنية.',opts:['지','데','때','후'],why:'النمط: -(으)ㄴ 지 + مدة + 됐어요.'}},
+
+{id:'b1_05',lvl:'B1',title:'덕분에 / 때문에 / 탓에',sub:'ثلاث طرق لقول «بسبب»',
+ pattern:[['بفضل (إيجابي)','덕분에'],['بسبب (محايد)','때문에'],['بسبب (لوم، سلبي)','탓에']],
+ explain:'كلها تعني «بسبب» لكن الشعور يختلف:<br>• 덕분에: نتيجة جيدة بفضل شخص أو شيء.<br>• 때문에: سبب محايد.<br>• 탓에: نتيجة سيئة مع لوم.',
+ examples:[['선생님 덕분에 시험에 합격했어요.','بفضل المعلم نجحتُ في الامتحان.'],['비 때문에 경기가 취소됐어요.','أُلغيت المباراة بسبب المطر.'],['늦잠을 잔 탓에 지각했어요.','تأخرتُ لأنني نمتُ كثيرًا (وهذا خطئي).']],
+ tip:'مع 때문에 لا يأتي أمر أو اقتراح في الجملة التالية.',
+ q:{q:'أي تعبير يُستخدم للسبب الإيجابي («بفضل»)؟',hint:'',opts:['덕분에','탓에','때문에','대신에'],why:'덕분에 = بفضل. 탓에 للّوم، 때문에 محايدة، 대신에 = بدلًا من.'}},
+
+{id:'b1_06',lvl:'B1',title:'-(으)ㄹ 것 같다',sub:'التخمين: «يبدو أنّ / أظنّ أنّ»',
+ pattern:[['مستقبل / توقع','-(으)ㄹ 것 같다'],['فعل (حاضر)','-는 것 같다'],['صفة (حاضر)','-(으)ㄴ 것 같다'],['فعل (ماضي)','-(으)ㄴ 것 같다']],
+ explain:'للتخمين بناءً على ما تراه أو تسمعه. تُستخدم أيضًا لتخفيف حدّة الرأي بأدب.',
+ examples:[['내일 비가 올 것 같아요.','يبدو أنها ستمطر غدًا.'],['그 사람은 지금 자는 것 같아요.','يبدو أنه نائم الآن.'],['이 음식은 맛있는 것 같아요.','أظنّ أن هذا الطعام لذيذ.'],['어제 비가 온 것 같아요.','يبدو أنها أمطرت أمس.']],
+ tip:'للأدب: 저는 이게 더 좋은 것 같아요 = أظنّ أن هذا أفضل (أسلوب مهذّب).',
+ q:{q:'하늘이 어두운 걸 보니 곧 비가 ( ).',hint:'المعنى: بما أن السماء مظلمة يبدو أنها ستمطر قريبًا.',opts:['올 것 같아요','왔어요','오고 있었어요','왔을 거예요'],why:'كلمة 곧 (قريبًا) تدل على المستقبل فنستخدم -(으)ㄹ 것 같다.'}},
+
+{id:'b1_07',lvl:'B1',title:'-게 되다 / -기로 하다',sub:'«صار» و«قرّرتُ»',
+ pattern:[['صار / أصبح (ظروف خارجية)','-게 되다'],['قرّرتُ أن (قرار شخصي)','-기로 하다']],
+ explain:'• -게 되다 = «صار الأمر أن ...» وهو تغيّر حدث بفعل الظروف.<br>• -기로 하다 = «قرّرتُ أن ...» وهو قرار اتخذتَه بنفسك.',
+ examples:[['서울로 이사하게 됐어요.','صرتُ سأنتقل إلى سيول. (الظروف فرضت ذلك)'],['내년에 결혼하기로 했어요.','قرّرنا أن نتزوج العام القادم.'],['담배를 끊기로 했어요.','قرّرتُ أن أقلع عن التدخين.'],['한국어를 좋아하게 됐어요.','صرتُ أحب الكورية.']],
+ tip:'-게 되다 تُقال غالبًا بصيغة الماضي (됐어요) لأنها تصف تغيّرًا حدث.',
+ q:{q:'다음 달에 부산으로 출장을 가( ) 됐어요.',hint:'المعنى: صرتُ سأسافر في رحلة عمل إلى بوسان الشهر القادم.',opts:['게','기로','려고','는데'],why:'-게 됐어요 = صار الأمر أن ... (بفعل ظروف العمل).'}},
+
+{id:'b1_08',lvl:'B1',title:'-(으)ㄴ 끝에 / -다가',sub:'«بعد جهد طويل» و«بينما كنتُ»',
+ pattern:[['بعد جهد أو تفكير','-(으)ㄴ 끝에'],['بينما / ثم انتقل','-다가']],
+ explain:'• -(으)ㄴ 끝에 = «بعد ... طويل، وفي النهاية».<br>• -다가 = «بينما كنتُ أفعل ... حدث ...» أو التحول من فعل إلى آخر.',
+ examples:[['고민한 끝에 회사를 그만뒀어요.','بعد تفكير طويل تركتُ الشركة.'],['오랜 노력 끝에 성공했어요.','نجحتُ بعد جهد طويل.'],['영화를 보다가 잠들었어요.','نمتُ بينما كنتُ أشاهد الفيلم.'],['길을 가다가 친구를 만났어요.','بينما كنتُ أمشي في الطريق قابلتُ صديقًا.']],
+ tip:'في -다가 يكون فاعل الجملتين غالبًا هو نفسه.',
+ q:{q:'길을 가다가 지갑을 ( ).',hint:'المعنى: بينما كنتُ أمشي في الطريق أضعتُ محفظتي.',opts:['잃어버렸어요','잃어버릴 거예요','잃어버리고 싶어요','잃어버려요'],why:'الحدث وقع وانتهى فنستخدم الماضي: 잃어버렸어요.'}},
+
+{id:'b1_09',lvl:'B1',title:'الكلام غير المباشر',sub:'نقل كلام الآخرين',
+ pattern:[['خبر','-(ㄴ/는)다고 하다'],['أمر','-(으)라고 하다'],['اقتراح','-자고 하다'],['سؤال','-(느)냐고 하다']],
+ explain:'لنقل كلام شخص آخر. الفعل الأخير غالبًا 하다 أو 말하다 (قال) أو 묻다 (سأل).',
+ examples:[['친구가 내일 바쁘다고 했어요.','قال صديقي إنه مشغول غدًا. (خبر)'],['선생님이 숙제를 하라고 했어요.','طلب المعلم أن نؤدي الواجب. (أمر)'],['동생이 영화를 보자고 했어요.','اقترح أخي أن نشاهد فيلمًا. (اقتراح)'],['친구가 어디에 가냐고 물었어요.','سألني صديقي إلى أين أذهب. (سؤال)']],
+ tip:'مع الصفة: 바쁘다고. مع الفعل: 간다고. مع الاسم: 학생이라고.',
+ q:{q:'선생님이 학생들에게 조용히 ( ) 했어요.',hint:'المعنى: طلب المعلم من الطلاب أن يلتزموا الهدوء.',opts:['하라고','한다고','하자고','하냐고'],why:'طلب المعلم أمرٌ، فنستخدم -(으)라고 하다.'}},
+
+{id:'b1_10',lvl:'B1',title:'المبني للمجهول',sub:'열리다 · 닫히다 · 보이다 · 들리다',
+ pattern:[['من الفعل إلى المجهول','-이 / -히 / -리 / -기'],['صيغة عامة','-아/어지다']],
+ explain:'بعض الأفعال لها صيغة مبنية للمجهول، ويصير الشيء نفسه هو الفاعل:<br>열다 ← 열리다، 닫다 ← 닫히다، 보다 ← 보이다، 듣다 ← 들리다.',
+ examples:[['문이 열렸어요.','انفتح الباب.'],['창문이 닫혔어요.','أُغلقت النافذة.'],['저기 산이 보여요.','يُرى الجبل هناك.'],['음악 소리가 들려요.','يُسمع صوت الموسيقى.']],
+ tip:'-아/어지다 تحوّل الصفة إلى تغيّر: 예뻐지다 = يصبح جميلًا.',
+ q:{q:'저기 산이 ( ).',hint:'المعنى: يُرى الجبل هناك.',opts:['보여요','봐요','보고 싶어요','보겠어요'],why:'보이다 هو المبني للمجهول من 보다، والجبل هو الفاعل فتقول 산이 보여요.'}},
+
+/* ============================ B2 ============================ */
+{id:'b2_01',lvl:'B2',title:'-는 바람에',sub:'سبب مفاجئ ونتيجة سلبية',
+ pattern:[['الصيغة','فعل + -는 바람에']],
+ explain:'«بسبب (حدث مفاجئ) ...» وتعبّر عن نتيجة سلبية غير مخطط لها. الجملة الثانية غالبًا في الماضي ولا تقبل الأمر ولا الاقتراح.',
+ examples:[['길이 막히는 바람에 약속에 늦었어요.','بسبب ازدحام الطريق تأخرتُ عن الموعد.'],['갑자기 비가 오는 바람에 소풍을 취소했어요.','بسبب المطر المفاجئ ألغينا الرحلة.'],['넘어지는 바람에 다리를 다쳤어요.','سقطتُ فأُصيبت ساقي.']],
+ tip:'لا تُستخدم للنتائج الإيجابية؛ للإيجابي استخدم 덕분에.',
+ q:{q:'늦잠을 자는 ( ) 회의에 늦었어요.',hint:'المعنى: بسبب أنني نمتُ كثيرًا تأخرتُ عن الاجتماع.',opts:['바람에','덕분에','대신에','동안'],why:'-는 바람에 تعبّر عن سبب يؤدي إلى نتيجة سلبية.'}},
+
+{id:'b2_02',lvl:'B2',title:'-(으)ㄹ 뻔하다',sub:'«كاد أن ...»',
+ pattern:[['الصيغة','فعل + -(으)ㄹ 뻔했다']],
+ explain:'«كاد أن ...» لشيء كان على وشك الحدوث لكنه لم يحدث. تأتي دائمًا بصيغة الماضي، وكثيرًا مع 하마터면 (لولا ... لحدث).',
+ examples:[['넘어질 뻔했어요.','كدتُ أسقط.'],['버스를 놓칠 뻔했어요.','كاد الباص أن يفوتني.'],['시험에 떨어질 뻔했어요.','كدتُ أرسب في الامتحان.']],
+ tip:'الحدث لم يقع فعلًا؛ المعنى أنك نجوت منه.',
+ q:{q:'하마터면 지갑을 잃어버릴 ( ).',hint:'المعنى: كدتُ أضيّع محفظتي.',opts:['뻔했어요','것 같아요','때문이에요','수 없어요'],why:'-(으)ㄹ 뻔했다 = كاد أن ... وتأتي مع 하마터면.'}},
+
+{id:'b2_03',lvl:'B2',title:'-(으)ㄹ 수밖에 없다',sub:'«لا مفرّ من ...»',
+ pattern:[['الصيغة','فعل + -(으)ㄹ 수밖에 없다']],
+ explain:'«لا خيار سوى ...» أو «من الطبيعي أن ...». شكلها منفي (없다) لكن معناها إثبات: لا بدّ أن يحدث.',
+ examples:[['비가 와서 집에 있을 수밖에 없어요.','المطر ينهمر فلا خيار سوى البقاء في البيت.'],['길이 막혀서 늦을 수밖에 없었어요.','الطريق مزدحم فلم يكن مفرّ من التأخر.'],['그렇게 놀면 성적이 나쁠 수밖에 없지요.','إذا لعبتَ هكذا فمن الطبيعي أن تكون درجاتك سيئة.']],
+ tip:'لا تخلطها مع -(으)ㄹ 수 없다 التي تعني «لا أستطيع».',
+ q:{q:'돈이 없어서 걸어갈 ( ).',hint:'المعنى: لا أملك مالًا فلا خيار سوى المشي.',opts:['수밖에 없어요','필요가 없어요','것 같아요','뻔했어요'],why:'-(으)ㄹ 수밖에 없다 = لا خيار سوى ...'}},
+
+{id:'b2_04',lvl:'B2',title:'대신에',sub:'«بدلًا من» و«في المقابل»',
+ pattern:[['مع اسم','اسم + 대신(에)'],['مع فعل','فعل + -는 대신(에)']],
+ explain:'• «بدلًا من» (استبدال شيء بآخر).<br>• «في المقابل / مقابل» (تعويض).',
+ examples:[['커피 대신에 차를 마셨어요.','شربتُ شايًا بدلًا من القهوة.'],['주말에 일하는 대신에 평일에 쉬어요.','أعمل في عطلة نهاية الأسبوع وفي المقابل أرتاح في أيام الأسبوع.'],['제가 요리하는 대신 당신이 설거지하세요.','أنا أطبخ وأنتَ تغسل الصحون في المقابل.']],
+ tip:'يمكن حذف 에؛ فـ 대신 وحدها كافية.',
+ q:{q:'고기 ( ) 생선을 먹었어요.',hint:'المعنى: أكلتُ سمكًا بدلًا من اللحم.',opts:['대신에','때문에','처럼','만큼'],why:'대신에 = بدلًا من.'}},
+
+{id:'b2_05',lvl:'B2',title:'-(으)ㄹ 만하다',sub:'«يستحق ...»',
+ pattern:[['الصيغة','فعل + -(으)ㄹ 만하다']],
+ explain:'«يستحق أن ...» أو «لا بأس به»، أي أن الشيء جدير بأن نفعله أو مقبول.',
+ examples:[['이 영화는 볼 만해요.','هذا الفيلم يستحق المشاهدة.'],['서울은 한 번쯤 가 볼 만한 도시예요.','سيول مدينة تستحق الزيارة مرة واحدة على الأقل.'],['이 식당 음식은 먹을 만해요.','طعام هذا المطعم مقبول.']],
+ tip:'حسب السياق قد تعني «يستحق» أو «لا بأس به».',
+ q:{q:'이 책은 읽을 ( ).',hint:'المعنى: هذا الكتاب يستحق القراءة.',opts:['만해요','뻔해요','수밖에 없어요','바람에'],why:'-(으)ㄹ 만하다 = يستحق ...'}},
+
+{id:'b2_06',lvl:'B2',title:'-(느)ㄴ다면',sub:'الافتراض: «لو ...»',
+ pattern:[['فعل','-(느)ㄴ다면'],['صفة','-다면'],['اسم','(이)라면']],
+ explain:'«لو / إن كان ...» لافتراض حالة غير مؤكدة أو خيالية، وهي أقوى في الافتراض من -(으)면.',
+ examples:[['시간이 있다면 여행을 가고 싶어요.','لو كان عندي وقت لأردتُ أن أسافر.'],['내가 새라면 하늘을 날아다닐 거예요.','لو كنتُ طائرًا لحلّقتُ في السماء.'],['복권에 당첨된다면 집을 살 거예요.','لو فزتُ باليانصيب لاشتريتُ بيتًا.']],
+ tip:'-(으)면 للشرط العادي، و-(느)ㄴ다면 للافتراض والخيال.',
+ q:{q:'내가 부자( ) 세계 여행을 할 거예요.',hint:'المعنى: لو كنتُ ثريًا لسافرتُ حول العالم.',opts:['라면','라서','니까','지만'],why:'مع الاسم نستخدم (이)라면 للافتراض: 부자라면 = لو كنتُ ثريًا.'}},
+
+{id:'b2_07',lvl:'B2',title:'-(으)ㄴ/는 척하다',sub:'«يتظاهر بـ ...»',
+ pattern:[['فعل (حاضر)','-는 척하다'],['صفة / فعل (ماضي)','-(으)ㄴ 척하다']],
+ explain:'«يتظاهر بـ ...»، أي يفعل شيئًا ليبدو كأنه كذلك وهو ليس كذلك.',
+ examples:[['친구가 화난 척했어요.','تظاهر صديقي بالغضب.'],['자는 척하고 있었어요.','كنتُ أتظاهر بالنوم.'],['아픈 척하지 마세요.','لا تتظاهر بالمرض.']],
+ tip:'-는 척 للفعل في الحاضر، و-(으)ㄴ 척 للصفة أو للفعل في الماضي.',
+ q:{q:'그 사람은 바쁜 ( ) 하면서 도와주지 않았어요.',hint:'المعنى: تظاهر بأنه مشغول ولم يساعد.',opts:['척','뻔','만','바람에'],why:'-(으)ㄴ 척하다 = يتظاهر بـ ...'}},
+
+{id:'b2_08',lvl:'B2',title:'السببية (الجعل)',sub:'먹이다 · 재우다 · -게 하다',
+ pattern:[['أفعال خاصة','-이 / -히 / -리 / -기 / -우'],['صيغة عامة','-게 하다']],
+ explain:'عندما يجعل الفاعل شخصًا آخر يفعل:<br>먹다 ← 먹이다 (يُطعم)، 자다 ← 재우다 (يُنيم)، 읽다 ← 읽히다 (يجعله يقرأ).<br>وأما -게 하다 فتصلح لمعظم الأفعال.',
+ examples:[['엄마가 아기에게 우유를 먹였어요.','أطعمت الأمُّ الطفلَ الحليب.'],['아이를 재웠어요.','أنمتُ الطفل.'],['선생님이 학생들에게 책을 읽게 했어요.','جعل المعلم الطلابَ يقرؤون الكتاب.']],
+ tip:'الأفعال الخاصة (-이/히/리/기/우) تُحفظ فرادى، أما -게 하다 فقاعدة عامة.',
+ q:{q:'엄마가 아기에게 우유를 ( ).',hint:'المعنى: أطعمت الأمُّ الطفلَ الحليب.',opts:['먹였어요','먹었어요','먹고 싶어요','먹을 뻔했어요'],why:'먹이다 = يُطعم (سببية من 먹다)، فالأم هي من جعلت الطفل يشرب.'}},
+
+{id:'b2_09',lvl:'B2',title:'-(으)ㄴ/는 데다가',sub:'«بالإضافة إلى ذلك»',
+ pattern:[['فعل','-는 데다가'],['صفة','-(으)ㄴ 데다가']],
+ explain:'«فوق ذلك / بالإضافة إلى ...» تجمع حالتين من نفس النوع: إيجابيتين أو سلبيتين.',
+ examples:[['이 식당은 맛있는 데다가 값도 싸요.','هذا المطعم لذيذ وفوق ذلك رخيص.'],['길이 막히는 데다가 비까지 왔어요.','الطريق مزدحم وفوق ذلك هطل المطر.'],['그 사람은 똑똑한 데다가 성격도 좋아요.','هو ذكي وفوق ذلك طيب الطباع.']],
+ tip:'لا تجمع بها شيئًا إيجابيًا وآخر سلبيًا.',
+ q:{q:'맛있는 ( ) 값도 싸요.',hint:'المعنى: لذيذ وفوق ذلك رخيص.',opts:['데다가','바람에','척','뻔'],why:'-(으)ㄴ/는 데다가 = بالإضافة إلى ذلك.'}},
+
+{id:'b2_10',lvl:'B2',title:'-뿐만 아니라 / -은/는 물론',sub:'«ليس فقط ... بل أيضًا»',
+ pattern:[['اسم','-뿐만 아니라 ... -도'],['اسم (أكثر رسمية)','-은/는 물론 ... -도']],
+ explain:'«ليس ... فقط بل ... أيضًا». نذكر الأول ثم نضيف الثاني مع 도 (أيضًا).',
+ examples:[['이 식당은 맛뿐만 아니라 분위기도 좋아요.','هذا المطعم ليس لذيذًا فقط بل أجواؤه جميلة أيضًا.'],['그는 영어는 물론 중국어도 잘해요.','يتقن الإنجليزية ناهيك عن الصينية.'],['그 가수는 노래뿐만 아니라 춤도 잘 춰요.','ذلك المغني يغني جيدًا ويرقص جيدًا أيضًا.']],
+ tip:'الجزء الثاني يأتي غالبًا مع 도 (أيضًا).',
+ q:{q:'그 가수는 노래( ) 춤도 잘 춰요.',hint:'المعنى: ليس الغناء فقط بل الرقص أيضًا.',opts:['뿐만 아니라','때문에','동안','밖에'],why:'N뿐만 아니라 N도 = ليس ... فقط بل ... أيضًا.'}},
+
+{id:'b2_11',lvl:'B2',title:'-(으)ㄹ까 봐 / -(으)ㄹ지도 모르다',sub:'«خوفًا من أن» و«ربما»',
+ pattern:[['قلق أو خوف','-(으)ㄹ까 봐'],['احتمال','-(으)ㄹ지도 모르다']],
+ explain:'-(으)ㄹ까 봐 = «خوفًا من أن / تحسّبًا لأن» وبعدها ما فعلتَه احتياطًا أو شعورك.<br>-(으)ㄹ지도 모르다 = «ربما / قد».',
+ examples:[['늦을까 봐 택시를 탔어요.','ركبتُ سيارة أجرة خوفًا من التأخر.'],['시험에 떨어질까 봐 걱정돼요.','أخشى أن أرسب في الامتحان.'],['내일은 비가 올지도 몰라요.','ربما تمطر غدًا.']],
+ tip:'للماضي: -았/었을까 봐 و-았/었을지도 몰라요.',
+ q:{q:'친구가 기다릴( ) 빨리 갔어요.',hint:'المعنى: ذهبتُ بسرعة خوفًا من أن ينتظرني صديقي.',opts:['까 봐','지만','면서','도록'],why:'-(으)ㄹ까 봐 = خوفًا من أن ...'}},
+
+{id:'b2_12',lvl:'B2',title:'-(으)ㄹ수록 / -는 대로',sub:'«كلما» و«كما» و«فور أن»',
+ pattern:[['تزايد','-(으)ㄹ수록'],['كما / فور أن','-(으)ㄴ/는 대로']],
+ explain:'-(으)ㄹ수록 = «كلما ... ازداد ...».<br>-(으)ㄴ 대로 = «كما / حسب ما ...»، و-는 대로 = «فور أن ...».',
+ examples:[['한국어는 공부할수록 재미있어요.','كلما درستُ الكورية ازدادت متعة.'],['제가 말한 대로 하세요.','افعل كما قلتُ لك.'],['한국에 도착하는 대로 연락할게요.','سأتصل بك فور وصولي إلى كوريا.']],
+ tip:'مع الاسم تُكتب ملتصقة: 계획대로 (حسب الخطة).',
+ q:{q:'알면 ( ) 더 어려워요.',hint:'المعنى: كلما عرفتَ أكثر ازدادت صعوبة.',opts:['알수록','알려고','알다가','알게'],why:'알면 알수록 = كلما عرفتَ أكثر.'}},
+
+{id:'b2_13',lvl:'B2',title:'-(으)ㄴ 채로',sub:'«وهو على حالته»',
+ pattern:[['فعل (ماضٍ)','-(으)ㄴ 채로']],
+ explain:'«وهو على حالته»: حالة الفعل الأول تستمر بينما يحدث الفعل الثاني.',
+ examples:[['불을 켠 채로 잠이 들었어요.','نمتُ والضوء مضاء.'],['신발을 신은 채로 들어왔어요.','دخل وهو لابس الحذاء.'],['창문을 연 채로 외출했어요.','خرجتُ والنافذة مفتوحة.']],
+ tip:'الفعل الأول دائمًا بصيغة الماضي (-(으)ㄴ).',
+ q:{q:'창문을 ( ) 채로 잤어요.',hint:'المعنى: نمتُ والنافذة مفتوحة.',opts:['연','여는','열고','열려고'],why:'-(으)ㄴ 채로 = وهو على حالته. 열다 ← 연 (تُحذف الـ ㄹ).'}}
+];
+
+/* ---------- أدوات ---------- */
+const DONE_KEY='korean_advanced_completed';
+function getDone(){ try{ return JSON.parse(localStorage.getItem(DONE_KEY))||[]; }catch(e){ return []; } }
+function markDone(id){
+  const d=getDone(); if(d.indexOf(id)>-1) return;
+  d.push(id);
+  try{ localStorage.setItem(DONE_KEY, JSON.stringify(d)); }catch(e){}
+  try{ if(window.KoreanProgress) KoreanProgress.completeLesson('adv_'+id, 10); }catch(e){}
+}
+function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+/* لف أي نص كوري داخل الشرح بوسم يحافظ على اتجاهه */
+const K='\\u1100-\\u11FF\\u3130-\\u318F\\uAC00-\\uD7AF';
+const RX=new RegExp('([\\-~]?(?:['+K+']|\\(['+K+']+\\))(?:['+K+']|\\(['+K+']+\\)|[\\-~/ ](?=[\\-~(]?['+K+']))*)','g');
+function ko(s){ return String(s).replace(RX,'<span class="ko">$1</span>'); }
+
+/* ---------- الصوت: ملف WAV ثم صوت المتصفح ---------- */
+function speak(text){
+  if(!('speechSynthesis' in window)) return;
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text); u.lang='ko-KR'; u.rate=0.9;
+  const v=speechSynthesis.getVoices().find(x=>x.lang&&x.lang.replace('_','-').toLowerCase().indexOf('ko')===0);
+  if(v) u.voice=v; speechSynthesis.speak(u);
+}
+function play(file,text){
+  let fell=false; const fb=()=>{ if(!fell){ fell=true; speak(text); } };
+  try{ const a=new Audio('audio/advanced/'+file+'.wav'); a.onerror=fb; const p=a.play(); if(p&&p.catch) p.catch(fb); }catch(e){ fb(); }
+}
+
+/* ---------- الشاشات ---------- */
+const app=document.getElementById('app');
+let lv='B1';
+
+function list(){
+  const done=getDone();
+  const all=LESSONS.filter(l=>l.lvl===lv);
+  const n=all.filter(l=>done.indexOf(l.id)>-1).length;
+  let h='<div class="head"><a href="index.html" aria-label="رجوع">→</a><h1>المستوى المتقدم</h1></div>';
+  h+='<div class="tabs" role="group" aria-label="المستوى">';
+  ['B1','B2'].forEach(x=>{
+    const t=LESSONS.filter(l=>l.lvl===x), d=t.filter(l=>done.indexOf(l.id)>-1).length;
+    h+='<button class="tab" data-lv="'+x+'" aria-pressed="'+(lv===x)+'">'+x+' — '+(x==='B1'?'متوسط':'فوق المتوسط')+'<small>'+d+' / '+t.length+' درس</small></button>';
+  });
+  h+='</div><div class="bar"><i style="width:'+(n/all.length*100)+'%"></i></div>';
+  h+='<p class="lead">كل درس: شرح بالعربي، أمثلة بصوت، وتمرين. أكمل التمرين صح لتتسجل نقاطك.</p>';
+  all.forEach((l,i)=>{
+    const dn=done.indexOf(l.id)>-1;
+    h+='<button class="item'+(dn?' done':'')+'" data-id="'+l.id+'"><span class="num">'+(dn?'✓':(i+1))+'</span><span class="info"><div class="t">'+ko(l.title)+'</div><div class="d">'+l.sub+'</div></span></button>';
+  });
+  h+='<button class="item review" data-review="1"><span class="num">🏆</span><span class="info"><div class="t">مراجعة شاملة '+lv+'</div><div class="d">'+all.length+' أسئلة من كل دروس المستوى</div></span></button>';
+  app.innerHTML=h;
+  app.querySelectorAll('[data-lv]').forEach(b=>b.onclick=()=>{ lv=b.dataset.lv; list(); });
+  app.querySelectorAll('[data-id]').forEach(b=>b.onclick=()=>lesson(b.dataset.id));
+  app.querySelector('[data-review]').onclick=()=>review(all);
+}
+
+function lesson(id){
+  const L=LESSONS.find(x=>x.id===id);
+  const idx=LESSONS.filter(x=>x.lvl===L.lvl).findIndex(x=>x.id===id);
+  let h='<div class="head"><button id="back" aria-label="رجوع">→</button><h1>'+L.lvl+' · الدرس '+(idx+1)+'</h1></div>';
+  h+='<div class="card"><span class="lvl">'+L.lvl+'</span><div class="title">'+ko(L.title)+'</div><div class="sub">'+L.sub+'</div></div>';
+  h+='<div class="card"><h2>الصيغة</h2><div class="pat">'+L.pattern.map(r=>'<div><span>'+r[0]+'</span><span class="ko">'+r[1]+'</span></div>').join('')+'</div></div>';
+  h+='<div class="card"><h2>الشرح</h2><div class="txt">'+ko(L.explain)+'</div></div>';
+  h+='<div class="card"><h2>أمثلة</h2>'+L.examples.map((e,i)=>'<div class="ex"><button class="sp" data-f="'+L.id+'_'+(i+1)+'" data-t="'+e[0]+'" aria-label="استمع">🔊</button><div class="body"><div class="k"><span class="ko">'+e[0]+'</span></div><div class="a">'+e[1]+'</div></div></div>').join('')+'</div>';
+  h+='<div class="tip">💡 '+ko(L.tip)+'</div><div style="height:12px"></div>';
+  h+='<div class="card" id="prac"></div><div id="after"></div>';
+  app.innerHTML=h;
+  window.scrollTo(0,0);
+  document.getElementById('back').onclick=()=>{ if(window.speechSynthesis) speechSynthesis.cancel(); list(); };
+  app.querySelectorAll('.sp').forEach(b=>b.onclick=()=>play(b.dataset.f,b.dataset.t));
+  practice(L);
+}
+
+function qHtml(q){
+  return '<div class="q" dir="auto">'+ko(q.q)+'</div>'+(q.hint?'<div class="hint">'+q.hint+'</div>':'');
+}
+function practice(L){
+  const q=L.q, opts=shuffle(q.opts.map((t,i)=>({t:t,ok:i===0})));
+  let h='<h2>تمرين</h2>'+qHtml(q)+opts.map((o,i)=>'<button class="opt" data-i="'+i+'"><span class="ko">'+o.t+'</span></button>').join('')+'<div id="fb"></div>';
+  document.getElementById('prac').innerHTML=h;
+  document.getElementById('after').innerHTML='';
+  app.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{
+    const i=+b.dataset.i, ok=opts[i].ok;
+    app.querySelectorAll('.opt').forEach((x,k)=>{ x.disabled=true; if(opts[k].ok) x.classList.add('ok'); else if(k===i) x.classList.add('no'); });
+    document.getElementById('fb').innerHTML='<div class="fb '+(ok?'ok':'no')+'"><b>'+(ok?'إجابة صحيحة 🎉':'إجابة غير صحيحة')+'</b><br>'+ko(q.why)+'</div>';
+    let a='';
+    if(ok){
+      markDone(L.id);
+      const same=LESSONS.filter(x=>x.lvl===L.lvl), ni=same.findIndex(x=>x.id===L.id)+1;
+      if(ni<same.length) a+='<button class="btn" id="nx">الدرس التالي</button>';
+      a+='<button class="btn alt" id="ls">قائمة الدروس</button>';
+    }else{
+      a+='<button class="btn" id="rt">جرّب مرة ثانية</button><button class="btn alt" id="ls">قائمة الدروس</button>';
+    }
+    document.getElementById('after').innerHTML=a;
+    const nx=document.getElementById('nx'); if(nx) nx.onclick=()=>{ const same=LESSONS.filter(x=>x.lvl===L.lvl); lesson(same[same.findIndex(x=>x.id===L.id)+1].id); };
+    const rt=document.getElementById('rt'); if(rt) rt.onclick=()=>practice(L);
+    document.getElementById('ls').onclick=list;
+  });
+}
+
+/* ---------- المراجعة الشاملة ---------- */
+let R=null;
+function review(all){
+  R={list:shuffle(all),i:0,score:0};
+  rq();
+}
+function rq(){
+  const L=R.list[R.i], q=L.q, total=R.list.length;
+  const opts=shuffle(q.opts.map((t,i)=>({t:t,ok:i===0})));
+  let h='<div class="head"><button id="back" aria-label="رجوع">→</button><h1>مراجعة '+lv+'</h1></div>';
+  h+='<div class="sub">السؤال '+(R.i+1)+' من '+total+'</div><div class="bar"><i style="width:'+(R.i/total*100)+'%"></i></div>';
+  h+='<div class="card">'+qHtml(q)+opts.map((o,i)=>'<button class="opt" data-i="'+i+'"><span class="ko">'+o.t+'</span></button>').join('')+'<div id="fb"></div></div><div id="after"></div>';
+  app.innerHTML=h;
+  document.getElementById('back').onclick=list;
+  app.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{
+    const i=+b.dataset.i, ok=opts[i].ok; if(ok) R.score++;
+    app.querySelectorAll('.opt').forEach((x,k)=>{ x.disabled=true; if(opts[k].ok) x.classList.add('ok'); else if(k===i) x.classList.add('no'); });
+    document.getElementById('fb').innerHTML='<div class="fb '+(ok?'ok':'no')+'"><b>'+(ok?'صحيح 🎉':'غير صحيح')+'</b><br>'+ko(q.why)+'</div>';
+    const last=R.i===total-1;
+    document.getElementById('after').innerHTML='<button class="btn" id="nx">'+(last?'عرض النتيجة':'التالي')+'</button>';
+    document.getElementById('nx').onclick=()=>{ if(last) rend(); else { R.i++; rq(); } };
+  });
+}
+function rend(){
+  const total=R.list.length, pct=Math.round(R.score/total*100);
+  try{ if(window.KoreanProgress && R.score>0) KoreanProgress.addPoints(R.score*5,'advanced_review:'+lv); }catch(e){}
+  const msg=pct>=80?'ممتاز! أنت متمكّن من هذا المستوى.':pct>=50?'جيد، راجع الدروس اللي أخطأت فيها.':'راجع الدروس مرة ثانية وجرّب من جديد.';
+  app.innerHTML='<div class="head"><a href="index.html" aria-label="الرئيسية">→</a><h1>نتيجة المراجعة</h1></div><div class="card score"><div class="pct">'+pct+'%</div><div>'+R.score+' من '+total+'</div><p style="margin-top:6px">'+msg+'</p></div><button class="btn" id="again">أعد المراجعة</button><button class="btn alt" id="ls">قائمة الدروس</button>';
+  document.getElementById('again').onclick=()=>review(LESSONS.filter(l=>l.lvl===lv));
+  document.getElementById('ls').onclick=list;
+}
+
+if('speechSynthesis' in window){ speechSynthesis.getVoices(); }
+list();
+</script>
+</body>
+</html>
