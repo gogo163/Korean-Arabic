@@ -74,7 +74,7 @@ header.top h1{font-size:20px;margin:0;flex:1}
 /* =========================================================
    بيانات الأسئلة — لإضافة سؤال جديد انسخ أي كائن وعدّله
    lvl: 1 = TOPIK I (A1–A2)   |   lvl: 2 = TOPIK II (B1 وما فوق)
-   صوت اختياري للاستماع: ضع الملف في audio/topik/<id>.wav
+   صوت اختياري للاستماع: ضع الملف في audio/topic/<id>.wav
    وإن لم يوجد يُستخدم صوت المتصفح ko-KR تلقائيًا
    ========================================================= */
 const QUESTIONS = [
@@ -183,7 +183,7 @@ function play(id, text, rate, onFail){
     if(koVoiceOk()) speak(text, rate); else if(onFail) onFail();
   };
   try{
-    const a = new Audio('audio/topik/' + id + '.wav');
+    const a = new Audio('audio/topic/' + id + '.wav');
     a.playbackRate = rate;
     a.onerror = fallback;
     const p = a.play();
@@ -222,7 +222,7 @@ function home(){
   const leave = () => { stopSpeech(); location.href = 'index.html'; };
   document.getElementById('back-home').onclick = leave;
   const bb = document.getElementById('back-bottom'); if(bb) bb.onclick = leave;
-  const v = document.createElement('div'); v.className = 'ver'; v.textContent = 'إصدار الصفحة 2026-10-20'; app.appendChild(v);
+  const v = document.createElement('div'); v.className = 'ver'; v.textContent = 'إصدار الصفحة 2026-10-20 (صوت: audio/topic)'; app.appendChild(v);
   app.querySelectorAll('[data-lvl]').forEach(b => b.onclick = () => { lvl = +b.dataset.lvl; home(); });
   app.querySelectorAll('[data-sec]').forEach(b => b.onclick = () => start(b.dataset.sec, shuffle(pool(b.dataset.sec))));
 }
